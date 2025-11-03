@@ -809,10 +809,10 @@ const HiringForm = ({ darkMode = false }) => {
                       color: 'transparent',
                     }}
                   >
-                    Professional Hiring Form
+                 Hiring Form
                   </Typography>
                   
-                  {hasUnsavedData && (
+                  {/* {hasUnsavedData && (
                     <Fade in={hasUnsavedData}>
                       <Alert 
                         severity="info" 
@@ -829,7 +829,7 @@ const HiringForm = ({ darkMode = false }) => {
                         Your progress is automatically saved
                       </Alert>
                     </Fade>
-                  )}
+                  )} */}
                 </Box>
               </Fade>
               

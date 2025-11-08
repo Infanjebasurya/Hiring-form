@@ -10,7 +10,7 @@ import {
   FormHelperText,
   InputAdornment,
   useMediaQuery,
-  Typography  // Added this import
+  Typography
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -84,6 +84,27 @@ const PersonalInfo = ({
     handleBlur?.(field);
   };
 
+  // Helper function to get requirement text for each field
+  const getRequirementText = (fieldName) => {
+    const requirements = {
+      firstName: 'Required, max 50 characters',
+      lastName: 'Required, max 50 characters',
+      jobTitle: 'Required, select from list',
+      email: 'Required, valid email format',
+      contactNumber: 'Required, valid phone number',
+      location: 'Optional, max 100 characters',
+      linkedin: 'Required, valid LinkedIn URL',
+      portfolio: 'Optional, valid URL format',
+      website: 'Optional, valid URL format'
+    };
+    return requirements[fieldName] || '';
+  };
+
+  // Helper function to check if field has requirement error
+  const hasRequirementError = (fieldName) => {
+    return touched[fieldName] && errors[fieldName];
+  };
+
   return (
     <Fade in={true} timeout={500}>
       <Box sx={{ mt: { xs: 1, sm: 2, md: 3 } }}>
@@ -107,7 +128,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('firstName', e.target.value)}
               onBlur={() => handleFieldBlur('firstName')}
               error={!!errors.firstName && touched.firstName}
-              helperText={touched.firstName ? errors.firstName : ''}
+              helperText={
+                touched.firstName && errors.firstName 
+                  ? errors.firstName 
+                  : getRequirementText('firstName')
+              }
               variant="outlined"
               size={isSmallMobile ? "small" : "medium"}
               inputProps={{
@@ -120,6 +145,10 @@ const PersonalInfo = ({
                 '& .MuiOutlinedInput-input': {
                   fontSize: isSmallMobile ? '0.875rem' : '1rem',
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
+                },
+                '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('firstName') ? 'error.main' : 'text.secondary',
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
             />
@@ -134,7 +163,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('lastName', e.target.value)}
               onBlur={() => handleFieldBlur('lastName')}
               error={!!errors.lastName && touched.lastName}
-              helperText={touched.lastName ? errors.lastName : ''}
+              helperText={
+                touched.lastName && errors.lastName 
+                  ? errors.lastName 
+                  : getRequirementText('lastName')
+              }
               variant="outlined"
               size={isSmallMobile ? "small" : "medium"}
               inputProps={{
@@ -147,6 +180,10 @@ const PersonalInfo = ({
                 '& .MuiOutlinedInput-input': {
                   fontSize: isSmallMobile ? '0.875rem' : '1rem',
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
+                },
+                '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('lastName') ? 'error.main' : 'text.secondary',
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
             />
@@ -257,11 +294,14 @@ const PersonalInfo = ({
                   </MenuItem>
                 ))}
               </Select>
-              {errors.jobTitle && touched.jobTitle && (
-                <FormHelperText error sx={{ fontSize: isSmallMobile ? '0.75rem' : '0.875rem' }}>
-                  {errors.jobTitle}
-                </FormHelperText>
-              )}
+              <FormHelperText 
+                sx={{ 
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem',
+                  color: hasRequirementError('jobTitle') ? 'error.main' : 'text.secondary'
+                }}
+              >
+                {errors.jobTitle && touched.jobTitle ? errors.jobTitle : getRequirementText('jobTitle')}
+              </FormHelperText>
             </FormControl>
           </Grid>
 
@@ -277,7 +317,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('email', e.target.value)}
               onBlur={() => handleFieldBlur('email')}
               error={!!errors.email && touched.email}
-              helperText={touched.email ? errors.email : ''}
+              helperText={
+                touched.email && errors.email 
+                  ? errors.email 
+                  : getRequirementText('email')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -298,6 +342,10 @@ const PersonalInfo = ({
                 '& .MuiOutlinedInput-input': {
                   fontSize: isSmallMobile ? '0.875rem' : '1rem',
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
+                },
+                '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('email') ? 'error.main' : 'text.secondary',
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
             />
@@ -313,7 +361,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('contactNumber', e.target.value)}
               onBlur={() => handleFieldBlur('contactNumber')}
               error={!!errors.contactNumber && touched.contactNumber}
-              helperText={touched.contactNumber ? errors.contactNumber : ''}
+              helperText={
+                touched.contactNumber && errors.contactNumber 
+                  ? errors.contactNumber 
+                  : getRequirementText('contactNumber')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -337,6 +389,10 @@ const PersonalInfo = ({
                 '& .MuiOutlinedInput-input': {
                   fontSize: isSmallMobile ? '0.875rem' : '1rem',
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
+                },
+                '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('contactNumber') ? 'error.main' : 'text.secondary',
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
             />
@@ -352,7 +408,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('location', e.target.value)}
               onBlur={() => handleFieldBlur('location')}
               error={!!errors.location && touched.location}
-              helperText={touched.location ? errors.location : ''}
+              helperText={
+                touched.location && errors.location 
+                  ? errors.location 
+                  : getRequirementText('location')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -376,6 +436,10 @@ const PersonalInfo = ({
                 '& .MuiOutlinedInput-input': {
                   fontSize: isSmallMobile ? '0.875rem' : '1rem',
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
+                },
+                '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('location') ? 'error.main' : 'text.secondary',
+                  fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
             />
@@ -392,7 +456,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('linkedin', e.target.value)}
               onBlur={() => handleFieldBlur('linkedin')}
               error={!!errors.linkedin && touched.linkedin}
-              helperText={touched.linkedin ? errors.linkedin : "Must be a valid LinkedIn URL (e.g., https://linkedin.com/in/yourprofile)"}
+              helperText={
+                touched.linkedin && errors.linkedin 
+                  ? errors.linkedin 
+                  : getRequirementText('linkedin')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -415,6 +483,7 @@ const PersonalInfo = ({
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
                 },
                 '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('linkedin') ? 'error.main' : 'text.secondary',
                   fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
@@ -431,7 +500,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('portfolio', e.target.value)}
               onBlur={() => handleFieldBlur('portfolio')}
               error={!!errors.portfolio && touched.portfolio}
-              helperText={touched.portfolio ? errors.portfolio : "Optional"}
+              helperText={
+                touched.portfolio && errors.portfolio 
+                  ? errors.portfolio 
+                  : getRequirementText('portfolio')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -454,6 +527,7 @@ const PersonalInfo = ({
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
                 },
                 '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('portfolio') ? 'error.main' : 'text.secondary',
                   fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}
@@ -469,7 +543,11 @@ const PersonalInfo = ({
               onChange={(e) => handleFieldChange('website', e.target.value)}
               onBlur={() => handleFieldBlur('website')}
               error={!!errors.website && touched.website}
-              helperText={touched.website ? errors.website : "Optional"}
+              helperText={
+                touched.website && errors.website 
+                  ? errors.website 
+                  : getRequirementText('website')
+              }
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -492,6 +570,7 @@ const PersonalInfo = ({
                   padding: isSmallMobile ? '10px 14px' : '16.5px 14px'
                 },
                 '& .MuiFormHelperText-root': {
+                  color: hasRequirementError('website') ? 'error.main' : 'text.secondary',
                   fontSize: isSmallMobile ? '0.7rem' : '0.75rem'
                 }
               }}

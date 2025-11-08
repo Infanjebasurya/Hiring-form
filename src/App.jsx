@@ -8,6 +8,7 @@ import Sidebar from './components/Layout/Sidebar/Sidebar';
 import MainContent from './components/MainContent/MainContent';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import ForgotPassword from './components/Auth/ForgotPassword';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 const getTheme = (mode) => createTheme({
@@ -123,6 +124,10 @@ function AppContent() {
         <Route 
           path="/register" 
           element={user ? <Navigate to="/" /> : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+        />
+        <Route 
+          path="/forgot-password" 
+          element={user ? <Navigate to="/" /> : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         <Route 
           path="/" 

@@ -100,6 +100,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      // Simulate API call for password reset
+      const response = await new Promise((resolve, reject) => 
+        setTimeout(() => {
+          if (email) {
+            resolve({
+              data: {
+                success: true,
+                message: 'Password reset instructions sent to your email'
+              }
+            });
+          } else {
+            reject(new Error('Email is required'));
+          }
+        }, 1500)
+      );
+
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      return { success: false, error: error.message || 'Failed to send reset email' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('token');
@@ -110,6 +134,7 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     register,
+    resetPassword,
     logout,
     loading
   };

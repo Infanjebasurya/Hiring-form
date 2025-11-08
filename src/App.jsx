@@ -1,14 +1,23 @@
+// src/App.jsx
 import React, { useState, useMemo, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Layout/Sidebar/Sidebar';
 import MainContent from './components/MainContent/MainContent';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 const getTheme = (mode) => createTheme({
   palette: {
     mode,
     primary: {
-      main: '#6366F1',
+      main: mode === 'dark' ? '#6366F1' : '#667eea',
+    },
+    secondary: {
+      main: mode === 'dark' ? '#818cf8' : '#5568d3',
     },
     ...(mode === 'dark' ? {
       background: {
@@ -41,20 +50,46 @@ const getTheme = (mode) => createTheme({
         },
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiInputLabel-root': {
+            color: mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+          },
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+            },
+            '&:hover fieldset': {
+              borderColor: mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: mode === 'dark' ? '#6366F1' : '#667eea',
+            },
+          },
+        },
+      },
+    },
   },
 });
 
-function App() {
+function AppContent() {
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  // Check if device is mobile
+  const { user } = useAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light'), [darkMode]);
 
-  // Auto-collapse sidebar on mobile
   useEffect(() => {
     if (isMobile) {
       setIsSidebarCollapsed(true);
@@ -80,23 +115,51 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        <Sidebar 
-          darkMode={darkMode} 
-          onToggleTheme={handleToggleTheme}
-          isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
-          onToggleSidebar={handleToggleSidebar}
-          mobileOpen={mobileOpen}
-          onMobileClose={handleMobileDrawerClose}
-          isMobile={isMobile}
+      <Routes>
+        <Route 
+          path="/login" 
+          element={user ? <Navigate to="/" /> : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
-        
-        <MainContent 
-          darkMode={darkMode} 
-          isSidebarCollapsed={isSidebarCollapsed}
+        <Route 
+          path="/register" 
+          element={user ? <Navigate to="/" /> : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
-      </Box>
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Box sx={{ display: 'flex' }}>
+                <Sidebar 
+                  darkMode={darkMode} 
+                  onToggleTheme={handleToggleTheme}
+                  isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
+                  onToggleSidebar={handleToggleSidebar}
+                  mobileOpen={mobileOpen}
+                  onMobileClose={handleMobileDrawerClose}
+                  isMobile={isMobile}
+                />
+                
+                <MainContent 
+                  darkMode={darkMode} 
+                  isSidebarCollapsed={isSidebarCollapsed}
+                />
+              </Box>
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 

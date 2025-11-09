@@ -9,8 +9,10 @@ import {
   SwipeableDrawer,
   ListItemIcon,
   ListItemText,
-  MenuItem,  
-  Typography
+  MenuItem,
+  Avatar,
+  Typography,
+  Badge
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -21,6 +23,7 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import SidebarHeader from './SidebarHeader';
 import MenuSection from './MenuSection';
 import ProgressBar from '../../Common/ProgressBar';
@@ -55,19 +58,22 @@ const Sidebar = ({
 
   const handleNewChat = () => {
     console.log('New chat clicked');
+    navigate('/chat/new');
     if (isMobile) onMobileClose();
   };
 
   const handleSearchClick = () => {
     console.log('Search clicked');
+    navigate('/search');
   };
 
   const handleUpgrade = () => {
     console.log('Upgrade clicked');
+    navigate('/upgrade');
   };
 
   const handleSettings = () => {
-    console.log('Settings clicked');
+    navigate('/settings');
     if (isMobile) onMobileClose();
   };
 
@@ -93,7 +99,8 @@ const Sidebar = ({
       overflow: 'hidden',
       width: '100%',
       margin: 0,
-      padding: 0
+      padding: 0,
+      bgcolor: 'background.default'
     }}>
       <SidebarHeader
         darkMode={darkMode}
@@ -134,8 +141,8 @@ const Sidebar = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'flex-start',
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
-                  color: (theme) => theme.palette.mode === 'dark' ? 'black' : 'white',
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
                   borderRadius: 2,
                   py: 1.2,
                   px: 2,
@@ -151,7 +158,7 @@ const Sidebar = ({
                     outline: 'none',
                   },
                   '&:hover': {
-                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                    bgcolor: 'primary.dark',
                     transform: 'translateY(-1px)',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
                   },
@@ -168,8 +175,8 @@ const Sidebar = ({
                   sx={{
                     width: '100%',
                     height: 44,
-                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
-                    color: (theme) => theme.palette.mode === 'dark' ? 'black' : 'white',
+                    bgcolor: 'primary.main',
+                    color: 'primary.contrastText',
                     borderRadius: 2,
                     margin: 0,
                     outline: 'none',
@@ -181,7 +188,7 @@ const Sidebar = ({
                       outline: 'none',
                     },
                     '&:hover': {
-                      bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                      bgcolor: 'primary.dark',
                       transform: 'translateY(-1px)',
                     },
                     transition: 'all 0.2s ease-in-out',
@@ -198,8 +205,8 @@ const Sidebar = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'flex-start',
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
-                  color: (theme) => theme.palette.mode === 'dark' ? 'black' : 'white',
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
                   borderRadius: 2,
                   py: 1.2,
                   px: 2,
@@ -215,7 +222,7 @@ const Sidebar = ({
                     outline: 'none',
                   },
                   '&:hover': {
-                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                    bgcolor: 'primary.dark',
                     transform: 'translateY(-1px)',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
                   },
@@ -233,7 +240,7 @@ const Sidebar = ({
                 <IconButton
                   onClick={handleSearchClick}
                   sx={{
-                    color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
+                    color: 'text.primary',
                     borderRadius: 2,
                     width: 44,
                     height: 44,
@@ -247,8 +254,8 @@ const Sidebar = ({
                       outline: 'none',
                     },
                     '&:hover': {
-                      color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
-                      bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      color: 'primary.main',
+                      bgcolor: 'action.hover',
                       transform: 'translateY(-1px)',
                     },
                     transition: 'all 0.2s ease-in-out',
@@ -311,8 +318,8 @@ const Sidebar = ({
                   width: '100%',
                   height: 44,
                   mb: 1,
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black',
-                  color: (theme) => theme.palette.mode === 'dark' ? 'black' : 'white',
+                  bgcolor: 'secondary.main',
+                  color: 'secondary.contrastText',
                   borderRadius: 2,
                   margin: 0,
                   outline: 'none',
@@ -324,7 +331,7 @@ const Sidebar = ({
                     outline: 'none',
                   },
                   '&:hover': {
-                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                    bgcolor: 'secondary.dark',
                     transform: 'translateY(-1px)',
                   },
                   transition: 'all 0.2s ease-in-out',
@@ -369,7 +376,7 @@ const Sidebar = ({
                     outline: 'none',
                   },
                   '&:hover': {
-                    color: 'text.primary',
+                    color: 'primary.main',
                     bgcolor: 'action.hover'
                   }
                 }}
@@ -397,7 +404,7 @@ const Sidebar = ({
                       outline: 'none',
                     },
                     '&:hover': {
-                      color: 'text.primary',
+                      color: 'primary.main',
                       bgcolor: 'action.hover'
                     }
                   }}
@@ -424,7 +431,7 @@ const Sidebar = ({
                     outline: 'none',
                   },
                   '&:hover': {
-                    color: 'text.primary',
+                    color: 'primary.main',
                     bgcolor: 'action.hover'
                   }
                 }}
@@ -523,7 +530,7 @@ const Sidebar = ({
               </MenuItem>
             )}
 
-            {/* Collapse/Expand Sidebar Icon - Now visible for both desktop and mobile */}
+            {/* Collapse/Expand Sidebar Icon */}
             <Box sx={{ 
               display: 'flex', 
               justifyContent: 'flex-end',

@@ -10,6 +10,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import Settings from './components/Layout/Settings/Settings';
 
 const getTheme = (mode) => createTheme({
   palette: {
@@ -81,6 +82,33 @@ const getTheme = (mode) => createTheme({
   },
 });
 
+// Layout component to avoid code duplication
+function AppLayout({ 
+  children, 
+  darkMode, 
+  isSidebarCollapsed, 
+  onToggleTheme, 
+  onToggleSidebar, 
+  mobileOpen, 
+  onMobileClose, 
+  isMobile 
+}) {
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <Sidebar 
+        darkMode={darkMode} 
+        onToggleTheme={onToggleTheme}
+        isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
+        onToggleSidebar={onToggleSidebar}
+        mobileOpen={mobileOpen}
+        onMobileClose={onMobileClose}
+        isMobile={isMobile}
+      />
+      {children}
+    </Box>
+  );
+}
+
 function AppContent() {
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -113,10 +141,22 @@ function AppContent() {
     setMobileOpen(false);
   };
 
+  // Common layout props
+  const layoutProps = {
+    darkMode,
+    isSidebarCollapsed,
+    onToggleTheme: handleToggleTheme,
+    onToggleSidebar: handleToggleSidebar,
+    mobileOpen,
+    onMobileClose: handleMobileDrawerClose,
+    isMobile
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
+        {/* Public Routes */}
         <Route 
           path="/login" 
           element={user ? <Navigate to="/" /> : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
@@ -129,29 +169,37 @@ function AppContent() {
           path="/forgot-password" 
           element={user ? <Navigate to="/" /> : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
+        
+        {/* Protected Routes */}
         <Route 
           path="/" 
           element={
             <ProtectedRoute>
-              <Box sx={{ display: 'flex' }}>
-                <Sidebar 
-                  darkMode={darkMode} 
-                  onToggleTheme={handleToggleTheme}
-                  isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
-                  onToggleSidebar={handleToggleSidebar}
-                  mobileOpen={mobileOpen}
-                  onMobileClose={handleMobileDrawerClose}
-                  isMobile={isMobile}
-                />
-                
+              <AppLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </Box>
+              </AppLayout>
             </ProtectedRoute>
           } 
         />
+        
+        <Route 
+          path="/settings" 
+          element={
+            <ProtectedRoute>
+              <AppLayout {...layoutProps}>
+                <Settings 
+                  darkMode={darkMode} 
+                  isSidebarCollapsed={isSidebarCollapsed}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </ThemeProvider>

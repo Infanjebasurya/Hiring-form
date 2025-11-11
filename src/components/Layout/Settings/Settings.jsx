@@ -14,6 +14,12 @@ import {
   useTheme,
   useMediaQuery,
   Divider,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -27,6 +33,9 @@ import {
   LocationOn,
   Person,
   Lock,
+  CheckCircle,
+  Cancel,
+  Send,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -42,12 +51,21 @@ const Settings = ({ isSidebarCollapsed }) => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [verificationDialog, setVerificationDialog] = useState({
+    open: false,
+    email: '',
+    type: '', // 'personal' or 'company'
+    verificationCode: '',
+  });
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
 
   // Initialize profile state with user data
   const [profileData, setProfileData] = useState({
     // Company Information
     companyName: '',
     companyEmail: '',
+    companyEmailVerified: false,
     companyWebsite: '',
     linkedinUrl: '',
     currentRole: '',
@@ -56,6 +74,7 @@ const Settings = ({ isSidebarCollapsed }) => {
     // Personal Information
     name: '',
     email: '',
+    emailVerified: false,
     phone: '',
     address: '',
     
@@ -68,14 +87,14 @@ const Settings = ({ isSidebarCollapsed }) => {
   // Load user data when component mounts or user changes
   useEffect(() => {
     if (user) {
-      // You might want to fetch complete user profile data from your backend here
-      // For now, we'll use the available user data and set defaults
       setProfileData(prev => ({
         ...prev,
         name: user.name || '',
         email: user.email || '',
+        emailVerified: user.emailVerified || false,
         companyName: user.company || '',
-        // Add other fields as needed
+        companyEmail: user.companyEmail || '',
+        companyEmailVerified: user.companyEmailVerified || false,
       }));
     }
   }, [user]);
@@ -85,6 +104,113 @@ const Settings = ({ isSidebarCollapsed }) => {
       ...prev,
       [field]: value
     }));
+
+    // Reset verification status if email is changed
+    if (field === 'email' && value !== user?.email) {
+      setProfileData(prev => ({
+        ...prev,
+        emailVerified: false
+      }));
+    }
+    if (field === 'companyEmail' && value !== user?.companyEmail) {
+      setProfileData(prev => ({
+        ...prev,
+        companyEmailVerified: false
+      }));
+    }
+  };
+
+  // Send verification email
+  const sendVerificationEmail = async (email, type) => {
+    if (!email) {
+      alert('Please enter an email address first');
+      return false;
+    }
+
+    setIsSendingCode(true);
+    try {
+      // Simulate API call to send verification email
+      console.log(`Sending verification email to ${email} for ${type}`);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In real app, this would be an API call
+      // await api.sendVerificationEmail(email, type);
+      
+      setVerificationDialog({
+        open: true,
+        email: email,
+        type: type,
+        verificationCode: '',
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error sending verification email:', error);
+      alert('Failed to send verification email. Please try again.');
+      return false;
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  // Verify email with code
+  const verifyEmail = async () => {
+    const { email, type, verificationCode } = verificationDialog;
+    
+    if (!verificationCode) {
+      alert('Please enter the verification code');
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      // Simulate API call to verify email
+      console.log(`Verifying ${type} email ${email} with code: ${verificationCode}`);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In real app, this would be an API call
+      // await api.verifyEmail(email, verificationCode, type);
+      
+      // Update verification status
+      if (type === 'personal') {
+        setProfileData(prev => ({
+          ...prev,
+          emailVerified: true
+        }));
+        
+        // Update user context/local storage
+        if (user) {
+          const updatedUser = { ...user, emailVerified: true };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+      } else if (type === 'company') {
+        setProfileData(prev => ({
+          ...prev,
+          companyEmailVerified: true
+        }));
+        
+        // Update user context/local storage
+        if (user) {
+          const updatedUser = { ...user, companyEmailVerified: true };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+      }
+      
+      setVerificationDialog(prev => ({ ...prev, open: false, verificationCode: '' }));
+      alert('Email verified successfully!');
+      
+    } catch (error) {
+      console.error('Error verifying email:', error);
+      alert('Invalid verification code. Please try again.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // Resend verification code
+  const resendVerificationCode = async () => {
+    const { email, type } = verificationDialog;
+    await sendVerificationEmail(email, type);
   };
 
   const handleSave = async () => {
@@ -94,24 +220,36 @@ const Settings = ({ isSidebarCollapsed }) => {
       return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (profileData.email && !emailRegex.test(profileData.email)) {
+      alert('Please enter a valid personal email address');
+      return;
+    }
+    if (profileData.companyEmail && !emailRegex.test(profileData.companyEmail)) {
+      alert('Please enter a valid company email address');
+      return;
+    }
+
     try {
       // Simulate API call to save settings
-      // In a real app, you would make an API call to update the user profile
       console.log('Saving profile:', profileData);
       
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
       
-      // Update local storage with new data (in real app, this would be handled by backend)
+      // Update local storage with new data
       if (user) {
         const updatedUser = {
           ...user,
           name: profileData.name,
           email: profileData.email,
+          emailVerified: profileData.email === user.email ? profileData.emailVerified : false,
           company: profileData.companyName,
+          companyEmail: profileData.companyEmail,
+          companyEmailVerified: profileData.companyEmail === user.companyEmail ? profileData.companyEmailVerified : false,
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
@@ -131,6 +269,48 @@ const Settings = ({ isSidebarCollapsed }) => {
       bgcolor: theme.palette.mode === 'dark' ? 'background.default' : 'grey.50',
       transition: 'all 0.3s ease',
     }
+  };
+
+  // Function to render verification status with action button
+  const renderVerificationStatus = (isVerified, email, type) => {
+    if (!email) return null;
+
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
+        <Chip
+          icon={isVerified ? 
+            <CheckCircle fontSize="small" /> : 
+            <Cancel fontSize="small" />
+          }
+          label={isVerified ? "Verified" : "Not Verified"}
+          size="small"
+          variant="outlined"
+          color={isVerified ? "success" : "error"}
+          sx={{
+            height: 24,
+            '& .MuiChip-icon': {
+              fontSize: '16px'
+            }
+          }}
+        />
+        {!isVerified && (
+          <Button
+            size="small"
+            startIcon={isSendingCode ? <CircularProgress size={14} /> : <Send />}
+            onClick={() => sendVerificationEmail(email, type)}
+            disabled={isSendingCode}
+            sx={{
+              minWidth: 'auto',
+              textTransform: 'none',
+              fontSize: '0.75rem',
+              height: 24,
+            }}
+          >
+            Verify
+          </Button>
+        )}
+      </Box>
+    );
   };
 
   return (
@@ -278,22 +458,29 @@ const Settings = ({ isSidebarCollapsed }) => {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Company Email"
-                      type="email"
-                      value={profileData.companyEmail}
-                      onChange={(e) => handleInputChange('companyEmail', e.target.value)}
-                      size="small"
-                      sx={textFieldStyles}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Email fontSize="small" sx={{ color: iconColor }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <TextField
+                        fullWidth
+                        label="Company Email"
+                        type="email"
+                        value={profileData.companyEmail}
+                        onChange={(e) => handleInputChange('companyEmail', e.target.value)}
+                        size="small"
+                        sx={textFieldStyles}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email fontSize="small" sx={{ color: iconColor }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      {renderVerificationStatus(
+                        profileData.companyEmailVerified, 
+                        profileData.companyEmail, 
+                        'company'
+                      )}
+                    </Box>
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -412,22 +599,29 @@ const Settings = ({ isSidebarCollapsed }) => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Email Address"
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      size="small"
-                      sx={textFieldStyles}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Email fontSize="small" sx={{ color: iconColor }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <TextField
+                        fullWidth
+                        label="Email Address"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        size="small"
+                        sx={textFieldStyles}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email fontSize="small" sx={{ color: iconColor }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      {renderVerificationStatus(
+                        profileData.emailVerified, 
+                        profileData.email, 
+                        'personal'
+                      )}
+                    </Box>
                   </Grid>
                 </Grid>
               </Box>
@@ -569,7 +763,6 @@ const Settings = ({ isSidebarCollapsed }) => {
                   Manage your account preferences and notification settings.
                 </Typography>
                 
-                {/* You can add more preference settings here */}
                 <Button
                   variant="outlined"
                   sx={{
@@ -577,7 +770,6 @@ const Settings = ({ isSidebarCollapsed }) => {
                     textTransform: 'none'
                   }}
                   onClick={() => {
-                    // Add functionality for additional preferences
                     console.log('Open preferences settings');
                   }}
                 >
@@ -632,6 +824,58 @@ const Settings = ({ isSidebarCollapsed }) => {
           </Box>
         </Paper>
       </Container>
+
+      {/* Verification Code Dialog */}
+      <Dialog 
+        open={verificationDialog.open} 
+        onClose={() => !isVerifying && setVerificationDialog(prev => ({ ...prev, open: false }))}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Verify Email Address
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            We've sent a verification code to <strong>{verificationDialog.email}</strong>. 
+            Please enter the code below to verify your email address.
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Verification Code"
+            value={verificationDialog.verificationCode}
+            onChange={(e) => setVerificationDialog(prev => ({ 
+              ...prev, 
+              verificationCode: e.target.value 
+            }))}
+            disabled={isVerifying}
+            sx={{ mt: 2 }}
+          />
+          <Button 
+            onClick={resendVerificationCode}
+            disabled={isSendingCode}
+            sx={{ mt: 1, textTransform: 'none' }}
+          >
+            {isSendingCode ? 'Sending...' : 'Resend Code'}
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setVerificationDialog(prev => ({ ...prev, open: false }))}
+            disabled={isVerifying}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={verifyEmail}
+            variant="contained"
+            disabled={isVerifying || !verificationDialog.verificationCode}
+          >
+            {isVerifying ? <CircularProgress size={20} /> : 'Verify'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

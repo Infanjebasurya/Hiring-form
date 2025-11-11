@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useMemo, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -10,7 +10,12 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import AdminRoute from './components/Auth/AdminRoute';
 import Settings from './components/Layout/Settings/Settings';
+
+// Import from your actual admin folder structure
+import AdminLayout from './Admin/Layout/AdminLayout';
+import AdminDashboard from './Admin/AdminDashboard';
 
 const getTheme = (mode) => createTheme({
   palette: {
@@ -82,6 +87,64 @@ const getTheme = (mode) => createTheme({
   },
 });
 
+// Admin theme with different colors
+const getAdminTheme = (mode) => createTheme({
+  palette: {
+    mode,
+    primary: {
+      main: mode === 'dark' ? '#3498DB' : '#2980B9',
+    },
+    secondary: {
+      main: mode === 'dark' ? '#2ECC71' : '#27AE60',
+    },
+    ...(mode === 'dark' ? {
+      background: {
+        default: '#0C0F1A',
+        paper: '#1A2035',
+      },
+      text: {
+        primary: '#FFFFFF',
+        secondary: 'rgba(255, 255, 255, 0.7)',
+      },
+    } : {
+      background: {
+        default: '#F8F9FA',
+        paper: '#FFFFFF',
+      },
+      text: {
+        primary: '#2C3E50',
+        secondary: 'rgba(44, 62, 80, 0.6)',
+      },
+    }),
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  components: {
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+  },
+});
+
 // Layout component to avoid code duplication
 function AppLayout({ 
   children, 
@@ -109,12 +172,45 @@ function AppLayout({
   );
 }
 
-function AppContent() {
+// Admin App Content - Separate instance for admin panel
+function AdminAppContent() {
+  const [adminDarkMode, setAdminDarkMode] = useState(true); // Admin defaults to dark mode
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const adminTheme = useMemo(() => getAdminTheme(adminDarkMode ? 'dark' : 'light'), [adminDarkMode]);
+
+  const handleAdminToggleTheme = () => {
+    setAdminDarkMode(!adminDarkMode);
+  };
+
+  const handleAdminLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <ThemeProvider theme={adminTheme}>
+      <CssBaseline />
+      <AdminLayout 
+        darkMode={adminDarkMode} 
+        onToggleTheme={handleAdminToggleTheme}
+        onLogout={handleAdminLogout}
+        user={user}
+      >
+        <AdminDashboard darkMode={adminDarkMode} />
+      </AdminLayout>
+    </ThemeProvider>
+  );
+}
+
+// Main App Content - For regular users
+function MainAppContent() {
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light'), [darkMode]);
@@ -124,6 +220,13 @@ function AppContent() {
       setIsSidebarCollapsed(true);
     }
   }, [isMobile]);
+
+  // Redirect admin users to admin panel
+  useEffect(() => {
+    if (user && isAdmin && !window.location.pathname.startsWith('/admin')) {
+      navigate('/admin');
+    }
+  }, [user, isAdmin]);
 
   const handleToggleTheme = () => {
     setDarkMode(!darkMode);
@@ -159,22 +262,22 @@ function AppContent() {
         {/* Public Routes */}
         <Route 
           path="/login" 
-          element={user ? <Navigate to="/" /> : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         <Route 
           path="/register" 
-          element={user ? <Navigate to="/" /> : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         <Route 
           path="/forgot-password" 
-          element={user ? <Navigate to="/" /> : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         
-        {/* Protected Routes */}
+        {/* Protected Routes - Regular User Only */}
         <Route 
           path="/" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireUser={true}>
               <AppLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
@@ -188,7 +291,7 @@ function AppContent() {
         <Route 
           path="/settings" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireUser={true}>
               <AppLayout {...layoutProps}>
                 <Settings 
                   darkMode={darkMode} 
@@ -199,7 +302,7 @@ function AppContent() {
           } 
         />
         
-        {/* Catch all route */}
+        {/* Catch all route for regular users */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </ThemeProvider>
@@ -210,7 +313,20 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <Routes>
+          {/* Admin Routes - All admin routes under /admin/* */}
+          <Route 
+            path="/admin/*" 
+            element={
+              <AdminRoute>
+                <AdminAppContent />
+              </AdminRoute>
+            } 
+          />
+          
+          {/* Main App Routes */}
+          <Route path="*" element={<MainAppContent />} />
+        </Routes>
       </AuthProvider>
     </Router>
   );

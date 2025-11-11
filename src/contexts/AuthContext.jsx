@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
-    // Fix: Check if userData exists and is valid JSON
     if (token && userData && userData !== 'undefined') {
       try {
         setUser(JSON.parse(userData));
@@ -36,23 +35,65 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Simulate API call
+      // Simulate API call with admin/user detection
       const response = await new Promise((resolve, reject) => 
         setTimeout(() => {
           if (email && password) {
-            resolve({
-              data: {
-                token: 'mock-jwt-token',
-                user: {
-                  id: 1,
-                  email,
-                  name: 'User', // Added default name
-                  company: 'Example Corp'
+            // Admin credentials - FIXED
+            if (email === 'admin@talenthub.com' && password === 'admin@123') {
+              resolve({
+                data: {
+                  token: 'mock-admin-jwt-token',
+                  user: {
+                    id: 1,
+                    email: 'admin@talenthub.com',
+                    name: 'Admin',
+                    role: 'admin',
+                    company: 'TalentHub Admin',
+                    avatar: '/avatars/admin.png',
+                    permissions: ['all']
+                  }
                 }
-              }
-            });
+              });
+            }
+            // Demo user credentials
+            else if (email === 'user@talenthub.com' && password === 'user123') {
+              resolve({
+                data: {
+                  token: 'mock-user-jwt-token',
+                  user: {
+                    id: 2,
+                    email: 'user@talenthub.com',
+                    name: 'Demo User',
+                    role: 'user',
+                    company: 'Example Corp',
+                    avatar: '/avatars/user.png',
+                    permissions: ['read', 'write']
+                  }
+                }
+              });
+            }
+            // Regular user registration simulation
+            else if (email.includes('@') && password.length >= 6) {
+              resolve({
+                data: {
+                  token: 'mock-jwt-token',
+                  user: {
+                    id: Date.now(),
+                    email: email,
+                    name: email.split('@')[0],
+                    role: 'user',
+                    company: 'User Company',
+                    avatar: '/avatars/default.png',
+                    permissions: ['read', 'write']
+                  }
+                }
+              });
+            } else {
+              reject(new Error('Invalid credentials'));
+            }
           } else {
-            reject(new Error('Invalid credentials'));
+            reject(new Error('Email and password are required'));
           }
         }, 1000)
       );
@@ -69,7 +110,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      // Simulate API call
+      // Simulate API call - Always create regular users
       const response = await new Promise((resolve, reject) => 
         setTimeout(() => {
           if (userData.email && userData.password && userData.name) {
@@ -80,12 +121,15 @@ export const AuthProvider = ({ children }) => {
                   id: Date.now(),
                   email: userData.email,
                   name: userData.name,
-                  company: userData.companyName || 'Unknown Company'
+                  role: 'user', // Default role for new registrations
+                  company: userData.companyName || 'Unknown Company',
+                  avatar: '/avatars/default.png',
+                  permissions: ['read', 'write']
                 }
               }
             });
           } else {
-            reject(new Error('Registration failed'));
+            reject(new Error('Registration failed - all fields are required'));
           }
         }, 1000)
       );
@@ -130,13 +174,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  // Helper methods for role-based access
+  const isAdmin = user?.role === 'admin';
+  const isUser = user?.role === 'user';
+
   const value = {
     user,
     login,
     register,
     resetPassword,
     logout,
-    loading
+    loading,
+    isAdmin,
+    isUser
   };
 
   return (

@@ -12,6 +12,9 @@ import ForgotPassword from './components/Auth/ForgotPassword';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AdminRoute from './components/Auth/AdminRoute';
 import Settings from './components/Layout/Settings/Settings';
+import Home from './components/Layout/Home/Home';
+import User from './components/Layout/User/User';
+import HiringForm from './components/HiringForm/HiringForm';
 
 // Import from your actual admin folder structure
 import AdminLayout from './Admin/Layout/AdminLayout';
@@ -211,6 +214,7 @@ function MainAppContent() {
   const [mobileOpen, setMobileOpen] = useState(false);
   
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light'), [darkMode]);
@@ -226,7 +230,7 @@ function MainAppContent() {
     if (user && isAdmin && !window.location.pathname.startsWith('/admin')) {
       navigate('/admin');
     }
-  }, [user, isAdmin]);
+  }, [user, isAdmin, navigate]);
 
   const handleToggleTheme = () => {
     setDarkMode(!darkMode);
@@ -276,6 +280,81 @@ function MainAppContent() {
         {/* Protected Routes - Regular User Only */}
         <Route 
           path="/" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <Home darkMode={darkMode} />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/user" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <User darkMode={darkMode} />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/hiring-form" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <HiringForm darkMode={darkMode} />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/chat" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <MainContent 
+                  darkMode={darkMode} 
+                  isSidebarCollapsed={isSidebarCollapsed}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/chat/new" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <MainContent 
+                  darkMode={darkMode} 
+                  isSidebarCollapsed={isSidebarCollapsed}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/search" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <AppLayout {...layoutProps}>
+                <MainContent 
+                  darkMode={darkMode} 
+                  isSidebarCollapsed={isSidebarCollapsed}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/upgrade" 
           element={
             <ProtectedRoute requireUser={true}>
               <AppLayout {...layoutProps}>

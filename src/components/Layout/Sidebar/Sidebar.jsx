@@ -24,13 +24,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import HomeIcon from '@mui/icons-material/Home';
+import PeopleIcon from '@mui/icons-material/People';
+import WorkIcon from '@mui/icons-material/Work'; // Hiring Form icon
 import SidebarHeader from './SidebarHeader';
 import MenuSection from './MenuSection';
 import ProgressBar from '../../Common/ProgressBar';
 import UpgradeButton from './UpgradeButton';
 import { sidebarMenu, planData } from '../../../data/sidebarData';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ 
   darkMode, 
@@ -48,6 +51,7 @@ const Sidebar = ({
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleToggleSection = (sectionId) => {
     setOpenSections(prev => ({
@@ -83,11 +87,31 @@ const Sidebar = ({
     if (isMobile) onMobileClose();
   };
 
+  const handleHomeClick = () => {
+    navigate('/');
+    if (isMobile) onMobileClose();
+  };
+
+  const handleUserClick = () => {
+    navigate('/user');
+    if (isMobile) onMobileClose();
+  };
+
+  const handleHiringFormClick = () => {
+    navigate('/hiring-form');
+    if (isMobile) onMobileClose();
+  };
+
   const handleToggleSidebarClick = () => {
     if (onToggleSidebar) {
       onToggleSidebar();
     }
     if (isMobile) onMobileClose();
+  };
+
+  // Check if current route is active
+  const isActiveRoute = (path) => {
+    return location.pathname === path;
   };
 
   // Mobile drawer content
@@ -268,6 +292,300 @@ const Sidebar = ({
           </Box>
         </Box>
 
+        {/* Home, User, and Hiring Form Menu Items */}
+        <Box sx={{ 
+          px: isMobile ? 1 : (isSidebarCollapsed ? 1 : 1),
+          margin: 0
+        }}>
+          {/* Home Menu Item */}
+          {isMobile ? (
+            <MenuItem
+              onClick={handleHomeClick}
+              sx={{
+                color: isActiveRoute('/') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <HomeIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Home</ListItemText>
+            </MenuItem>
+          ) : isSidebarCollapsed ? (
+            <Tooltip title="Home" placement="right">
+              <IconButton
+                onClick={handleHomeClick}
+                sx={{
+                  color: isActiveRoute('/') ? 'primary.main' : 'text.secondary',
+                  width: '100%',
+                  height: 40,
+                  margin: 0,
+                  bgcolor: isActiveRoute('/') ? 'action.selected' : 'transparent',
+                  outline: 'none',
+                  '&:focus': {
+                    outline: 'none',
+                    boxShadow: 'none',
+                  },
+                  '&:focus-visible': {
+                    outline: 'none',
+                  },
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: 'action.hover'
+                  }
+                }}
+              >
+                <HomeIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <MenuItem
+              onClick={handleHomeClick}
+              sx={{
+                color: isActiveRoute('/') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <HomeIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Home</ListItemText>
+            </MenuItem>
+          )}
+
+          {/* User Menu Item */}
+          {isMobile ? (
+            <MenuItem
+              onClick={handleUserClick}
+              sx={{
+                color: isActiveRoute('/user') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/user') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/user') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <PeopleIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/user') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>User</ListItemText>
+            </MenuItem>
+          ) : isSidebarCollapsed ? (
+            <Tooltip title="User" placement="right">
+              <IconButton
+                onClick={handleUserClick}
+                sx={{
+                  color: isActiveRoute('/user') ? 'primary.main' : 'text.secondary',
+                  width: '100%',
+                  height: 40,
+                  margin: 0,
+                  bgcolor: isActiveRoute('/user') ? 'action.selected' : 'transparent',
+                  outline: 'none',
+                  '&:focus': {
+                    outline: 'none',
+                    boxShadow: 'none',
+                  },
+                  '&:focus-visible': {
+                    outline: 'none',
+                  },
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: 'action.hover'
+                  }
+                }}
+              >
+                <PeopleIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <MenuItem
+              onClick={handleUserClick}
+              sx={{
+                color: isActiveRoute('/user') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/user') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/user') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <PeopleIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/user') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>User</ListItemText>
+            </MenuItem>
+          )}
+
+          {/* Hiring Form Menu Item */}
+          {isMobile ? (
+            <MenuItem
+              onClick={handleHiringFormClick}
+              sx={{
+                color: isActiveRoute('/hiring-form') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/hiring-form') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/hiring-form') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <WorkIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/hiring-form') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Hiring Form</ListItemText>
+            </MenuItem>
+          ) : isSidebarCollapsed ? (
+            <Tooltip title="Hiring Form" placement="right">
+              <IconButton
+                onClick={handleHiringFormClick}
+                sx={{
+                  color: isActiveRoute('/hiring-form') ? 'primary.main' : 'text.secondary',
+                  width: '100%',
+                  height: 40,
+                  margin: 0,
+                  bgcolor: isActiveRoute('/hiring-form') ? 'action.selected' : 'transparent',
+                  outline: 'none',
+                  '&:focus': {
+                    outline: 'none',
+                    boxShadow: 'none',
+                  },
+                  '&:focus-visible': {
+                    outline: 'none',
+                  },
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: 'action.hover'
+                  }
+                }}
+              >
+                <WorkIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <MenuItem
+              onClick={handleHiringFormClick}
+              sx={{
+                color: isActiveRoute('/hiring-form') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/hiring-form') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/hiring-form') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <WorkIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/hiring-form') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Hiring Form</ListItemText>
+            </MenuItem>
+          )}
+        </Box>
+
         {/* Menu Sections */}
         <Box sx={{ 
           px: isMobile ? 1 : (isSidebarCollapsed ? 1 : 1), 
@@ -288,6 +606,7 @@ const Sidebar = ({
           ))}
         </Box>
 
+        {/* Rest of the sidebar code remains the same... */}
         {/* Progress Bars and Bottom Section */}
         <Box sx={{ 
           px: isMobile ? 2 : (isSidebarCollapsed ? 1 : 2),

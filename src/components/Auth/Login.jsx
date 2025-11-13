@@ -1,5 +1,5 @@
 // src/components/Auth/Login.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Box, 
   Paper, 
@@ -24,7 +24,7 @@ import {
   DarkMode
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const Login = ({ darkMode, onToggleTheme }) => {
   const [formData, setFormData] = useState({
@@ -35,24 +35,11 @@ const Login = ({ darkMode, onToggleTheme }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login, user, isAdmin } = useAuth();
+  const { login, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const theme = useTheme();
 
   const isDarkMode = theme.palette.mode === 'dark';
-
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (user) {
-      if (isAdmin) {
-        navigate('/admin');
-      } else {
-        const from = location.state?.from?.pathname || '/';
-        navigate(from, { replace: true });
-      }
-    }
-  }, [user, isAdmin, navigate, location]);
 
   const handleChange = (e) => {
     setFormData({
@@ -76,8 +63,12 @@ const Login = ({ darkMode, onToggleTheme }) => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // Success - the useEffect above will handle redirection based on user role
-      console.log('Login successful');
+      // Navigate based on user role after successful login
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } else {
       setError(result.error || 'Login failed. Please try again.');
     }

@@ -44,21 +44,21 @@ const Sidebar = ({
   onMobileClose,
   isMobile 
 }) => {
-  const [openSections, setOpenSections] = useState({
-    2: false, // Avatars - default closed
-    3: false  // Projects - default closed
-  });
+  // const [openSections, setOpenSections] = useState({
+  //   2: false, // Avatars - default closed
+  //   3: false  // Projects - default closed
+  // });
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleToggleSection = (sectionId) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [sectionId]: !prev[sectionId]
-    }));
-  };
+  // const handleToggleSection = (sectionId) => {
+  //   setOpenSections(prev => ({
+  //     ...prev,
+  //     [sectionId]: !prev[sectionId]
+  //   }));
+  // };
 
   const handleNewChat = () => {
     console.log('New chat clicked');
@@ -124,7 +124,7 @@ const Sidebar = ({
       width: '100%',
       margin: 0,
       padding: 0,
-      bgcolor: 'background.default'
+      bgcolor: darkMode ? 'grey.900' : 'grey.100' // Slightly darker background for both modes
     }}>
       <SidebarHeader
         darkMode={darkMode}
@@ -586,8 +586,8 @@ const Sidebar = ({
           )}
         </Box>
 
-        {/* Menu Sections */}
-        <Box sx={{ 
+        {/* Menu Sections - COMMANDED */}
+        {/* <Box sx={{ 
           px: isMobile ? 1 : (isSidebarCollapsed ? 1 : 1), 
           flex: 1,
           width: '100%',
@@ -604,13 +604,14 @@ const Sidebar = ({
               />
             ) : null
           ))}
-        </Box>
+        </Box> */}
 
-        {/* Rest of the sidebar code remains the same... */}
+        {/* Empty space to push bottom content down */}
+        <Box sx={{ flex: 1 }} />
+
         {/* Progress Bars and Bottom Section */}
         <Box sx={{ 
           px: isMobile ? 2 : (isSidebarCollapsed ? 1 : 2),
-          mt: 'auto',
           width: '100%',
           margin: 0
         }}>
@@ -914,7 +915,8 @@ const Sidebar = ({
               border: 'none',
               backgroundImage: 'none',
               overflow: 'hidden',
-              margin: 0
+              margin: 0,
+              bgcolor: darkMode ? 'grey.900' : 'grey.100' // Slightly darker background for mobile too
             },
           }}
           variant="temporary"
@@ -985,6 +987,7 @@ const Sidebar = ({
           borderRight: '0px solid transparent !important',
           outline: 'none !important',
           boxShadow: 'none !important',
+          bgcolor: darkMode ? 'grey.900' : 'grey.100', // Slightly darker background
           '&::-webkit-scrollbar': {
             width: '4px',
           },

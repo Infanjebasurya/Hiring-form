@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
       const response = await new Promise((resolve, reject) => 
         setTimeout(() => {
           if (email && password) {
-            // Admin credentials - FIXED
+            // Admin credentials
             if (email === 'admin@talenthub.com' && password === 'admin@123') {
               resolve({
                 data: {
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
-      return { success: true };
+      return { success: true, user: response.data.user };
     } catch (error) {
       return { success: false, error: error.message || 'Invalid credentials' };
     }
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
-      return { success: true };
+      return { success: true, user: response.data.user };
     } catch (error) {
       return { success: false, error: error.message || 'Registration failed' };
     }

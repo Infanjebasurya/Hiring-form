@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Layout/Sidebar/Sidebar';
+import TopNav from './components/Layout/TopNav/TopNav'; // New TopNav component
 import MainContent from './components/MainContent/MainContent';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -15,11 +16,10 @@ import Settings from './components/Layout/Settings/Settings';
 import Home from './components/Layout/Home/Home';
 import User from './components/Layout/User/User';
 import HiringForm from './components/HiringForm/HiringForm';
-
-// Import from your actual admin folder structure
 import AdminLayout from './Admin/Layout/AdminLayout';
 import AdminDashboard from './Admin/AdminDashboard';
 
+// Theme configurations
 const getTheme = (mode) => createTheme({
   palette: {
     mode,
@@ -148,8 +148,8 @@ const getAdminTheme = (mode) => createTheme({
   },
 });
 
-// Layout component to avoid code duplication
-function AppLayout({ 
+// Main Layout Component with Top Navigation
+function MainLayout({ 
   children, 
   darkMode, 
   isSidebarCollapsed, 
@@ -159,8 +159,10 @@ function AppLayout({
   onMobileClose, 
   isMobile 
 }) {
+  const { user } = useAuth();
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar 
         darkMode={darkMode} 
         onToggleTheme={onToggleTheme}
@@ -170,14 +172,42 @@ function AppLayout({
         onMobileClose={onMobileClose}
         isMobile={isMobile}
       />
-      {children}
+      
+      {/* Main Content with Top Navigation */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          overflow: 'hidden',
+          bgcolor: 'background.default'
+        }}
+      >
+        {/* Top Navigation Header */}
+        <TopNav 
+          darkMode={darkMode}
+          user={user}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={onToggleSidebar}
+        />
+        
+        {/* Page Content */}
+        <Box sx={{
+          flex: 1,
+          overflow: 'auto',
+        }}>
+          {children}
+        </Box>
+      </Box>
     </Box>
   );
 }
 
-// Admin App Content - Separate instance for admin panel
+// Admin App Content
 function AdminAppContent() {
-  const [adminDarkMode, setAdminDarkMode] = useState(true); // Admin defaults to dark mode
+  const [adminDarkMode, setAdminDarkMode] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -282,9 +312,9 @@ function MainAppContent() {
           path="/" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <Home darkMode={darkMode} />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -293,9 +323,9 @@ function MainAppContent() {
           path="/user" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <User darkMode={darkMode} />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -304,9 +334,9 @@ function MainAppContent() {
           path="/hiring-form" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <HiringForm darkMode={darkMode} />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -315,12 +345,12 @@ function MainAppContent() {
           path="/chat" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -329,12 +359,12 @@ function MainAppContent() {
           path="/chat/new" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -343,12 +373,12 @@ function MainAppContent() {
           path="/search" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -357,12 +387,12 @@ function MainAppContent() {
           path="/upgrade" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <MainContent 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />
@@ -371,12 +401,12 @@ function MainAppContent() {
           path="/settings" 
           element={
             <ProtectedRoute requireUser={true}>
-              <AppLayout {...layoutProps}>
+              <MainLayout {...layoutProps}>
                 <Settings 
                   darkMode={darkMode} 
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
-              </AppLayout>
+              </MainLayout>
             </ProtectedRoute>
           } 
         />

@@ -35,7 +35,9 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import {
   Add,
@@ -65,7 +67,8 @@ const User = ({ darkMode }) => {
   const [editFormData, setEditFormData] = useState({
     name: '',
     email: '',
-    role: ''
+    role: '',
+    status: 'active'
   });
 
   // Delete Confirmation Modal State
@@ -135,7 +138,8 @@ const User = ({ darkMode }) => {
     setEditFormData({
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      status: user.status || 'active'
     });
     setEditModalOpen(true);
   };
@@ -170,7 +174,7 @@ const User = ({ darkMode }) => {
   const handleEditCancel = () => {
     setEditModalOpen(false);
     setEditingUser(null);
-    setEditFormData({ name: '', email: '', role: '' });
+    setEditFormData({ name: '', email: '', role: '', status: 'active' });
   };
 
   const handleEditFormChange = (field, value) => {
@@ -178,6 +182,28 @@ const User = ({ darkMode }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Toggle User Status
+  const handleToggleStatus = (user) => {
+    try {
+      const newStatus = user.status === 'active' ? 'inactive' : 'active';
+      const updatedUser = { ...user, status: newStatus };
+      
+      // Update user in the service
+      updateUser(user.id, updatedUser);
+
+      // Update local state
+      const updatedUsers = users.map(u =>
+        u.id === user.id ? updatedUser : u
+      );
+      setUsers(updatedUsers);
+
+      showSnackbar(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`);
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      showSnackbar('Error updating user status', 'error');
+    }
   };
 
   // Delete User Functions
@@ -248,6 +274,17 @@ const User = ({ darkMode }) => {
     }
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'inactive':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
   const getInitials = (name) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -308,10 +345,7 @@ const User = ({ darkMode }) => {
         </Alert>
       </Snackbar>
 
-
-
-
-
+      {/* Edit User Modal */}
       <Dialog
         open={editModalOpen}
         onClose={handleEditCancel}
@@ -336,7 +370,7 @@ const User = ({ darkMode }) => {
             Edit User
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ p: 4, mt: 2 }}> {/* Added margin-top */}
+        <DialogContent sx={{ p: 4, mt: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField
               label="Full Name"
@@ -352,7 +386,6 @@ const User = ({ darkMode }) => {
               }}
               InputLabelProps={{
                 sx: {
-                  // Ensure label stays within its container
                   position: 'relative',
                   transform: 'none',
                   fontSize: '1rem',
@@ -409,6 +442,29 @@ const User = ({ darkMode }) => {
                 <MenuItem value="Interviewer">Interviewer</MenuItem>
               </Select>
             </FormControl>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel sx={{
+                position: 'relative',
+                transform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                color: theme.palette.text.secondary,
+                mb: 1
+              }}>
+                Status
+              </InputLabel>
+              <Select
+                value={editFormData.status}
+                onChange={(e) => handleEditFormChange('status', e.target.value)}
+                sx={{
+                  borderRadius: 2,
+                  fontSize: '1.1rem'
+                }}
+              >
+                <MenuItem value="active">Active</MenuItem>
+                <MenuItem value="inactive">Inactive</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, gap: 2 }}>
@@ -453,9 +509,7 @@ const User = ({ darkMode }) => {
         </DialogActions>
       </Dialog>
 
-
-
-      {/* Simple Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       <Dialog
         open={deleteModalOpen}
         onClose={handleDeleteCancel}
@@ -538,7 +592,6 @@ const User = ({ darkMode }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Rest of your component remains exactly the same */}
       <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Header Section */}
         <Box sx={{
@@ -735,55 +788,86 @@ const User = ({ darkMode }) => {
                           {user.email}
                         </Typography>
                       </Box>
-                      <Chip
-                        label={user.role}
-                        color={getRoleColor(user.role)}
-                        size="medium"
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: '0.85rem',
-                          height: '28px'
-                        }}
-                      />
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                        <Chip
+                          label={user.role}
+                          color={getRoleColor(user.role)}
+                          size="medium"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.85rem',
+                            height: '28px'
+                          }}
+                        />
+                        <Chip
+                          label={user.status || 'active'}
+                          color={getStatusColor(user.status || 'active')}
+                          size="medium"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.85rem',
+                            height: '28px'
+                          }}
+                        />
+                      </Box>
                     </Box>
                   </Box>
                   <Box sx={{
                     display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: 1,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     borderTop: `1px solid ${theme.palette.divider}`,
                     pt: 2
                   }}>
-                    <Tooltip title="Edit User">
-                      <IconButton
-                        size="medium"
-                        onClick={() => handleEditClick(user)}
-                        sx={{
-                          color: theme.palette.primary.main,
-                          bgcolor: theme.palette.primary.main + '15',
-                          '&:hover': {
-                            bgcolor: theme.palette.primary.main + '30',
-                          }
-                        }}
-                      >
-                        <Edit fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete User">
-                      <IconButton
-                        size="medium"
-                        onClick={() => handleDeleteClick(user)}
-                        sx={{
-                          color: theme.palette.error.main,
-                          bgcolor: theme.palette.error.main + '15',
-                          '&:hover': {
-                            bgcolor: theme.palette.error.main + '30',
-                          }
-                        }}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="body2" sx={{ mr: 2, fontWeight: 500 }}>
+                        Status:
+                      </Typography>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={(user.status || 'active') === 'active'}
+                            onChange={() => handleToggleStatus(user)}
+                            color="success"
+                            size="small"
+                          />
+                        }
+                        label={user.status === 'active' ? 'Active' : 'Inactive'}
+                        sx={{ m: 0 }}
+                      />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Tooltip title="Edit User">
+                        <IconButton
+                          size="medium"
+                          onClick={() => handleEditClick(user)}
+                          sx={{
+                            color: theme.palette.primary.main,
+                            bgcolor: theme.palette.primary.main + '15',
+                            '&:hover': {
+                              bgcolor: theme.palette.primary.main + '30',
+                            }
+                          }}
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete User">
+                        <IconButton
+                          size="medium"
+                          onClick={() => handleDeleteClick(user)}
+                          sx={{
+                            color: theme.palette.error.main,
+                            bgcolor: theme.palette.error.main + '15',
+                            '&:hover': {
+                              bgcolor: theme.palette.error.main + '30',
+                            }
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -838,6 +922,15 @@ const User = ({ darkMode }) => {
                       borderBottom: `2px solid ${theme.palette.primary.main}`
                     }}>
                       Role
+                    </TableCell>
+                    <TableCell sx={{
+                      fontWeight: 700,
+                      color: theme.palette.text.primary,
+                      py: 3,
+                      fontSize: '1.1rem',
+                      borderBottom: `2px solid ${theme.palette.primary.main}`
+                    }}>
+                      Status
                     </TableCell>
                     <TableCell sx={{
                       fontWeight: 700,
@@ -907,7 +1000,20 @@ const User = ({ darkMode }) => {
                         />
                       </TableCell>
                       <TableCell sx={{ py: 3 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                        <Chip
+                          label={user.status || 'active'}
+                          color={getStatusColor(user.status || 'active')}
+                          size="medium"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            height: '32px',
+                            minWidth: '100px'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
                           <Tooltip title="Edit User">
                             <IconButton
                               size="medium"
@@ -921,6 +1027,25 @@ const User = ({ darkMode }) => {
                               }}
                             >
                               <Edit />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={user.status === 'active' ? 'Deactivate User' : 'Activate User'}>
+                            <IconButton
+                              size="medium"
+                              onClick={() => handleToggleStatus(user)}
+                              sx={{
+                                color: user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main,
+                                bgcolor: (user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main) + '15',
+                                '&:hover': {
+                                  bgcolor: (user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main) + '30',
+                                }
+                              }}
+                            >
+                              {user.status === 'active' ? (
+                                <Box component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>●</Box>
+                              ) : (
+                                <Box component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>○</Box>
+                              )}
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Delete User">

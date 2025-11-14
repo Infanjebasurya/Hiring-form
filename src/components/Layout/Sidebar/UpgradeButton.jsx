@@ -1,13 +1,24 @@
+// src/components/Layout/Sidebar/UpgradeButton.jsx
 import React from 'react';
 import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import BoltIcon from '@mui/icons-material/Bolt';
 
 const UpgradeButton = ({ onClick }) => {
+  const navigate = useNavigate();
+
+  const handleUpgradeClick = () => {
+    if (onClick) {
+      onClick();
+    }
+    navigate('/plans');
+  };
+
   return (
     <Button
       fullWidth
       startIcon={<BoltIcon />}
-      onClick={onClick}
+      onClick={handleUpgradeClick}
       sx={{
         justifyContent: 'center',
         textTransform: 'none',
@@ -25,6 +36,15 @@ const UpgradeButton = ({ onClick }) => {
           border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}`,
           transform: 'translateY(-1px)',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+        },
+        '&:focus': {
+          outline: 'none',
+          boxShadow: 'none',
+        },
+        '&:active': {
+          outline: 'none',
+          boxShadow: 'none',
+          transform: 'translateY(0)',
         },
         transition: 'all 0.2s ease-in-out',
       }}

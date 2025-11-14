@@ -16,7 +16,8 @@ import Settings from './components/Layout/Settings/Settings';
 import Home from './components/Layout/Home/Home';
 import User from './components/Layout/User/User';
 import HiringForm from './components/HiringForm/HiringForm';
-import Plans from './components/Layout/Upgrade-Plan/plans'; // Import Plans component
+import Plans from './components/Layout/Upgrade-Plan/plans';
+import HelpUsImprove from './components/Layout/HelpUsImprove/HelpUsImprove';
 import AdminLayout from './Admin/Layout/AdminLayout';
 import AdminDashboard from './Admin/AdminDashboard';
 
@@ -62,7 +63,7 @@ const getTheme = (mode) => createTheme({
       },
     },
     MuiPaper: {
-      styleOverrides: {
+      styleOverflows: {
         root: {
           backgroundImage: 'none',
         },
@@ -158,7 +159,8 @@ function MainLayout({
   onToggleSidebar, 
   mobileOpen, 
   onMobileClose, 
-  isMobile 
+  isMobile,
+  onOpenFeedback 
 }) {
   const { user } = useAuth();
 
@@ -192,6 +194,7 @@ function MainLayout({
           user={user}
           isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={onToggleSidebar}
+          onOpenFeedback={onOpenFeedback}
         />
         
         {/* Page Content */}
@@ -243,6 +246,7 @@ function MainAppContent() {
   const [darkMode, setDarkMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -279,6 +283,14 @@ function MainAppContent() {
     setMobileOpen(false);
   };
 
+  const handleOpenFeedback = () => {
+    setFeedbackOpen(true);
+  };
+
+  const handleCloseFeedback = () => {
+    setFeedbackOpen(false);
+  };
+
   // Common layout props
   const layoutProps = {
     darkMode,
@@ -287,12 +299,21 @@ function MainAppContent() {
     onToggleSidebar: handleToggleSidebar,
     mobileOpen,
     onMobileClose: handleMobileDrawerClose,
-    isMobile
+    isMobile,
+    onOpenFeedback: handleOpenFeedback
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      
+      {/* Help Us Improve Dialog */}
+      <HelpUsImprove 
+        open={feedbackOpen}
+        onClose={handleCloseFeedback}
+        darkMode={darkMode}
+      />
+      
       <Routes>
         {/* Public Routes */}
         <Route 
@@ -342,7 +363,7 @@ function MainAppContent() {
           } 
         />
         
-        {/* Plans Route - Add this route */}
+        {/* Plans Route */}
         <Route 
           path="/plans" 
           element={

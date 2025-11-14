@@ -19,11 +19,12 @@ import {
   Person as PersonIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
+  Feedback as FeedbackIcon,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 
-const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
+const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFeedback }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -77,6 +78,13 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
     handleProfileMenuClose();
   };
 
+  const handleFeedback = () => {
+    if (onOpenFeedback) {
+      onOpenFeedback();
+    }
+    handleProfileMenuClose();
+  };
+
   const pageTitle = getPageTitle();
 
   return (
@@ -94,14 +102,12 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
           bgcolor: 'background.paper',
           borderBottom: '1px solid',
           borderColor: 'divider',
-          height: { xs: 56, md: 64 }, // Smaller height on mobile (56px), normal on desktop (64px)
+          height: { xs: 56, md: 64 },
           width: '100%',
-          // Fixed width calculation for desktop ONLY
           '@media (min-width: 769px)': {
             width: isSidebarCollapsed ? 'calc(100vw - 80px)' : 'calc(100vw - 280px)',
             marginLeft: 'auto'
           },
-          // Mobile view: always full width
           '@media (max-width: 768px)': {
             width: '100vw',
             marginLeft: 0
@@ -109,12 +115,11 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
         }}
       >
         <Toolbar sx={{ 
-          justifyContent: { xs: 'center', md: 'space-between' }, // Center on mobile, space-between on desktop
+          justifyContent: { xs: 'center', md: 'space-between' },
           px: { xs: 2, md: 3 },
-          minHeight: { xs: '56px !important', md: '64px !important' }, // Match the AppBar height
+          minHeight: { xs: '56px !important', md: '64px !important' },
           width: '100%',
           position: 'relative',
-          // Ensure full width on mobile
           '@media (max-width: 768px)': {
             width: '100%',
             maxWidth: '100vw',
@@ -122,7 +127,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
             padding: '0 16px'
           }
         }}>
-          {/* Page Title - Centered on mobile, left-aligned on desktop */}
+          {/* Page Title */}
           <Typography 
             variant="h6" 
             sx={{ 
@@ -132,24 +137,22 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              // Center on mobile, auto margin on desktop
               textAlign: { xs: 'center', md: 'left' },
-              width: { xs: 'calc(100% - 80px)', md: 'auto' }, // Account for profile icon space on mobile
-              position: { xs: 'absolute', md: 'static' }, // Absolute positioning for mobile centering
+              width: { xs: 'calc(100% - 80px)', md: 'auto' },
+              position: { xs: 'absolute', md: 'static' },
               left: { xs: '50%', md: 'auto' },
               transform: { xs: 'translateX(-50%)', md: 'none' },
-              // Ensure proper width on mobile
               '@media (max-width: 768px)': {
-                maxWidth: 'calc(100vw - 80px)' // Prevent overflow on small screens
+                maxWidth: 'calc(100vw - 80px)'
               }
             }}
           >
             {pageTitle}
           </Typography>
 
-          {/* Right Section - Notifications and Profile (Hidden on mobile, shown on desktop) */}
+          {/* Right Section - Desktop */}
           <Box sx={{ 
-            display: { xs: 'none', md: 'flex' }, // Hide on mobile, show on desktop
+            display: { xs: 'none', md: 'flex' },
             alignItems: 'center', 
             gap: 1,
             flexShrink: 0,
@@ -162,8 +165,15 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                 color: 'text.primary',
                 '&:hover': {
                   bgcolor: 'action.hover',
+                },
+                '&:focus': {
+                  outline: 'none',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
                 }
               }}
+              disableRipple
             >
               <Badge badgeContent={3} color="error">
                 <NotificationsIcon />
@@ -177,8 +187,15 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                 color: 'text.primary',
                 '&:hover': {
                   bgcolor: 'action.hover',
+                },
+                '&:focus': {
+                  outline: 'none',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
                 }
               }}
+              disableRipple
             >
               <Avatar
                 sx={{
@@ -222,6 +239,14 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                 </ListItemIcon>
                 <ListItemText>Settings</ListItemText>
               </MenuItem>
+
+              {/* Help Us Improve Option */}
+              <MenuItem onClick={handleFeedback}>
+                <ListItemIcon>
+                  <FeedbackIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Help Us Improve</ListItemText>
+              </MenuItem>
               
               <Divider />
               
@@ -262,7 +287,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
             </Menu>
           </Box>
 
-          {/* Mobile Profile Icon (Right side on mobile) */}
+          {/* Mobile Profile Icon */}
           <Box sx={{ 
             display: { xs: 'flex', md: 'none' },
             position: 'absolute',
@@ -276,8 +301,15 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                 color: 'text.primary',
                 '&:hover': {
                   bgcolor: 'action.hover',
+                },
+                '&:focus': {
+                  outline: 'none',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
                 }
               }}
+              disableRipple
             >
               <Avatar
                 sx={{
@@ -292,7 +324,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
               </Avatar>
             </IconButton>
 
-            {/* Profile Menu Dropdown for Mobile */}
+            {/* Profile Menu Dropdown for Mobile - Includes Notifications Option */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -322,7 +354,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                 <ListItemText>Settings</ListItemText>
               </MenuItem>
 
-              {/* Notifications for Mobile */}
+              {/* Notifications Option in Mobile Profile Menu */}
               <MenuItem onClick={handleNotificationMenuOpen}>
                 <ListItemIcon>
                   <Badge badgeContent={3} color="error">
@@ -330,6 +362,14 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
                   </Badge>
                 </ListItemIcon>
                 <ListItemText>Notifications</ListItemText>
+              </MenuItem>
+
+              {/* Help Us Improve Option for Mobile */}
+              <MenuItem onClick={handleFeedback}>
+                <ListItemIcon>
+                  <FeedbackIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Help Us Improve</ListItemText>
               </MenuItem>
               
               <Divider />
@@ -342,7 +382,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar }) => {
               </MenuItem>
             </Menu>
 
-            {/* Notifications Menu Dropdown for Mobile */}
+            {/* Single Notifications Menu Dropdown - Used by both Desktop and Mobile */}
             <Menu
               anchorEl={notificationAnchorEl}
               open={Boolean(notificationAnchorEl)}

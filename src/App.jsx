@@ -5,7 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Layout/Sidebar/Sidebar';
-import TopNav from './components/Layout/TopNav/TopNav'; // New TopNav component
+import TopNav from './components/Layout/TopNav/TopNav';
 import MainContent from './components/MainContent/MainContent';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
@@ -16,6 +16,7 @@ import Settings from './components/Layout/Settings/Settings';
 import Home from './components/Layout/Home/Home';
 import User from './components/Layout/User/User';
 import HiringForm from './components/HiringForm/HiringForm';
+import Plans from './components/Layout/Upgrade-Plan/plans'; // Import Plans component
 import AdminLayout from './Admin/Layout/AdminLayout';
 import AdminDashboard from './Admin/AdminDashboard';
 
@@ -336,6 +337,18 @@ function MainAppContent() {
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <HiringForm darkMode={darkMode} />
+              </MainLayout>
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Plans Route - Add this route */}
+        <Route 
+          path="/plans" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <Plans darkMode={darkMode} />
               </MainLayout>
             </ProtectedRoute>
           } 

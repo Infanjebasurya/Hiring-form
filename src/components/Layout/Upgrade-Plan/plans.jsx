@@ -78,14 +78,14 @@ const Plans = () => {
     <Box sx={{
       bgcolor: theme.palette.background.default,
       minHeight: '100vh',
-      py: isMobile ? 2 : 4
+      py: isMobile ? 2 : 3 // Reduced padding
     }}>
       <Container maxWidth="lg">
         {/* Billing Cycle Navigation Tabs */}
         <Box sx={{
           maxWidth: 900,
           mx: 'auto',
-          mb: 3,
+          mb: 2, // Reduced margin
         }}>
           <Tabs
             value={billingCycle}
@@ -93,14 +93,14 @@ const Plans = () => {
             variant={isMobile ? "scrollable" : "fullWidth"}
             scrollButtons="auto"
             sx={{
-              minHeight: 44,
+              minHeight: 40, // Reduced height
               '& .MuiTab-root': {
-                minHeight: 44,
-                fontSize: '0.8rem',
+                minHeight: 40, // Reduced height
+                fontSize: '0.75rem', // Smaller font
                 fontWeight: 500,
                 textTransform: 'none',
-                py: 1,
-                px: 2,
+                py: 0.8, // Reduced padding
+                px: 1.5, // Reduced padding
                 color: theme.palette.text.secondary,
                 borderRadius: 2,
                 margin: '0 2px',
@@ -114,8 +114,8 @@ const Plans = () => {
                 },
                 '&.Mui-selected': {
                   color: '#fff',
-                  fontWeight: 700, // Made it bolder
-                  backgroundColor: '#3498DB', // Solid blue background
+                  fontWeight: 700,
+                  backgroundColor: '#3498DB',
                   boxShadow: '0 4px 12px rgba(52, 152, 219, 0.4)',
                   transform: 'translateY(-1px)',
                 },
@@ -128,7 +128,7 @@ const Plans = () => {
                 display: 'none',
               },
               '& .MuiTabs-scroller': {
-                padding: '4px 0',
+                padding: '2px 0', // Reduced padding
               },
             }}
           >
@@ -162,8 +162,8 @@ const Plans = () => {
                   <div style={{ fontWeight: 'inherit' }}>Yearly</div>
                   <Box
                     sx={{
-                      fontSize: '0.7rem',
-                      fontWeight: 700, // Made it bolder
+                      fontSize: '0.65rem', // Smaller font
+                      fontWeight: 700,
                       color: billingCycle === 'yearly' ? '#fff' : '#2ECC71',
                       background: billingCycle === 'yearly'
                         ? 'rgba(255, 255, 255, 0.3)'
@@ -171,9 +171,9 @@ const Plans = () => {
                           ? 'rgba(46, 204, 113, 0.15)'
                           : 'rgba(46, 204, 113, 0.1)'),
                       borderRadius: 1,
-                      px: 0.5,
-                      mt: 0.5,
-                      lineHeight: 1.3,
+                      px: 0.4, // Reduced padding
+                      mt: 0.3, // Reduced margin
+                      lineHeight: 1.2, // Tighter line height
                     }}
                   >
                     Save 30%
@@ -183,23 +183,6 @@ const Plans = () => {
               value="yearly"
             />
           </Tabs>
-        </Box>
-        {/* Most Popular Chip */}
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Chip
-            label="Most Popular Plan"
-            sx={{
-              bgcolor: '#ff8c42',
-              color: 'white',
-              fontWeight: 600,
-              fontSize: '0.75rem',
-              height: 28,
-              px: 2,
-              '& .MuiChip-label': {
-                px: 1,
-              }
-            }}
-          />
         </Box>
 
         {/* Main Content Card */}
@@ -211,7 +194,7 @@ const Plans = () => {
             color: theme.palette.text.primary,
             border: `1px solid ${theme.palette.divider}`,
             borderRadius: 3,
-            p: isMobile ? 2 : 4,
+            p: isMobile ? 2 : 3, // Reduced padding
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
             transition: 'all 0.3s ease-in-out',
             '&:hover': {
@@ -236,22 +219,22 @@ const Plans = () => {
             sx={{
               textAlign: 'center',
               color: theme.palette.text.secondary,
-              mb: 4,
+              mb: 3, // Reduced margin
               opacity: 0.8,
             }}
           >
             Current Plan: Basic
           </Typography>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={3}> {/* Reduced spacing */}
             {/* Left Column - Pricing */}
             <Grid item xs={12} md={7}>
               {/* Pricing Display */}
-              <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ mb: 2 }}> {/* Reduced margin */}
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1, flexWrap: 'wrap' }}> {/* Reduced margins */}
                   <Typography
                     sx={{
-                      fontSize: isMobile ? '1rem' : '1.25rem',
+                      fontSize: isMobile ? '0.9rem' : '1.1rem', // Smaller font
                       textDecoration: 'line-through',
                       color: theme.palette.text.secondary,
                       fontWeight: 400,
@@ -262,7 +245,7 @@ const Plans = () => {
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: isMobile ? '2rem' : '2.75rem',
+                      fontSize: isMobile ? '1.75rem' : '2.5rem', // Smaller font
                       fontWeight: 700,
                       color: theme.palette.text.primary,
                       lineHeight: 1,
@@ -272,7 +255,7 @@ const Plans = () => {
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      fontSize: isMobile ? '0.8rem' : '0.9rem', // Smaller font
                       color: theme.palette.text.secondary,
                       fontWeight: 400,
                       opacity: 0.8,
@@ -281,51 +264,9 @@ const Plans = () => {
                     {billingCycle === 'monthly' ? 'Monthly' :
                       billingCycle === 'quarterly' ? 'Quarterly' :
                         billingCycle === 'halfYearly' ? 'Half Yearly' : 'Yearly'}
-                    <sup style={{ fontSize: '0.7rem' }}>1</sup>
+                    <sup style={{ fontSize: '0.6rem' }}>1</sup>
                   </Typography>
                 </Box>
-              </Box>
-
-              {/* Billing Toggle - Keeping this as backup inside the card */}
-              <Box
-                sx={{
-                  display: 'none', // Hiding the old toggle since we have tabs now
-                  gap: 0.5,
-                  mb: 3,
-                  bgcolor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
-                  p: 0.5,
-                  borderRadius: 2,
-                  width: '100%',
-                  flexWrap: isMobile ? 'wrap' : 'nowrap',
-                }}
-              >
-                {billingOptions.map((option) => (
-                  <Button
-                    key={option.id}
-                    fullWidth
-                    onClick={() => setBillingCycle(option.id)}
-                    sx={{
-                      py: 1,
-                      bgcolor: billingCycle === option.id ?
-                        theme.palette.mode === 'dark' ? '#555' : 'white' : 'transparent',
-                      color: billingCycle === option.id ?
-                        theme.palette.text.primary : theme.palette.text.secondary,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      borderRadius: 1.5,
-                      boxShadow: billingCycle === option.id ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-                      fontSize: isMobile ? '0.75rem' : '0.8rem',
-                      minWidth: isMobile ? 'calc(50% - 4px)' : 'auto',
-                      '&:hover': {
-                        bgcolor: billingCycle === option.id ?
-                          (theme.palette.mode === 'dark' ? '#555' : 'white') :
-                          (theme.palette.mode === 'dark' ? '#3a3a3a' : '#ebebeb'),
-                      },
-                    }}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
               </Box>
             </Grid>
 
@@ -336,19 +277,19 @@ const Plans = () => {
                   sx={{
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: 1.5,
-                    mb: 2.5,
+                    gap: 1,
+                    mb: 2, // Reduced margin
                   }}
                 >
                   <CheckCircleIcon sx={{
                     color: '#2ECC71',
-                    fontSize: isMobile ? 18 : 20,
-                    mt: 0.3
+                    fontSize: isMobile ? 16 : 18, // Smaller icons
+                    mt: 0.2
                   }} />
                   <Typography sx={{
-                    fontSize: isMobile ? '0.85rem' : '0.9rem',
+                    fontSize: isMobile ? '0.8rem' : '0.85rem', // Smaller font
                     color: theme.palette.text.primary,
-                    lineHeight: 1.5
+                    lineHeight: 1.4 // Tighter line height
                   }}>
                     <strong>{currentPrice.credits.toLocaleString()}</strong> Monthly Credits
                   </Typography>
@@ -357,19 +298,19 @@ const Plans = () => {
                   sx={{
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: 1.5,
-                    mb: 2.5,
+                    gap: 1,
+                    mb: 2, // Reduced margin
                   }}
                 >
                   <CheckCircleIcon sx={{
                     color: '#2ECC71',
-                    fontSize: isMobile ? 18 : 20,
-                    mt: 0.3
+                    fontSize: isMobile ? 16 : 18, // Smaller icons
+                    mt: 0.2
                   }} />
                   <Typography sx={{
-                    fontSize: isMobile ? '0.85rem' : '0.9rem',
+                    fontSize: isMobile ? '0.8rem' : '0.85rem', // Smaller font
                     color: theme.palette.text.primary,
-                    lineHeight: 1.5
+                    lineHeight: 1.4 // Tighter line height
                   }}>
                     <strong>All Default Features</strong> Included
                   </Typography>
@@ -378,18 +319,18 @@ const Plans = () => {
                   sx={{
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: 1.5,
+                    gap: 1,
                   }}
                 >
                   <CheckCircleIcon sx={{
                     color: '#2ECC71',
-                    fontSize: isMobile ? 18 : 20,
-                    mt: 0.3
+                    fontSize: isMobile ? 16 : 18, // Smaller icons
+                    mt: 0.2
                   }} />
                   <Typography sx={{
-                    fontSize: isMobile ? '0.85rem' : '0.9rem',
+                    fontSize: isMobile ? '0.8rem' : '0.85rem', // Smaller font
                     color: theme.palette.text.primary,
-                    lineHeight: 1.5
+                    lineHeight: 1.4 // Tighter line height
                   }}>
                     <strong>Super Feature:</strong> Business Name of IP Address
                   </Typography>
@@ -398,20 +339,20 @@ const Plans = () => {
             </Grid>
           </Grid>
 
-          {/* Upgrade Button - Full width outside the Grid */}
+          {/* Upgrade Button */}
           <Button
             fullWidth
             variant="contained"
             sx={{
               bgcolor: '#3498DB',
               color: 'white',
-              py: 1.5,
+              py: 1.2, // Reduced padding
               textTransform: 'none',
-              fontSize: isMobile ? '0.9rem' : '1rem',
+              fontSize: isMobile ? '0.85rem' : '0.9rem', // Smaller font
               fontWeight: 600,
               borderRadius: 2,
               boxShadow: 'none',
-              mt: 3,
+              mt: 2, // Reduced margin
               border: '2px solid transparent',
               '&:hover': {
                 bgcolor: '#2980B9',
@@ -425,18 +366,19 @@ const Plans = () => {
           >
             Upgrade Plan - {formatINR(currentPrice.discounted)}
           </Button>
+
           {/* Form Section */}
-          <Box sx={{ mt: 4 }}>
-            <Grid container spacing={2}>
+          <Box sx={{ mt: 3 }}> {/* Reduced margin */}
+            <Grid container spacing={1.5}> {/* Reduced spacing */}
               {/* Email & Country */}
               <Grid item xs={12} md={6}>
                 <Typography
                   variant="body2"
                   sx={{
-                    mb: 1,
+                    mb: 0.8, // Reduced margin
                     fontWeight: 600,
                     color: theme.palette.text.primary,
-                    fontSize: '0.875rem',
+                    fontSize: '0.8rem', // Smaller font
                   }}
                 >
                   Email Address <span style={{ color: 'red' }}>*</span>
@@ -447,7 +389,7 @@ const Plans = () => {
                   size="small"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5,
+                      borderRadius: 1.2,
                       bgcolor: theme.palette.background.default,
                       '& fieldset': {
                         borderColor: theme.palette.divider,
@@ -462,25 +404,26 @@ const Plans = () => {
                     },
                     '& .MuiInputBase-input': {
                       color: theme.palette.text.primary,
-                      py: 1,
+                      py: 0.8, // Reduced padding
+                      fontSize: '0.875rem',
                     },
                   }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.8 }}> {/* Reduced margin */}
                   <Typography
                     variant="body2"
                     sx={{
                       fontWeight: 600,
                       color: theme.palette.text.primary,
-                      fontSize: '0.875rem',
+                      fontSize: '0.8rem', // Smaller font
                     }}
                   >
                     Country <span style={{ color: 'red' }}>*</span>
                   </Typography>
                   <IconButton size="small" sx={{ p: 0 }}>
-                    <HelpOutlineIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                    <HelpOutlineIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} /> {/* Smaller icon */}
                   </IconButton>
                 </Box>
                 <TextField
@@ -491,7 +434,7 @@ const Plans = () => {
                   size="small"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5,
+                      borderRadius: 1.2,
                       bgcolor: theme.palette.background.default,
                       '& fieldset': {
                         borderColor: theme.palette.divider,
@@ -506,7 +449,8 @@ const Plans = () => {
                     },
                     '& .MuiInputBase-input': {
                       color: theme.palette.text.primary,
-                      py: 1,
+                      py: 0.8, // Reduced padding
+                      fontSize: '0.875rem',
                     },
                     '& .MuiSelect-icon': {
                       color: theme.palette.text.secondary,
@@ -524,9 +468,9 @@ const Plans = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    mb: 1,
+                    mb: 0.8, // Reduced margin
                     color: theme.palette.text.secondary,
-                    fontSize: '0.875rem',
+                    fontSize: '0.8rem', // Smaller font
                   }}
                 >
                   Voucher Code · Optional
@@ -537,7 +481,7 @@ const Plans = () => {
                   size="small"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5,
+                      borderRadius: 1.2,
                       bgcolor: theme.palette.background.default,
                       '& fieldset': {
                         borderColor: theme.palette.divider,
@@ -552,7 +496,8 @@ const Plans = () => {
                     },
                     '& .MuiInputBase-input': {
                       color: theme.palette.text.primary,
-                      py: 1,
+                      py: 0.8, // Reduced padding
+                      fontSize: '0.875rem',
                     },
                   }}
                 />
@@ -564,23 +509,23 @@ const Plans = () => {
                   sx={{
                     boxShadow: 'none',
                     border: `1px solid ${theme.palette.divider}`,
-                    borderRadius: 1.5,
+                    borderRadius: 1.2,
                     '&:before': { display: 'none' },
                     bgcolor: theme.palette.background.paper,
                     '&.Mui-expanded': {
                       margin: 0,
                     },
                     '&.MuiAccordion-root.Mui-expanded': {
-                      border: 'none', // Remove border when expanded
+                      border: 'none',
                     },
                   }}
                 >
                   <AccordionSummary
-                    expandIcon={<ExpandMoreIcon sx={{ color: theme.palette.text.secondary }} />}
+                    expandIcon={<ExpandMoreIcon sx={{ color: theme.palette.text.secondary, fontSize: 20 }} />}
                     sx={{
-                      minHeight: 52,
+                      minHeight: 44, // Reduced height
                       '& .MuiAccordionSummary-content': {
-                        my: 1,
+                        my: 0.8, // Reduced margin
                       },
                       '&.Mui-focused': {
                         outline: 'none',
@@ -590,33 +535,33 @@ const Plans = () => {
                         bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
                       },
                       '&.Mui-expanded': {
-                        minHeight: 52,
+                        minHeight: 44, // Reduced height
                       },
                     }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <ReceiptIcon sx={{ fontSize: 20, color: theme.palette.text.secondary }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <ReceiptIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} /> {/* Smaller icon */}
                       <Typography sx={{
                         fontWeight: 600,
                         color: theme.palette.text.primary,
-                        fontSize: '0.9rem'
+                        fontSize: '0.85rem' // Smaller font
                       }}>
                         Optional Invoice Contents
                       </Typography>
                     </Box>
-                    <IconButton size="small" sx={{ ml: 'auto', mr: 1, p: 0.5 }}>
-                      <HelpOutlineIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                    <IconButton size="small" sx={{ ml: 'auto', mr: 0.5, p: 0.3 }}>
+                      <HelpOutlineIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} /> {/* Smaller icon */}
                     </IconButton>
                   </AccordionSummary>
-                  <AccordionDetails sx={{ pt: 0, pb: 2 }}>
-                    <Grid container spacing={2}>
+                  <AccordionDetails sx={{ pt: 0, pb: 1.5 }}> {/* Reduced padding */}
+                    <Grid container spacing={1.5}> {/* Reduced spacing */}
                       <Grid item xs={12} md={4}>
                         <Typography
                           variant="body2"
                           sx={{
-                            mb: 1,
+                            mb: 0.8, // Reduced margin
                             color: theme.palette.text.secondary,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem', // Smaller font
                             fontWeight: 500,
                           }}
                         >
@@ -636,7 +581,8 @@ const Plans = () => {
                             },
                             '& .MuiInputBase-input': {
                               color: theme.palette.text.primary,
-                              py: 0.8,
+                              py: 0.6, // Reduced padding
+                              fontSize: '0.875rem',
                             },
                           }}
                         />
@@ -645,9 +591,9 @@ const Plans = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            mb: 1,
+                            mb: 0.8, // Reduced margin
                             color: theme.palette.text.secondary,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem', // Smaller font
                             fontWeight: 500,
                           }}
                         >
@@ -667,7 +613,8 @@ const Plans = () => {
                             },
                             '& .MuiInputBase-input': {
                               color: theme.palette.text.primary,
-                              py: 0.8,
+                              py: 0.6, // Reduced padding
+                              fontSize: '0.875rem',
                             },
                           }}
                         />
@@ -676,9 +623,9 @@ const Plans = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            mb: 1,
+                            mb: 0.8, // Reduced margin
                             color: theme.palette.text.secondary,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem', // Smaller font
                             fontWeight: 500,
                           }}
                         >
@@ -698,7 +645,8 @@ const Plans = () => {
                             },
                             '& .MuiInputBase-input': {
                               color: theme.palette.text.primary,
-                              py: 0.8,
+                              py: 0.6, // Reduced padding
+                              fontSize: '0.875rem',
                             },
                           }}
                         />
@@ -707,9 +655,9 @@ const Plans = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            mb: 1,
+                            mb: 0.8, // Reduced margin
                             color: theme.palette.text.secondary,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem', // Smaller font
                             fontWeight: 500,
                           }}
                         >
@@ -729,7 +677,8 @@ const Plans = () => {
                             },
                             '& .MuiInputBase-input': {
                               color: theme.palette.text.primary,
-                              py: 0.8,
+                              py: 0.6, // Reduced padding
+                              fontSize: '0.875rem',
                             },
                           }}
                         />
@@ -738,9 +687,9 @@ const Plans = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            mb: 1,
+                            mb: 0.8, // Reduced margin
                             color: theme.palette.text.secondary,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem', // Smaller font
                             fontWeight: 500,
                           }}
                         >
@@ -760,7 +709,8 @@ const Plans = () => {
                             },
                             '& .MuiInputBase-input': {
                               color: theme.palette.text.primary,
-                              py: 0.8,
+                              py: 0.6, // Reduced padding
+                              fontSize: '0.875rem',
                             },
                           }}
                         />

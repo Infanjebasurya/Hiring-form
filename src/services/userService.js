@@ -13,6 +13,17 @@ export const getUsers = () => {
   }
 };
 
+// Get user by ID
+export const getUserById = (userId) => {
+  try {
+    const users = getUsers();
+    return users.find(user => user.id === userId);
+  } catch (error) {
+    console.error('Error getting user by ID:', error);
+    return null;
+  }
+};
+
 // Save users to localStorage
 export const saveUsers = (users) => {
   try {
@@ -81,6 +92,7 @@ export const initializeUsers = () => {
         name: 'Rio',
         email: 'rio@gmail.com',
         role: 'HR',
+        organization: 1, // Add organization reference
         createdAt: new Date().toISOString(),
         status: 'active'
       },
@@ -89,6 +101,7 @@ export const initializeUsers = () => {
         name: 'Nanda',
         email: 'nanda@gmail.com',
         role: 'Interviewer',
+        organization: 2, // Add organization reference
         createdAt: new Date().toISOString(),
         status: 'active'
       },
@@ -97,6 +110,7 @@ export const initializeUsers = () => {
         name: 'Ashish',
         email: 'ashish@gmail.com',
         role: 'Interviewer',
+        organization: 1, // Add organization reference
         createdAt: new Date().toISOString(),
         status: 'active'
       }

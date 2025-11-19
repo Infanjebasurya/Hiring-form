@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Box } from '@mui/material';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import Users from './components/Users/Users';
+import Organizations from './components/Organizations/Organizations';
 
 const AdminDashboard = ({ darkMode }) => {
   return (
@@ -12,6 +13,7 @@ const AdminDashboard = ({ darkMode }) => {
         <Route path="/" element={<DashboardOverview darkMode={darkMode} />} />
         <Route path="/users" element={<Users darkMode={darkMode} />} />
         <Route path="/users/*" element={<Users darkMode={darkMode} />} />
+        <Route path="/organizations" element={<Organizations darkMode={darkMode} />} />
         {/* Add other admin routes here */}
         <Route path="*" element={<DashboardOverview darkMode={darkMode} />} />
       </Routes>

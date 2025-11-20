@@ -1,5 +1,4 @@
-// src/components/Layout/HelpUsImprove/HelpUsImprove.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,20 +9,98 @@ import {
   Box,
   Typography,
   Alert,
-  CircularProgress
+  CircularProgress,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Divider,
+  Paper,
+  Stack,
+  IconButton,
+  Chip
 } from '@mui/material';
-import { Feedback as FeedbackIcon } from '@mui/icons-material';
+import { 
+  Feedback as FeedbackIcon,
+  Close as CloseIcon,
+  Send as SendIcon,
+  Business as BusinessIcon,
+  Email as EmailIcon,
+  Category as CategoryIcon
+} from '@mui/icons-material';
 
-const HelpUsImprove = ({ open, onClose, darkMode }) => {
-  const [feedback, setFeedback] = useState('');
+// Mock function to get user info
+const getUserInfo = () => {
+  return {
+    email: '',
+    organization: 'Tech Corp',
+    organizations: ['Tech Corp', 'Finance LLC', 'Education Inc']
+  };
+};
+
+const HelpUsImprove = ({ open, onClose, darkMode = false }) => {
+  const [formData, setFormData] = useState({
+    feedback: '',
+    organization: '',
+    email: '',
+    category: 'general'
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+
+  const feedbackCategories = [
+    { value: 'general', label: 'General Feedback', color: '#2196f3' },
+    { value: 'bug', label: 'Bug Report', color: '#f44336' },
+    { value: 'feature', label: 'Feature Request', color: '#4caf50' },
+    { value: 'ui', label: 'UI/UX Improvement', color: '#ff9800' },
+    { value: 'performance', label: 'Performance Issue', color: '#9c27b0' },
+    { value: 'security', label: 'Security Concern', color: '#e91e63' },
+    { value: 'other', label: 'Other', color: '#607d8b' }
+  ];
+
+  useEffect(() => {
+    if (open) {
+      const user = getUserInfo();
+      setUserInfo(user);
+      setFormData({
+        feedback: '',
+        organization: user.organization || '',
+        email: user.email || '',
+        category: 'general'
+      });
+      setSubmitStatus(null);
+    }
+  }, [open]);
+
+  const handleInputChange = (field) => (event) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!feedback.trim()) {
+    if (!formData.feedback.trim()) {
       setSubmitStatus({ type: 'error', message: 'Please enter your feedback before submitting.' });
+      return;
+    }
+
+    if (!formData.organization.trim()) {
+      setSubmitStatus({ type: 'error', message: 'Please select your organization.' });
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setSubmitStatus({ type: 'error', message: 'Please enter your email address.' });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setSubmitStatus({ type: 'error', message: 'Please enter a valid email address.' });
       return;
     }
 
@@ -31,105 +108,425 @@ const HelpUsImprove = ({ open, onClose, darkMode }) => {
     setSubmitStatus(null);
 
     try {
-      // Simulate API call - replace with your actual backend endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Here you would typically send the feedback to your backend
-      console.log('Feedback submitted:', feedback);
+      setSubmitStatus({ 
+        type: 'success', 
+        message: 'Thank you for your feedback! We appreciate your input and will review it soon.' 
+      });
       
-      setSubmitStatus({ type: 'success', message: 'Thank you for your feedback! We appreciate your input.' });
-      setFeedback('');
+      setFormData({
+        feedback: '',
+        organization: userInfo?.organization || '',
+        email: userInfo?.email || '',
+        category: 'general'
+      });
       
-      // Close dialog after successful submission
       setTimeout(() => {
         onClose();
         setSubmitStatus(null);
-      }, 2000);
+      }, 2500);
+      
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Failed to submit feedback. Please try again.' });
+      console.error('Error submitting feedback:', error);
+      setSubmitStatus({ 
+        type: 'error', 
+        message: 'Failed to submit feedback. Please try again.' 
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    setFeedback('');
-    setSubmitStatus(null);
-    onClose();
+    if (!isSubmitting) {
+      setFormData({
+        feedback: '',
+        organization: userInfo?.organization || '',
+        email: userInfo?.email || '',
+        category: 'general'
+      });
+      setSubmitStatus(null);
+      onClose();
+    }
   };
+
+  const isFormValid = () => {
+    return (
+      formData.feedback.trim() &&
+      formData.organization.trim() &&
+      formData.email.trim() &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+      formData.feedback.length <= 1000
+    );
+  };
+
+  const selectedCategory = feedbackCategories.find(cat => cat.value === formData.category);
 
   return (
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: darkMode ? 'background.paper' : 'background.default',
-          backgroundImage: 'none'
+          bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
+          borderRadius: 2,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          overflow: 'hidden' // Ensure no overflow from the paper itself
         }
       }}
     >
-      <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <FeedbackIcon color="primary" />
-          <Typography variant="h6" component="span">
-            Help Us Improve
-          </Typography>
+      {/* Header */}
+      <DialogTitle
+        sx={{
+          bgcolor: darkMode ? '#252525' : '#f5f7fa',
+          borderBottom: `1px solid ${darkMode ? '#333' : '#e0e0e0'}`,
+          py: 2.5,
+          px: 3
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              sx={{
+                bgcolor: 'primary.main',
+                borderRadius: 1.5,
+                p: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <FeedbackIcon sx={{ color: 'white', fontSize: 24 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                Help Us Improve
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Your feedback drives our progress
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            onClick={handleClose}
+            disabled={isSubmitting}
+            size="small"
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { bgcolor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </Box>
       </DialogTitle>
 
       <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            We value your feedback! Please share your thoughts, suggestions, or report any issues you've encountered.
-          </Typography>
+        <DialogContent 
+          sx={{ 
+            p: 3,
+            // Hide scrollbar but keep scrolling functionality
+            '&::-webkit-scrollbar': {
+              display: 'none'
+            },
+            '-ms-overflow-style': 'none', // IE and Edge
+            'scrollbar-width': 'none', // Firefox
+            overflowY: 'auto', // Keep scrollable
+            maxHeight: '60vh' // Limit height to ensure scrolling is needed
+          }}
+        >
+          {/* Introduction */}
+          <Paper
+            elevation={0}
+            sx={{
+              bgcolor: darkMode ? 'rgba(33, 150, 243, 0.08)' : 'rgba(33, 150, 243, 0.04)',
+              border: `1px solid ${darkMode ? 'rgba(33, 150, 243, 0.2)' : 'rgba(33, 150, 243, 0.1)'}`,
+              borderRadius: 1.5,
+              p: 2,
+              mb: 3
+            }}
+          >
+            <Typography variant="body2" color="text.primary" sx={{ lineHeight: 1.7 }}>
+              We value your feedback! Share your thoughts, suggestions, or report any issues. 
+              Your input helps us create a better experience for everyone.
+            </Typography>
+          </Paper>
 
+          {/* Status Alert */}
           {submitStatus && (
             <Alert 
               severity={submitStatus.type} 
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 3,
+                borderRadius: 1.5,
+                '& .MuiAlert-message': { width: '100%' }
+              }}
+              onClose={() => setSubmitStatus(null)}
             >
               {submitStatus.message}
             </Alert>
           )}
 
-          <TextField
-            autoFocus
-            multiline
-            rows={6}
-            fullWidth
-            variant="outlined"
-            label="Your Feedback"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Tell us what you think... What can we do better? What features would you like to see? Any issues you've faced?"
-            disabled={isSubmitting}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                bgcolor: darkMode ? 'background.default' : 'background.paper',
-              }
-            }}
-          />
+          <Stack spacing={3}>
+            {/* Organization and Email Row */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel 
+                  id="organization-label"
+                  sx={{ 
+                    bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
+                    px: 0.5
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <BusinessIcon sx={{ fontSize: 18 }} />
+                    Organization
+                  </Box>
+                </InputLabel>
+                <Select
+                  labelId="organization-label"
+                  value={formData.organization}
+                  onChange={handleInputChange('organization')}
+                  label="Organization"
+                  disabled={isSubmitting}
+                  sx={{
+                    borderRadius: 1.5,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: darkMode ? '#404040' : '#e0e0e0'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: darkMode ? '#606060' : '#bdbdbd'
+                    }
+                  }}
+                >
+                  {userInfo?.organizations?.map((org) => (
+                    <MenuItem key={org} value={org}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <BusinessIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                        {org}
+                      </Box>
+                    </MenuItem>
+                  ))}
+                  <Divider sx={{ my: 0.5 }} />
+                  <MenuItem value="other">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <BusinessIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                      Other Organization
+                    </Box>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth>
+                <TextField
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <EmailIcon sx={{ fontSize: 18 }} />
+                      Email Address
+                    </Box>
+                  }
+                  variant="outlined"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange('email')}
+                  disabled={isSubmitting}
+                  placeholder="your.email@example.com"
+                  InputLabelProps={{
+                    sx: { 
+                      bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
+                      px: 0.5
+                    }
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1.5,
+                      '& fieldset': {
+                        borderColor: darkMode ? '#404040' : '#e0e0e0'
+                      },
+                      '&:hover fieldset': {
+                        borderColor: darkMode ? '#606060' : '#bdbdbd'
+                      }
+                    }
+                  }}
+                />
+              </FormControl>
+            </Box>
+
+            {/* Category */}
+            <FormControl fullWidth>
+              <InputLabel 
+                id="category-label"
+                sx={{ 
+                  bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
+                  px: 0.5
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <CategoryIcon sx={{ fontSize: 18 }} />
+                  Feedback Category
+                </Box>
+              </InputLabel>
+              <Select
+                labelId="category-label"
+                value={formData.category}
+                onChange={handleInputChange('category')}
+                label="Feedback Category"
+                disabled={isSubmitting}
+                sx={{
+                  borderRadius: 1.5,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: darkMode ? '#404040' : '#e0e0e0'
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: darkMode ? '#606060' : '#bdbdbd'
+                  }
+                }}
+              >
+                {feedbackCategories.map((category) => (
+                  <MenuItem key={category.value} value={category.value}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          bgcolor: category.color
+                        }}
+                      />
+                      {category.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Feedback Text Area */}
+            <Box>
+              <TextField
+                autoFocus
+                multiline
+                rows={8}
+                fullWidth
+                variant="outlined"
+                label="Your Feedback"
+                value={formData.feedback}
+                onChange={handleInputChange('feedback')}
+                placeholder="Share your thoughts with us...
+
+• What features would you like to see?
+• What can we improve?
+• Any issues you've encountered?
+• Suggestions for enhancement?"
+                disabled={isSubmitting}
+                InputLabelProps={{
+                  sx: { 
+                    bgcolor: darkMode ? '#1e1e1e' : '#ffffff',
+                    px: 0.5
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5,
+                    '& fieldset': {
+                      borderColor: darkMode ? '#404040' : '#e0e0e0'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: darkMode ? '#606060' : '#bdbdbd'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderWidth: 2
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.95rem',
+                    lineHeight: 1.6
+                  }
+                }}
+              />
+              
+              {/* Character Count */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  {selectedCategory && (
+                    <Chip
+                      label={selectedCategory.label}
+                      size="small"
+                      sx={{
+                        bgcolor: `${selectedCategory.color}15`,
+                        color: selectedCategory.color,
+                        fontWeight: 500,
+                        fontSize: '0.75rem',
+                        height: 24
+                      }}
+                    />
+                  )}
+                </Box>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    color: formData.feedback.length > 1000 ? 'error.main' : 'text.secondary',
+                    fontWeight: formData.feedback.length > 900 ? 600 : 400
+                  }}
+                >
+                  {formData.feedback.length}/1000 characters
+                </Typography>
+              </Box>
+            </Box>
+          </Stack>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button 
-            onClick={handleClose}
-            disabled={isSubmitting}
-            color="inherit"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={isSubmitting || !feedback.trim()}
-            startIcon={isSubmitting ? <CircularProgress size={16} /> : null}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-          </Button>
+        {/* Footer Actions */}
+        <DialogActions 
+          sx={{ 
+            px: 3, 
+            py: 2.5,
+            bgcolor: darkMode ? '#252525' : '#f5f7fa',
+            borderTop: `1px solid ${darkMode ? '#333' : '#e0e0e0'}`
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 1.5, width: '100%', justifyContent: 'flex-end' }}>
+            <Button 
+              onClick={handleClose}
+              disabled={isSubmitting}
+              variant="outlined"
+              sx={{ 
+                minWidth: 100,
+                borderRadius: 1.5,
+                textTransform: 'none',
+                fontWeight: 500,
+                borderColor: darkMode ? '#404040' : '#e0e0e0',
+                color: 'text.primary',
+                '&:hover': {
+                  borderColor: darkMode ? '#606060' : '#bdbdbd',
+                  bgcolor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting || !isFormValid()}
+              startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
+              sx={{ 
+                minWidth: 160,
+                borderRadius: 1.5,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: 2,
+                '&:hover': {
+                  boxShadow: 4
+                }
+              }}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+            </Button>
+          </Box>
         </DialogActions>
       </form>
     </Dialog>

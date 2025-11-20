@@ -20,6 +20,8 @@ import {
   Menu as MenuIcon,
   Dashboard,
   People,
+  Business,
+  Feedback,
   Logout,
   Brightness4,
   Brightness7,
@@ -40,8 +42,18 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Home', icon: <Dashboard />, path: '/admin' },
-    { text: 'Users', icon: <People />, path: '/admin/users' }
+    { text: 'Dashboard', icon: <Dashboard />, path: '/admin' },
+    { text: 'Users', icon: <People />, path: '/admin/users' },
+    // { 
+    //   text: 'Organizations', 
+    //   icon: <Business />, 
+    //   path: '/admin/organizations' 
+    // },
+    { 
+      text: 'Feedbacks', 
+      icon: <Feedback />,
+      path: '/admin/feedbacks'
+    }
   ];
 
   const handleDrawerToggle = () => {
@@ -59,12 +71,32 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
     setCollapsed(!collapsed);
   };
 
+  // Function to get page title based on current path
+  const getPageTitle = () => {
+    const currentItem = menuItems.find(item => 
+      location.pathname === item.path || 
+      location.pathname.startsWith(item.path + '/')
+    );
+    
+    if (currentItem) {
+      return currentItem.text;
+    }
+    
+    // Fallback for nested routes
+    if (location.pathname.includes('/users/')) return 'User Management';
+    // if (location.pathname.includes('/organizations/')) return 'Organization Details';
+    if (location.pathname.includes('/feedbacks/')) return 'Feedback Details';
+    
+    return 'Admin Panel';
+  };
+
   const drawer = (
     <Box sx={{ 
       background: theme.palette.background.paper, 
       height: '100%',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
       {/* Logo/Sidebar Header */}
       <Box sx={{ 
@@ -73,7 +105,8 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'space-between',
-        minHeight: '64px'
+        minHeight: '64px',
+        flexShrink: 0
       }}>
         {!collapsed && (
           <Typography 
@@ -94,6 +127,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
           size="small"
           sx={{
             color: theme.palette.text.secondary,
+            cursor: 'pointer', // Added cursor pointer
             '&:hover': {
               backgroundColor: theme.palette.action.hover
             }
@@ -104,79 +138,99 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
       </Box>
 
       {/* Navigation Menu */}
-      <List sx={{ px: 1, py: 2, flex: 1 }}>
-        {menuItems.map((item) => (
-          <Tooltip 
-            key={item.text} 
-            title={collapsed ? item.text : ''} 
-            placement="right"
-            disableHoverListener={!collapsed}
-          >
-            <ListItem
-              button
-              onClick={() => handleNavigation(item.path)}
-              sx={{
-                mb: 1,
-                borderRadius: 2,
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                px: collapsed ? 2 : 3,
-                backgroundColor: location.pathname === item.path ? 
-                  theme.palette.primary.main + '20' : 'transparent',
-                border: location.pathname === item.path ? 
-                  `1px solid ${theme.palette.primary.main}30` : '1px solid transparent',
-                '&:hover': {
-                  backgroundColor: theme.palette.action.hover,
-                  border: `1px solid ${theme.palette.primary.main}20`
-                }
-              }}
+      <List sx={{ px: 1, py: 2, flex: 1, overflow: 'auto' }}>
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path || 
+                          location.pathname.startsWith(item.path + '/');
+          
+          return (
+            <Tooltip 
+              key={item.text} 
+              title={collapsed ? item.text : ''} 
+              placement="right"
+              disableHoverListener={!collapsed}
             >
-              <ListItemIcon sx={{ 
-                color: location.pathname === item.path ? 
-                  theme.palette.primary.main : theme.palette.text.secondary,
-                minWidth: collapsed ? 'auto' : '56px',
-                justifyContent: 'center'
-              }}>
-                {item.icon}
-              </ListItemIcon>
-              <Collapse in={!collapsed} orientation="horizontal">
-                <ListItemText 
-                  primary={item.text}
-                  sx={{
-                    '& .MuiTypography-root': {
-                      fontWeight: location.pathname === item.path ? 600 : 400,
-                      color: location.pathname === item.path ? 
-                        theme.palette.primary.main : theme.palette.text.primary
-                    }
-                  }}
-                />
-              </Collapse>
-            </ListItem>
-          </Tooltip>
-        ))}
+              <ListItem
+                button
+                onClick={() => handleNavigation(item.path)}
+                sx={{
+                  mb: 1,
+                  borderRadius: 2,
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  px: collapsed ? 2 : 3,
+                  backgroundColor: isActive ? 
+                    theme.palette.primary.main + '20' : 'transparent',
+                  border: isActive ? 
+                    `1px solid ${theme.palette.primary.main}30` : '1px solid transparent',
+                  cursor: 'pointer', // Added cursor pointer
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                    border: `1px solid ${theme.palette.primary.main}20`,
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ 
+                  color: isActive ? 
+                    theme.palette.primary.main : theme.palette.text.secondary,
+                  minWidth: collapsed ? 'auto' : '56px',
+                  justifyContent: 'center',
+                  cursor: 'pointer' // Added cursor pointer
+                }}>
+                  {item.icon}
+                </ListItemIcon>
+                
+                <Collapse in={!collapsed} orientation="horizontal">
+                  <ListItemText 
+                    primary={item.text}
+                    sx={{
+                      '& .MuiTypography-root': {
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive ? 
+                          theme.palette.primary.main : theme.palette.text.primary,
+                        cursor: 'pointer' // Added cursor pointer
+                      }
+                    }}
+                  />
+                </Collapse>
+              </ListItem>
+            </Tooltip>
+          );
+        })}
       </List>
 
       {/* User Info at Bottom */}
-      {!collapsed && (
-        <Box sx={{ 
-          p: 2, 
-          borderTop: `1px solid ${theme.palette.divider}`,
-          textAlign: 'center'
-        }}>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            {user?.name || 'Admin User'}
+      <Box sx={{ 
+        p: 2, 
+        borderTop: `1px solid ${theme.palette.divider}`,
+        textAlign: 'center',
+        flexShrink: 0,
+        cursor: 'default' // Default cursor for non-clickable area
+      }}>
+        {!collapsed && (
+          <>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, cursor: 'default' }}>
+              {user?.name || 'Admin User'}
+            </Typography>
+            <Typography variant="caption" color="textSecondary" sx={{ cursor: 'default' }}>
+              {user?.email || 'admin@example.com'}
+            </Typography>
+          </>
+        )}
+        {collapsed && (
+          <Typography variant="caption" color="textSecondary" sx={{ cursor: 'default' }}>
+            {user?.name?.charAt(0) || 'A'}
           </Typography>
-          <Typography variant="caption" color="textSecondary">
-            {user?.email || 'admin@example.com'}
-          </Typography>
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 
   const currentDrawerWidth = collapsed ? collapsedDrawerWidth : drawerWidth;
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', cursor: 'default' }}> {/* Default cursor for main container */}
       {/* App Bar */}
       <AppBar
         position="fixed"
@@ -186,7 +240,12 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
           background: theme.palette.background.paper,
           color: theme.palette.text.primary,
           boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-          borderBottom: `1px solid ${theme.palette.divider}`
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+          cursor: 'default' // Default cursor for app bar
         }}
       >
         <Toolbar>
@@ -195,35 +254,56 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ 
+              mr: 2, 
+              display: { md: 'none' },
+              cursor: 'pointer' // Added cursor pointer
+            }}
           >
             <MenuIcon />
           </IconButton>
           
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {menuItems.find(item => item.path === location.pathname)?.text || 'Admin Panel'}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'default' }}>
+            {getPageTitle()}
           </Typography>
 
           {/* Theme Toggle */}
-          <IconButton 
-            onClick={onToggleTheme} 
-            color="inherit"
-            sx={{ mr: 1 }}
-          >
-            {darkMode ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
+          <Tooltip title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
+            <IconButton 
+              onClick={onToggleTheme} 
+              color="inherit"
+              sx={{ 
+                mr: 1,
+                cursor: 'pointer' // Added cursor pointer
+              }}
+            >
+              {darkMode ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+          </Tooltip>
 
           {/* Logout */}
-          <IconButton onClick={onLogout} color="inherit">
-            <Logout />
-          </IconButton>
+          <Tooltip title="Logout">
+            <IconButton 
+              onClick={onLogout} 
+              color="inherit"
+              sx={{
+                cursor: 'pointer' // Added cursor pointer
+              }}
+            >
+              <Logout />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
 
       {/* Sidebar Drawer */}
       <Box
         component="nav"
-        sx={{ width: { md: currentDrawerWidth }, flexShrink: { md: 0 } }}
+        sx={{ 
+          width: { md: currentDrawerWidth }, 
+          flexShrink: { md: 0 },
+          cursor: 'default' // Default cursor for nav container
+        }}
       >
         <Drawer
           variant="temporary"
@@ -235,7 +315,8 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              background: theme.palette.background.paper
+              background: theme.palette.background.paper,
+              cursor: 'default' // Default cursor for drawer
             },
           }}
         >
@@ -254,7 +335,8 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.enteringScreen,
               }),
-              overflowX: 'hidden'
+              overflowX: 'hidden',
+              cursor: 'default' // Default cursor for drawer
             },
           }}
           open
@@ -276,6 +358,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
+          cursor: 'default' // Default cursor for main content
         }}
       >
         <Toolbar /> {/* Spacer for AppBar */}

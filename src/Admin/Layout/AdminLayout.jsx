@@ -44,15 +44,20 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/admin' },
     { text: 'Users', icon: <People />, path: '/admin/users' },
-    // { 
-    //   text: 'Organizations', 
-    //   icon: <Business />, 
-    //   path: '/admin/organizations' 
-    // },
+    { 
+      text: 'Organizations', 
+      icon: <Business />, 
+      path: '/admin/organizations' 
+    },
     { 
       text: 'Feedbacks', 
       icon: <Feedback />,
       path: '/admin/feedbacks'
+    },
+    { 
+      text: 'PlanUpgrade', 
+      icon: <Feedback />,
+      path: '/admin/AdminPlan'
     }
   ];
 

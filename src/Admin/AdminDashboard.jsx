@@ -6,6 +6,7 @@ import DashboardOverview from './components/Dashboard/DashboardOverview';
 import Users from './components/Users/Users';
 import Organizations from './components/Organizations/Organizations';
 import Feedbacks from './components/Feedbacks/Feedbacks'; // Add this import
+import AdminPlanUpgrade from './components/PlanUpgrade/AdminPlanUpgrade';
 
 const AdminDashboard = ({ darkMode }) => {
   return (
@@ -15,6 +16,8 @@ const AdminDashboard = ({ darkMode }) => {
         <Route path="/users" element={<Users darkMode={darkMode} />} />
         <Route path="/users/*" element={<Users darkMode={darkMode} />} />
         <Route path="/organizations" element={<Organizations darkMode={darkMode} />} />
+        <Route path="/AdminPlan" element={<AdminPlanUpgrade darkMode={darkMode} />} />
+
         {/* Add the Feedbacks route */}
         <Route path="/feedbacks" element={<Feedbacks darkMode={darkMode} />} />
         {/* Add other admin routes here */}

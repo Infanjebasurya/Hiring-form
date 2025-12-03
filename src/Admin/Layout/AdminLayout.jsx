@@ -21,7 +21,8 @@ import {
   Dashboard,
   People,
   Business,
-  Feedback,
+  RateReview,
+  RocketLaunch,
   Logout,
   Brightness4,
   Brightness7,
@@ -51,12 +52,12 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
     },
     { 
       text: 'Feedbacks', 
-      icon: <Feedback />,
+      icon: <RateReview />,
       path: '/admin/feedbacks'
     },
     { 
       text: 'PlanUpgrade', 
-      icon: <Feedback />,
+      icon: <RocketLaunch />,
       path: '/admin/AdminPlan'
     }
   ];

@@ -63,7 +63,7 @@ const getTheme = (mode) => createTheme({
       },
     },
     MuiPaper: {
-      styleOverflows: {
+      styleOverrides: {
         root: {
           backgroundImage: 'none',
         },
@@ -468,7 +468,7 @@ function App() {
           />
           
           {/* Main App Routes */}
-          <Route path="*" element={<MainAppContent />} />
+          <Route path="/*" element={<MainAppContent />} />
         </Routes>
       </AuthProvider>
     </Router>

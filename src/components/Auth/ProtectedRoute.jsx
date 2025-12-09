@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { CircularProgress, Box, Alert } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 
 const ProtectedRoute = ({ children, requireUser = false }) => {
   const { user, loading, isAdmin } = useAuth();

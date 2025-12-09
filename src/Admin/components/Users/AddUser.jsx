@@ -15,8 +15,8 @@ import {
   CardContent,
   Grid,
   Snackbar,
-  Autocomplete,
-  Chip
+  InputLabel,
+  FormHelperText
 } from '@mui/material';
 import { 
   ArrowBack, 
@@ -24,7 +24,8 @@ import {
   Person, 
   Email, 
   Security, 
-  Business
+  Business,
+  Add as AddIcon
 } from '@mui/icons-material';
 import { addUser } from '../../../services/userService';
 import { getOrganizations } from '../../../services/organizationService';
@@ -42,7 +43,8 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [organizationInput, setOrganizationInput] = useState('');
+  const [showAddOrg, setShowAddOrg] = useState(false);
+  const [newOrgName, setNewOrgName] = useState('');
 
   useEffect(() => {
     loadOrganizations();
@@ -88,14 +90,16 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
     if (validateForm()) {
       setLoading(true);
       try {
+        // Find selected organization
+        const selectedOrg = organizations.find(org => org.id === formData.organization);
+        
         // Prepare user data
         const userData = {
           name: formData.name,
           email: formData.email,
           role: formData.role,
           organization: formData.organization,
-          // Store organization name for display
-          organizationName: getSelectedOrganizationName()
+          organizationName: selectedOrg ? selectedOrg.name : newOrgName
         };
 
         // Save user to localStorage
@@ -140,31 +144,41 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
     }
   };
 
-  const handleOrganizationChange = (event, newValue) => {
-    console.log('Organization changed:', newValue);
-    
-    if (newValue && typeof newValue === 'object') {
-      // Selected from dropdown - use the organization ID
-      setFormData(prev => ({
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleAddNewOrganization = () => {
+    if (!newOrgName.trim()) {
+      setErrors(prev => ({
         ...prev,
-        organization: newValue.id
+        organization: 'Please enter an organization name'
       }));
-    } else if (typeof newValue === 'string' && newValue.trim()) {
-      // Manual input - create a new organization ID from the name
-      const newOrgId = newValue.toLowerCase().replace(/\s+/g, '-');
-      setFormData(prev => ({
-        ...prev,
-        organization: newOrgId
-      }));
-    } else {
-      // Cleared or empty
-      setFormData(prev => ({
-        ...prev,
-        organization: ''
-      }));
+      return;
     }
+
+    // Create a new organization object
+    const newOrg = {
+      id: newOrgName.toLowerCase().replace(/\s+/g, '-'),
+      name: newOrgName,
+      status: 'active',
+      isCustom: true
+    };
+
+    // Add to organizations list
+    setOrganizations(prev => [...prev, newOrg]);
     
-    // Clear error
+    // Set as selected
+    setFormData(prev => ({
+      ...prev,
+      organization: newOrg.id
+    }));
+
+    // Reset new org form
+    setNewOrgName('');
+    setShowAddOrg(false);
+    
+    // Clear any organization error
     if (errors.organization) {
       setErrors(prev => ({
         ...prev,
@@ -173,65 +187,15 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
     }
   };
 
-  const handleOrganizationInputChange = (event, newInputValue) => {
-    setOrganizationInput(newInputValue);
-    
-    // If user is typing manually and it's not matching any existing organization
-    if (newInputValue && !organizations.find(org => org.name === newInputValue)) {
-      const newOrgId = newInputValue.toLowerCase().replace(/\s+/g, '-');
-      setFormData(prev => ({
-        ...prev,
-        organization: newOrgId
-      }));
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+  const handleCancelAddOrg = () => {
+    setShowAddOrg(false);
+    setNewOrgName('');
   };
 
   const getSelectedOrganizationName = () => {
     if (!formData.organization) return '';
-    
-    // Check if it's an existing organization
-    const existingOrg = organizations.find(org => org.id === formData.organization);
-    if (existingOrg) {
-      return existingOrg.name;
-    }
-    
-    // Return the manual input value (convert ID back to readable name)
-    return formData.organization.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
-
-  const getOrganizationDisplayValue = () => {
-    if (!formData.organization) return null;
-    
-    // First try to find by ID
-    let org = organizations.find(org => org.id === formData.organization);
-    
-    // If not found by ID, try to find by name (for backward compatibility)
-    if (!org) {
-      org = organizations.find(org => 
-        org.name.toLowerCase() === formData.organization.toLowerCase()
-      );
-    }
-    
-    if (org) {
-      return org;
-    }
-    
-    // If no organization found in the list, return a temporary object for display
-    return { 
-      id: formData.organization, 
-      name: getSelectedOrganizationName(),
-      isCustom: true 
-    };
-  };
-
-  const isManualOrganization = () => {
-    return formData.organization && !organizations.find(org => org.id === formData.organization);
+    const selectedOrg = organizations.find(org => org.id === formData.organization);
+    return selectedOrg ? selectedOrg.name : '';
   };
 
   return (
@@ -457,7 +421,7 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
                 </FormControl>
               </Grid>
 
-              {/* Organization Field with FreeSolo Autocomplete */}
+              {/* Organization Field - Dropdown */}
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth error={!!errors.organization}>
                   <Typography 
@@ -468,95 +432,157 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
                       color: theme.palette.text.primary,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1
+                      gap: 1,
+                      justifyContent: 'space-between'
                     }}
                   >
-                    <Business color="primary" />
-                    Organization
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Business color="primary" />
+                      Organization
+                    </Box>
+                    {!showAddOrg && (
+                      <Button
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={() => setShowAddOrg(true)}
+                        sx={{
+                          fontSize: '0.75rem',
+                          py: 0.5,
+                          px: 1.5,
+                          minWidth: 'auto',
+                          color: theme.palette.primary.main,
+                          '&:hover': {
+                            backgroundColor: theme.palette.primary.main + '10'
+                          }
+                        }}
+                      >
+                        Add New
+                      </Button>
+                    )}
                   </Typography>
-                  <Autocomplete
-                    freeSolo
-                    options={organizations}
-                    getOptionLabel={(option) => 
-                      typeof option === 'string' ? option : option.name
-                    }
-                    value={getOrganizationDisplayValue()}
-                    onChange={handleOrganizationChange}
-                    onInputChange={handleOrganizationInputChange}
-                    inputValue={organizationInput}
-                    disabled={loading}
-                    renderInput={(params) => (
+                  
+                  {showAddOrg ? (
+                    // Add New Organization Form
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                       <TextField
-                        {...params}
-                        placeholder="Type or select organization"
+                        fullWidth
+                        placeholder="Enter new organization name"
+                        value={newOrgName}
+                        onChange={(e) => setNewOrgName(e.target.value)}
                         error={!!errors.organization}
-                        helperText={errors.organization || "Select from list or type to create new organization"}
+                        helperText={errors.organization}
+                        size="small"
+                        autoFocus
                         sx={{
                           '& .MuiOutlinedInput-root': {
                             background: theme.palette.background.default,
                             borderRadius: 2,
                             height: '40px',
-                            padding: '0 !important',
-                            '& .MuiAutocomplete-input': {
-                              padding: '10px 14px !important',
-                              fontSize: '0.875rem',
-                              height: '20px'
+                            '& .MuiInputBase-input': {
+                              height: '20px',
+                              padding: '10px 14px',
+                              fontSize: '0.875rem'
                             }
-                          },
-                          '& .MuiInputLabel-root': {
-                            fontSize: '0.875rem'
                           }
                         }}
-                        InputLabelProps={{
-                          shrink: true
-                        }}
                       />
-                    )}
-                    renderOption={(props, option) => (
-                      <li {...props}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Business color="primary" />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="body1" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                              {option.name}
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={handleAddNewOrganization}
+                          sx={{
+                            height: '40px',
+                            px: 2,
+                            backgroundColor: theme.palette.success.main,
+                            '&:hover': {
+                              backgroundColor: theme.palette.success.dark
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={handleCancelAddOrg}
+                          sx={{
+                            height: '40px',
+                            px: 2,
+                            borderColor: theme.palette.divider,
+                            color: theme.palette.text.secondary
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
+                    </Box>
+                  ) : (
+                    // Organization Dropdown
+                    <Select
+                      value={formData.organization}
+                      onChange={handleInputChange('organization')}
+                      displayEmpty
+                      disabled={loading}
+                      sx={{
+                        background: theme.palette.background.default,
+                        borderRadius: 2,
+                        height: '40px',
+                        '& .MuiSelect-select': {
+                          padding: '10px 14px',
+                          fontSize: '0.875rem',
+                          height: '20px',
+                          minHeight: 'auto',
+                          display: 'flex',
+                          alignItems: 'center'
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: theme.palette.primary.main,
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 300,
+                            borderRadius: 2,
+                            mt: 1
+                          }
+                        }
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Select an organization</em>
+                      </MenuItem>
+                      {organizations.map((org) => (
+                        <MenuItem key={org.id} value={org.id}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                              {org.name}
                             </Typography>
-                            <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.75rem' }}>
-                              Status: {option.status}
-                            </Typography>
+                            {org.status === 'active' && (
+                              <Box
+                                component="span"
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  backgroundColor: theme.palette.success.main + '20',
+                                  color: theme.palette.success.main,
+                                  px: 1,
+                                  py: 0.25,
+                                  borderRadius: 1,
+                                  fontWeight: 500
+                                }}
+                              >
+                                Active
+                              </Box>
+                            )}
                           </Box>
-                          {option.status === 'active' && (
-                            <Chip 
-                              label="Active" 
-                              size="small" 
-                              color="success"
-                              sx={{ fontSize: '0.7rem' }}
-                            />
-                          )}
-                        </Box>
-                      </li>
-                    )}
-                    isOptionEqualToValue={(option, value) => 
-                      option.id === (value?.id || value)
-                    }
-                    filterOptions={(options, params) => {
-                      const filtered = options.filter(option =>
-                        option.name.toLowerCase().includes(params.inputValue.toLowerCase())
-                      );
-
-                      // Suggest the creation of a new value
-                      if (params.inputValue !== '' && !filtered.some(option => 
-                        option.name.toLowerCase() === params.inputValue.toLowerCase()
-                      )) {
-                        filtered.push({
-                          id: params.inputValue.toLowerCase().replace(/\s+/g, '-'),
-                          name: params.inputValue,
-                          isCustom: true
-                        });
-                      }
-
-                      return filtered;
-                    }}
-                  />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                  {errors.organization && !showAddOrg && (
+                    <FormHelperText error>{errors.organization}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
 
@@ -564,23 +590,14 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
               {formData.organization && (
                 <Grid item xs={12}>
                   <Alert 
-                    severity={isManualOrganization() ? "warning" : "success"}
+                    severity="success"
                     sx={{ 
-                      background: isManualOrganization() 
-                        ? theme.palette.warning.main + '10'
-                        : theme.palette.success.main + '10',
-                      color: isManualOrganization() 
-                        ? theme.palette.warning.main
-                        : theme.palette.success.main,
-                      border: `1px solid ${isManualOrganization() 
-                        ? theme.palette.warning.main + '30'
-                        : theme.palette.success.main + '30'
-                      }`,
+                      background: theme.palette.success.main + '10',
+                      color: theme.palette.success.main,
+                      border: `1px solid ${theme.palette.success.main}30`,
                       borderRadius: 2,
                       '& .MuiAlert-icon': {
-                        color: isManualOrganization() 
-                          ? theme.palette.warning.main
-                          : theme.palette.success.main
+                        color: theme.palette.success.main
                       }
                     }}
                   >
@@ -590,20 +607,7 @@ const AddUser = ({ darkMode, onSave, onCancel }) => {
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           Selected Organization: <strong>{getSelectedOrganizationName()}</strong>
                         </Typography>
-                        {isManualOrganization() && (
-                          <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
-                            This is a new organization that will be created
-                          </Typography>
-                        )}
                       </Box>
-                      {isManualOrganization() && (
-                        <Chip 
-                          label="New" 
-                          size="small" 
-                          color="warning" 
-                          sx={{ ml: 'auto' }}
-                        />
-                      )}
                     </Box>
                   </Alert>
                 </Grid>

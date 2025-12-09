@@ -29,7 +29,6 @@ import {
   Email,
   Language,
   LinkedIn,
-  Work,
   LocationOn,
   Person,
   Lock,
@@ -64,11 +63,8 @@ const Settings = ({ isSidebarCollapsed }) => {
   const [profileData, setProfileData] = useState({
     // Company Information
     companyName: '',
-    companyEmail: '',
-    companyEmailVerified: false,
     companyWebsite: '',
     linkedinUrl: '',
-    currentRole: '',
     companyAddress: '',
     
     // Personal Information
@@ -93,8 +89,6 @@ const Settings = ({ isSidebarCollapsed }) => {
         email: user.email || '',
         emailVerified: user.emailVerified || false,
         companyName: user.company || '',
-        companyEmail: user.companyEmail || '',
-        companyEmailVerified: user.companyEmailVerified || false,
       }));
     }
   }, [user]);
@@ -110,12 +104,6 @@ const Settings = ({ isSidebarCollapsed }) => {
       setProfileData(prev => ({
         ...prev,
         emailVerified: false
-      }));
-    }
-    if (field === 'companyEmail' && value !== user?.companyEmail) {
-      setProfileData(prev => ({
-        ...prev,
-        companyEmailVerified: false
       }));
     }
   };
@@ -183,17 +171,6 @@ const Settings = ({ isSidebarCollapsed }) => {
           const updatedUser = { ...user, emailVerified: true };
           localStorage.setItem('user', JSON.stringify(updatedUser));
         }
-      } else if (type === 'company') {
-        setProfileData(prev => ({
-          ...prev,
-          companyEmailVerified: true
-        }));
-        
-        // Update user context/local storage
-        if (user) {
-          const updatedUser = { ...user, companyEmailVerified: true };
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-        }
       }
       
       setVerificationDialog(prev => ({ ...prev, open: false, verificationCode: '' }));
@@ -226,10 +203,6 @@ const Settings = ({ isSidebarCollapsed }) => {
       alert('Please enter a valid personal email address');
       return;
     }
-    if (profileData.companyEmail && !emailRegex.test(profileData.companyEmail)) {
-      alert('Please enter a valid company email address');
-      return;
-    }
 
     try {
       // Simulate API call to save settings
@@ -248,8 +221,6 @@ const Settings = ({ isSidebarCollapsed }) => {
           email: profileData.email,
           emailVerified: profileData.email === user.email ? profileData.emailVerified : false,
           company: profileData.companyName,
-          companyEmail: profileData.companyEmail,
-          companyEmailVerified: profileData.companyEmail === user.companyEmail ? profileData.companyEmailVerified : false,
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
@@ -452,48 +423,6 @@ const Settings = ({ isSidebarCollapsed }) => {
                         startAdornment: (
                           <InputAdornment position="start">
                             <Business fontSize="small" sx={{ color: iconColor }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <TextField
-                        fullWidth
-                        label="Company Email"
-                        type="email"
-                        value={profileData.companyEmail}
-                        onChange={(e) => handleInputChange('companyEmail', e.target.value)}
-                        size="small"
-                        sx={textFieldStyles}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Email fontSize="small" sx={{ color: iconColor }} />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      {renderVerificationStatus(
-                        profileData.companyEmailVerified, 
-                        profileData.companyEmail, 
-                        'company'
-                      )}
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Current Role"
-                      value={profileData.currentRole}
-                      onChange={(e) => handleInputChange('currentRole', e.target.value)}
-                      size="small"
-                      sx={textFieldStyles}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Work fontSize="small" sx={{ color: iconColor }} />
                           </InputAdornment>
                         ),
                       }}

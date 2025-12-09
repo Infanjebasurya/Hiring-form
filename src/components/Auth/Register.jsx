@@ -83,7 +83,9 @@ const Register = ({ darkMode, onToggleTheme }) => {
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // FIXED: Using proper regex constructor
+    const emailRegex = new RegExp('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
       return false;
@@ -576,7 +578,7 @@ const Register = ({ darkMode, onToggleTheme }) => {
                       textDecoration: 'underline'
                     },
                     transition: 'color 0.3s ease'
-                  }}
+                }}
                 >
                   Sign in here
                 </Link>
@@ -589,4 +591,4 @@ const Register = ({ darkMode, onToggleTheme }) => {
   );
 };
 
-export default Register; 
+export default Register;

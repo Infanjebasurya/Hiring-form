@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useMemo, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -63,7 +63,7 @@ const getTheme = (mode) => createTheme({
       },
     },
     MuiPaper: {
-      styleOverflows: {
+      styleOverrides: {
         root: {
           backgroundImage: 'none',
         },
@@ -250,6 +250,7 @@ function MainAppContent() {
   
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light'), [darkMode]);
@@ -260,12 +261,12 @@ function MainAppContent() {
     }
   }, [isMobile]);
 
-  // Redirect admin users to admin panel
+  // Handle admin redirection based on user role
   useEffect(() => {
-    if (user && isAdmin && !window.location.pathname.startsWith('/admin')) {
-      navigate('/admin');
+    if (user && isAdmin && !location.pathname.startsWith('/admin')) {
+      navigate('/admin', { replace: true });
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, navigate, location]);
 
   const handleToggleTheme = () => {
     setDarkMode(!darkMode);
@@ -318,15 +319,15 @@ function MainAppContent() {
         {/* Public Routes */}
         <Route 
           path="/login" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />) : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         <Route 
           path="/register" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />) : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         <Route 
           path="/forgot-password" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+          element={user ? (isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />) : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
         />
         
         {/* Protected Routes - Regular User Only */}
@@ -446,7 +447,7 @@ function MainAppContent() {
         />
         
         {/* Catch all route for regular users */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ThemeProvider>
   );
@@ -468,7 +469,7 @@ function App() {
           />
           
           {/* Main App Routes */}
-          <Route path="*" element={<MainAppContent />} />
+          <Route path="/*" element={<MainAppContent />} />
         </Routes>
       </AuthProvider>
     </Router>

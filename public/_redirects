@@ -1,0 +1,2 @@
+# In public folder, create _redirects file with this content:
+echo /*    /index.html   200 > public/_redirects

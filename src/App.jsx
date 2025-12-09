@@ -455,8 +455,8 @@ function MainAppContent() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
         <Routes>
           {/* Admin Routes - All admin routes under /admin/* */}
           <Route 
@@ -471,8 +471,8 @@ function App() {
           {/* Main App Routes */}
           <Route path="/*" element={<MainAppContent />} />
         </Routes>
-      </AuthProvider>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 

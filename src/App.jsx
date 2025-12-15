@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box, useMediaQuery } from '@mui/material';
+import { CssBaseline, Box, useMediaQuery, Typography, Button } from '@mui/material'; // Added Typography and Button
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Layout/Sidebar/Sidebar';
 import TopNav from './components/Layout/TopNav/TopNav';
@@ -16,6 +16,9 @@ import Settings from './components/Layout/Settings/Settings';
 import Home from './components/Layout/Home/Home';
 import User from './components/Layout/User/User';
 import HiringForm from './components/HiringForm/HiringForm';
+import JobInterviews from './components/Layout/JobInterview/JobInterview';
+import CreateNewProcess from './components/Layout/JobInterview/CreateNewProcess';
+import EditJobInterview from './components/Layout/JobInterview/EditJobInterview';
 import Plans from './components/Layout/Upgrade-Plan/plans';
 import HelpUsImprove from './components/Layout/HelpUsImprove/HelpUsImprove';
 import AdminLayout from './Admin/Layout/AdminLayout';
@@ -27,9 +30,13 @@ const getTheme = (mode) => createTheme({
     mode,
     primary: {
       main: mode === 'dark' ? '#6366F1' : '#667eea',
+      light: mode === 'dark' ? '#818cf8' : '#8a98f0',
+      dark: mode === 'dark' ? '#4f46e5' : '#5a67d8',
     },
     secondary: {
-      main: mode === 'dark' ? '#818cf8' : '#5568d3',
+      main: mode === 'dark' ? '#10b981' : '#059669',
+      light: mode === 'dark' ? '#34d399' : '#10b981',
+      dark: mode === 'dark' ? '#059669' : '#047857',
     },
     ...(mode === 'dark' ? {
       background: {
@@ -151,23 +158,23 @@ const getAdminTheme = (mode) => createTheme({
 });
 
 // Main Layout Component with Top Navigation
-function MainLayout({ 
-  children, 
-  darkMode, 
-  isSidebarCollapsed, 
-  onToggleTheme, 
-  onToggleSidebar, 
-  mobileOpen, 
-  onMobileClose, 
+function MainLayout({
+  children,
+  darkMode,
+  isSidebarCollapsed,
+  onToggleTheme,
+  onToggleSidebar,
+  mobileOpen,
+  onMobileClose,
   isMobile,
-  onOpenFeedback 
+  onOpenFeedback
 }) {
   const { user } = useAuth();
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      <Sidebar 
-        darkMode={darkMode} 
+      <Sidebar
+        darkMode={darkMode}
         onToggleTheme={onToggleTheme}
         isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
         onToggleSidebar={onToggleSidebar}
@@ -175,7 +182,7 @@ function MainLayout({
         onMobileClose={onMobileClose}
         isMobile={isMobile}
       />
-      
+
       {/* Main Content with Top Navigation */}
       <Box
         component="main"
@@ -185,22 +192,25 @@ function MainLayout({
           flexDirection: 'column',
           height: '100vh',
           overflow: 'hidden',
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
+          transition: 'all 0.3s ease',
         }}
       >
         {/* Top Navigation Header */}
-        <TopNav 
+        <TopNav
           darkMode={darkMode}
           user={user}
           isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={onToggleSidebar}
           onOpenFeedback={onOpenFeedback}
         />
-        
+
         {/* Page Content */}
         <Box sx={{
           flex: 1,
           overflow: 'auto',
+          p: { xs: 2, sm: 3 },
+          position: 'relative',
         }}>
           {children}
         </Box>
@@ -229,8 +239,8 @@ function AdminAppContent() {
   return (
     <ThemeProvider theme={adminTheme}>
       <CssBaseline />
-      <AdminLayout 
-        darkMode={adminDarkMode} 
+      <AdminLayout
+        darkMode={adminDarkMode}
         onToggleTheme={handleAdminToggleTheme}
         onLogout={handleAdminLogout}
         user={user}
@@ -247,7 +257,7 @@ function MainAppContent() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  
+
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -306,147 +316,220 @@ function MainAppContent() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
+
       {/* Help Us Improve Dialog */}
-      <HelpUsImprove 
+      <HelpUsImprove
         open={feedbackOpen}
         onClose={handleCloseFeedback}
         darkMode={darkMode}
       />
-      
+
       <Routes>
         {/* Public Routes */}
-        <Route 
-          path="/login" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+        <Route
+          path="/login"
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Login darkMode={darkMode} onToggleTheme={handleToggleTheme} />}
         />
-        <Route 
-          path="/register" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+        <Route
+          path="/register"
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <Register darkMode={darkMode} onToggleTheme={handleToggleTheme} />}
         />
-        <Route 
-          path="/forgot-password" 
-          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />} 
+        <Route
+          path="/forgot-password"
+          element={user ? (isAdmin ? <Navigate to="/admin" /> : <Navigate to="/" />) : <ForgotPassword darkMode={darkMode} onToggleTheme={handleToggleTheme} />}
         />
-        
+
         {/* Protected Routes - Regular User Only */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <Home darkMode={darkMode} />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/user" 
+
+        <Route
+          path="/user"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <User darkMode={darkMode} />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/hiring-form" 
+
+        <Route
+          path="/hiring-form"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <HiringForm darkMode={darkMode} />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
+        {/* Job Interviews Routes */}
+        <Route
+          path="/job-interviews"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <JobInterviews darkMode={darkMode} />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/createNewProcess"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <CreateNewProcess />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Add Edit Job Interview Route */}
+        <Route
+          path="/edit-job-interview/:id"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <EditJobInterview />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Plans Route */}
-        <Route 
-          path="/plans" 
+        <Route
+          path="/plans"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <Plans darkMode={darkMode} />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/chat" 
+
+        <Route
+          path="/chat"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <MainContent 
-                  darkMode={darkMode} 
+                <MainContent
+                  darkMode={darkMode}
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/chat/new" 
+
+        <Route
+          path="/chat/new"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <MainContent 
-                  darkMode={darkMode} 
+                <MainContent
+                  darkMode={darkMode}
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/search" 
+
+        <Route
+          path="/search"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <MainContent 
-                  darkMode={darkMode} 
+                <MainContent
+                  darkMode={darkMode}
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/upgrade" 
+
+        <Route
+          path="/upgrade"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <MainContent 
-                  darkMode={darkMode} 
+                <MainContent
+                  darkMode={darkMode}
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/settings" 
+
+        <Route
+          path="/settings"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <Settings 
-                  darkMode={darkMode} 
+                <Settings
+                  darkMode={darkMode}
                   isSidebarCollapsed={isSidebarCollapsed}
                 />
               </MainLayout>
             </ProtectedRoute>
+          }
+        />
+
+        {/* 404 Page - Redirect to home */}
+        <Route 
+          path="/404" 
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  height: '100%',
+                  textAlign: 'center',
+                  p: 3
+                }}>
+                  <Typography variant="h1" sx={{ fontSize: '6rem', fontWeight: 700, mb: 2, color: 'primary.main' }}>
+                    404
+                  </Typography>
+                  <Typography variant="h4" sx={{ mb: 3 }}>
+                    Page Not Found
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500 }}>
+                    The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    size="large"
+                    onClick={() => navigate('/')}
+                    sx={{ borderRadius: 2, px: 4 }}
+                  >
+                    Go to Home
+                  </Button>
+                </Box>
+              </MainLayout>
+            </ProtectedRoute>
           } 
         />
-        
+
         {/* Catch all route for regular users */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/404" />} />
       </Routes>
     </ThemeProvider>
   );
@@ -458,15 +541,15 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* Admin Routes - All admin routes under /admin/* */}
-          <Route 
-            path="/admin/*" 
+          <Route
+            path="/admin/*"
             element={
               <AdminRoute>
                 <AdminAppContent />
               </AdminRoute>
-            } 
+            }
           />
-          
+
           {/* Main App Routes */}
           <Route path="/*" element={<MainAppContent />} />
         </Routes>

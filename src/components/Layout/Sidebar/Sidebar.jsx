@@ -27,6 +27,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import WorkIcon from '@mui/icons-material/Work'; // Hiring Form icon
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'; // ADD THIS IMPORT for Job Interviews
 import SidebarHeader from './SidebarHeader';
 import MenuSection from './MenuSection';
 import ProgressBar from '../../Common/ProgressBar';
@@ -99,6 +100,11 @@ const Sidebar = ({
 
   const handleHiringFormClick = () => {
     navigate('/hiring-form');
+    if (isMobile) onMobileClose();
+  };
+
+  const handleJobInterviewClick = () => {
+    navigate('/job-interviews'); // UPDATED THIS LINE
     if (isMobile) onMobileClose();
   };
 
@@ -292,7 +298,7 @@ const Sidebar = ({
           </Box>
         </Box>
 
-        {/* Home, User, and Hiring Form Menu Items */}
+        {/* Home, User, Hiring Form, and Job Interviews Menu Items */}
         <Box sx={{ 
           px: isMobile ? 1 : (isSidebarCollapsed ? 1 : 1),
           margin: 0
@@ -582,6 +588,102 @@ const Sidebar = ({
                 />
               </ListItemIcon>
               <ListItemText>Hiring Form</ListItemText>
+            </MenuItem>
+          )}
+
+          {/* Job Interviews Menu Item - ADDED THIS SECTION */}
+          {isMobile ? (
+            <MenuItem
+              onClick={handleJobInterviewClick}
+              sx={{
+                color: isActiveRoute('/job-interviews') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/job-interviews') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/job-interviews') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <CalendarTodayIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/job-interviews') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Job Interviews</ListItemText>
+            </MenuItem>
+          ) : isSidebarCollapsed ? (
+            <Tooltip title="Job Interviews" placement="right">
+              <IconButton
+                onClick={handleJobInterviewClick}
+                sx={{
+                  color: isActiveRoute('/job-interviews') ? 'primary.main' : 'text.secondary',
+                  width: '100%',
+                  height: 40,
+                  margin: 0,
+                  bgcolor: isActiveRoute('/job-interviews') ? 'action.selected' : 'transparent',
+                  outline: 'none',
+                  '&:focus': {
+                    outline: 'none',
+                    boxShadow: 'none',
+                  },
+                  '&:focus-visible': {
+                    outline: 'none',
+                  },
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: 'action.hover'
+                  }
+                }}
+              >
+                <CalendarTodayIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <MenuItem
+              onClick={handleJobInterviewClick}
+              sx={{
+                color: isActiveRoute('/job-interviews') ? 'primary.main' : 'text.secondary',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                borderRadius: 1,
+                minHeight: 40,
+                margin: 0,
+                bgcolor: isActiveRoute('/job-interviews') ? 'action.selected' : 'transparent',
+                outline: 'none',
+                '&:focus': {
+                  outline: 'none',
+                  bgcolor: isActiveRoute('/job-interviews') ? 'action.selected' : 'transparent',
+                },
+                '&:focus-visible': {
+                  outline: 'none',
+                },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon>
+                <CalendarTodayIcon 
+                  fontSize="small" 
+                  sx={{ color: isActiveRoute('/job-interviews') ? 'primary.main' : 'text.secondary' }} 
+                />
+              </ListItemIcon>
+              <ListItemText>Job Interviews</ListItemText>
             </MenuItem>
           )}
         </Box>

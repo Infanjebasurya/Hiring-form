@@ -286,7 +286,7 @@ const EditJobInterview = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '100vh',
-        bgcolor: '#f5f5f5'
+        bgcolor: 'background.default'
       }}>
         <CircularProgress />
       </Box>
@@ -302,7 +302,7 @@ const EditJobInterview = () => {
         alignItems: 'center', 
         justifyContent: 'center', 
         minHeight: '50vh',
-        bgcolor: '#f5f5f5'
+        bgcolor: 'background.default'
       }}>
         <Alert severity="error" sx={{ mb: 2, width: '100%', maxWidth: 600 }}>
           {error}
@@ -324,7 +324,7 @@ const EditJobInterview = () => {
       margin: '0 auto', 
       p: { xs: 2, sm: 3, md: 4 },
       minHeight: '100vh',
-      bgcolor: '#f5f5f5'
+      bgcolor: 'background.default'
     }}>
       {/* Exit Confirmation Dialog */}
       <Dialog
@@ -333,7 +333,6 @@ const EditJobInterview = () => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            bgcolor: '#fff',
           },
         }}
       >
@@ -349,8 +348,12 @@ const EditJobInterview = () => {
             sx={{ 
               borderRadius: 2, 
               px: 3,
-              bgcolor: '#fff',
-              border: '1px solid #e0e0e0',
+              color: 'text.secondary',
+              borderColor: 'divider',
+              '&:hover': {
+                borderColor: 'text.primary',
+                color: 'text.primary',
+              }
             }}
           >
             Cancel
@@ -358,7 +361,6 @@ const EditJobInterview = () => {
           <Button
             onClick={handleExitConfirm}
             variant="contained"
-            color="primary"
             sx={{ borderRadius: 2, px: 3 }}
           >
             Leave
@@ -378,11 +380,12 @@ const EditJobInterview = () => {
           disabled={saving}
           sx={{ 
             p: { xs: 1, sm: 1.5 },
-            border: '1px solid #e0e0e0',
+            border: '1px solid',
+            borderColor: 'divider',
             borderRadius: '8px',
-            bgcolor: '#fff',
+            bgcolor: 'background.paper',
             '&:hover': {
-              bgcolor: '#f5f5f5'
+              bgcolor: 'action.hover'
             }
           }}
         >
@@ -393,7 +396,8 @@ const EditJobInterview = () => {
             variant="h4" 
             sx={{ 
               fontWeight: 600,
-              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+              color: 'text.primary'
             }}
           >
             Edit Interview Process
@@ -445,7 +449,8 @@ const EditJobInterview = () => {
             sx={{ 
               fontWeight: 600, 
               mb: 1.5,
-              fontSize: { xs: '1rem', sm: '1.125rem' }
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              color: 'text.primary'
             }}
           >
             Job ID
@@ -458,7 +463,7 @@ const EditJobInterview = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '& input': {
                   fontSize: { xs: '0.9rem', sm: '1rem' },
                   fontWeight: 500,
@@ -476,7 +481,8 @@ const EditJobInterview = () => {
             sx={{ 
               fontWeight: 600, 
               mb: 1.5,
-              fontSize: { xs: '1rem', sm: '1.125rem' }
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              color: 'text.primary'
             }}
           >
             JD Link
@@ -491,7 +497,7 @@ const EditJobInterview = () => {
               startAdornment: (
                 <LinkIcon sx={{ 
                   mr: 1.5, 
-                  color: '#666',
+                  color: 'text.secondary',
                   fontSize: { xs: '1.2rem', sm: '1.5rem' }
                 }} />
               ),
@@ -499,7 +505,7 @@ const EditJobInterview = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '& input': {
                   fontSize: { xs: '0.9rem', sm: '1rem' },
                   padding: { xs: '12px 14px', sm: '14px 16px' }
@@ -511,8 +517,7 @@ const EditJobInterview = () => {
 
         <Divider sx={{ 
           my: { xs: 3, sm: 4 },
-          borderColor: '#e0e0e0',
-          borderWidth: '1px'
+          borderColor: 'divider',
         }} />
 
         {/* Interview Rounds Section */}
@@ -522,7 +527,8 @@ const EditJobInterview = () => {
             sx={{ 
               fontWeight: 600, 
               mb: { xs: 2, sm: 3 },
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              color: 'text.primary'
             }}
           >
             Interview Rounds ({formData.interviewRounds.length})
@@ -536,9 +542,10 @@ const EditJobInterview = () => {
               sx={{
                 p: { xs: 2, sm: 3 },
                 mb: 2,
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 borderRadius: '12px',
-                border: '1px solid #e0e0e0',
+                border: '1px solid',
+                borderColor: 'divider',
               }}
             >
               {/* Round Header */}
@@ -555,7 +562,8 @@ const EditJobInterview = () => {
                     fontWeight: 600, 
                     mr: 2,
                     fontSize: { xs: '0.9rem', sm: '1rem' },
-                    minWidth: '60px'
+                    minWidth: '60px',
+                    color: 'text.primary'
                   }}
                 >
                   Round {index + 1}
@@ -571,7 +579,7 @@ const EditJobInterview = () => {
                     flexGrow: 1,
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '6px',
-                      bgcolor: '#f8f9fa',
+                      bgcolor: 'action.hover',
                     }
                   }}
                 />
@@ -583,8 +591,11 @@ const EditJobInterview = () => {
                     disabled={saving}
                     sx={{ 
                       ml: 'auto', 
-                      color: '#666',
-                      p: { xs: 0.5, sm: 1 }
+                      color: 'text.secondary',
+                      p: { xs: 0.5, sm: 1 },
+                      '&:hover': {
+                        color: 'error.main'
+                      }
                     }}
                   >
                     <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
@@ -605,7 +616,8 @@ const EditJobInterview = () => {
                     fontWeight: 600, 
                     minWidth: { xs: '100%', sm: '60px' },
                     mb: isMobile ? 1 : 0,
-                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    color: 'text.primary'
                   }}
                 >
                   Assign
@@ -624,7 +636,7 @@ const EditJobInterview = () => {
                     minWidth: { xs: '100%', sm: '200px' },
                     '& .MuiAutocomplete-inputRoot': {
                       padding: { xs: '4px 8px', sm: '8px 12px' },
-                      bgcolor: '#f8f9fa',
+                      bgcolor: 'action.hover',
                     }
                   }}
                   renderInput={(params) => (
@@ -654,14 +666,14 @@ const EditJobInterview = () => {
                     sx={{
                       borderRadius: '6px',
                       textTransform: 'none',
-                      borderColor: '#666',
-                      color: '#666',
+                      borderColor: 'text.secondary',
+                      color: 'text.secondary',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' },
                       px: { xs: 1.5, sm: 2 },
                       flex: isMobile ? 1 : 'auto',
                       '&:hover': {
-                        borderColor: '#333',
-                        color: '#333',
+                        borderColor: 'text.primary',
+                        color: 'text.primary',
                       }
                     }}
                   >
@@ -677,17 +689,25 @@ const EditJobInterview = () => {
                       borderRadius: '6px',
                       textTransform: 'none',
                       minWidth: { xs: '70px', sm: '80px' },
-                      borderColor: round.isSelfAssigned ? '#1976d2' : '#666',
-                      bgcolor: round.isSelfAssigned ? '#1976d2' : 'transparent',
-                      color: round.isSelfAssigned ? '#fff' : '#666',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' },
                       px: { xs: 1.5, sm: 2 },
                       flex: isMobile ? 1 : 'auto',
-                      '&:hover': {
-                        borderColor: round.isSelfAssigned ? '#1565c0' : '#333',
-                        bgcolor: round.isSelfAssigned ? '#1565c0' : 'transparent',
-                        color: round.isSelfAssigned ? '#fff' : '#333',
-                      }
+                      ...(round.isSelfAssigned
+                        ? {
+                            bgcolor: 'primary.main',
+                            color: 'primary.contrastText',
+                            '&:hover': {
+                              bgcolor: 'primary.dark',
+                            }
+                          }
+                        : {
+                            borderColor: 'text.secondary',
+                            color: 'text.secondary',
+                            '&:hover': {
+                              borderColor: 'text.primary',
+                              color: 'text.primary',
+                            }
+                          })
                     }}
                   >
                     Self
@@ -708,7 +728,7 @@ const EditJobInterview = () => {
                   <Typography 
                     variant="body2" 
                     sx={{ 
-                      color: '#666',
+                      color: 'text.secondary',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' }
                     }}
                   >
@@ -719,8 +739,20 @@ const EditJobInterview = () => {
                     size="small"
                     onDelete={round.isSelfAssigned ? undefined : () => handleInterviewerChange(round.id, '')}
                     sx={{
-                      bgcolor: round.isSelfAssigned ? '#e3f2fd' : '#f0f0f0',
-                      color: round.isSelfAssigned ? '#1976d2' : '#333',
+                      bgcolor: round.isSelfAssigned 
+                        ? theme.palette.mode === 'light' 
+                          ? '#e3f2fd' 
+                          : 'rgba(30, 136, 229, 0.16)'
+                        : theme.palette.mode === 'light'
+                          ? '#f0f0f0'
+                          : 'rgba(255, 255, 255, 0.08)',
+                      color: round.isSelfAssigned 
+                        ? theme.palette.mode === 'light' 
+                          ? '#1976d2' 
+                          : '#90caf9'
+                        : theme.palette.mode === 'light'
+                          ? '#333'
+                          : 'text.primary',
                       fontWeight: 500,
                       borderRadius: '4px',
                       fontSize: { xs: '0.75rem', sm: '0.875rem' },
@@ -753,7 +785,7 @@ const EditJobInterview = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
-                  bgcolor: '#fff',
+                  bgcolor: 'background.paper',
                   '& input': {
                     fontSize: { xs: '0.9rem', sm: '1rem' },
                     padding: { xs: '12px 14px', sm: '14px 16px' }
@@ -770,16 +802,16 @@ const EditJobInterview = () => {
                 borderRadius: '8px',
                 textTransform: 'none',
                 minWidth: { xs: '100%', sm: '200px' },
-                borderColor: '#666',
-                color: '#666',
+                borderColor: 'text.secondary',
+                color: 'text.secondary',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 px: { xs: 2, sm: 3 },
                 py: { xs: 1, sm: 1.25 },
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '&:hover': {
-                  borderColor: '#1976d2',
-                  color: '#1976d2',
-                  bgcolor: '#f8f9fa',
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  bgcolor: 'action.hover',
                 }
               }}
             >
@@ -794,7 +826,8 @@ const EditJobInterview = () => {
           justifyContent: 'space-between', 
           mt: { xs: 3, sm: 4 },
           width: '100%',
-          gap: 2
+          gap: 2,
+          flexDirection: { xs: 'column', sm: 'row' }
         }}>
           <Button
             variant="outlined"
@@ -806,20 +839,26 @@ const EditJobInterview = () => {
               textTransform: 'none',
               px: { xs: 2, sm: 3 },
               py: { xs: 1, sm: 1.25 },
-              borderColor: '#666',
-              color: '#666',
+              borderColor: 'text.secondary',
+              color: 'text.secondary',
               fontSize: { xs: '0.9rem', sm: '1rem' },
-              bgcolor: '#fff',
+              bgcolor: 'background.paper',
               '&:hover': {
-                borderColor: '#333',
-                color: '#333',
-              }
+                borderColor: 'text.primary',
+                color: 'text.primary',
+              },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             Cancel
           </Button>
           
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            width: { xs: '100%', sm: 'auto' },
+            flexDirection: { xs: 'column', sm: 'row' }
+          }}>
             <Button
               variant="outlined"
               onClick={() => {
@@ -839,14 +878,15 @@ const EditJobInterview = () => {
                 textTransform: 'none',
                 px: { xs: 2, sm: 3 },
                 py: { xs: 1, sm: 1.25 },
-                borderColor: '#666',
-                color: '#666',
+                borderColor: 'text.secondary',
+                color: 'text.secondary',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '&:hover': {
-                  borderColor: '#333',
-                  color: '#333',
-                }
+                  borderColor: 'text.primary',
+                  color: 'text.primary',
+                },
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               Reset
@@ -862,15 +902,11 @@ const EditJobInterview = () => {
                 textTransform: 'none',
                 px: { xs: 3, sm: 4 },
                 py: { xs: 1, sm: 1.25 },
-                bgcolor: '#1976d2',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
-                '&:hover': {
-                  bgcolor: '#1565c0',
-                },
                 '&:disabled': {
-                  bgcolor: '#1976d2',
                   opacity: 0.7
-                }
+                },
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               {saving ? 'Saving...' : success ? 'Saved!' : 'Save Changes'}

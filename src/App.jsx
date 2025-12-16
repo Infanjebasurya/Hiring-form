@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box, useMediaQuery, Typography, Button } from '@mui/material'; // Added Typography and Button
+import { CssBaseline, Box, useMediaQuery, Typography, Button } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Layout/Sidebar/Sidebar';
 import TopNav from './components/Layout/TopNav/TopNav';
@@ -17,12 +17,20 @@ import Home from './components/Layout/Home/Home';
 import User from './components/Layout/User/User';
 import HiringForm from './components/HiringForm/HiringForm';
 import JobInterviews from './components/Layout/JobInterview/JobInterview';
-import CreateNewProcess from './components/Layout/JobInterview/CreateNewProcess';
+import CreateNewProcess from './components/Layout/JobInterview/CreateNewProcess/CreateNewProcess';
 import EditJobInterview from './components/Layout/JobInterview/EditJobInterview';
+import CandidateInterview from './components/Layout/JobInterview/CandidateInterview/CandidateInterview';
 import Plans from './components/Layout/Upgrade-Plan/plans';
 import HelpUsImprove from './components/Layout/HelpUsImprove/HelpUsImprove';
 import AdminLayout from './Admin/Layout/AdminLayout';
 import AdminDashboard from './Admin/AdminDashboard';
+
+// Import CRUD components for CandidateInterview
+import CandidateDetails from './components/Layout/JobInterview/CandidateInterview/CandidateDetails';
+import EditCandidate from './components/Layout/JobInterview/CandidateInterview/EditCandidate';
+import AddCandidate from './components/Layout/JobInterview/CandidateInterview/AddCandidate';
+import DeleteConfirmation from './components/Layout/JobInterview/CandidateInterview/DeleteConfirmation';
+import StatusChangeDialog from './components/Layout/JobInterview/CandidateInterview/StatusChangeDialog';
 
 // Theme configurations
 const getTheme = (mode) => createTheme({
@@ -37,6 +45,18 @@ const getTheme = (mode) => createTheme({
       main: mode === 'dark' ? '#10b981' : '#059669',
       light: mode === 'dark' ? '#34d399' : '#10b981',
       dark: mode === 'dark' ? '#059669' : '#047857',
+    },
+    success: {
+      main: '#10b981',
+    },
+    warning: {
+      main: '#f59e0b',
+    },
+    error: {
+      main: '#ef4444',
+    },
+    info: {
+      main: '#3b82f6',
     },
     ...(mode === 'dark' ? {
       background: {
@@ -60,6 +80,21 @@ const getTheme = (mode) => createTheme({
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h5: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 600,
+    },
+    subtitle1: {
+      fontWeight: 500,
+    },
+    subtitle2: {
+      fontWeight: 500,
+    },
+  },
+  shape: {
+    borderRadius: 8,
   },
   components: {
     MuiDrawer: {
@@ -96,6 +131,36 @@ const getTheme = (mode) => createTheme({
         },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 500,
+        },
+        contained: {
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: mode === 'dark' 
+            ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+            : '0 2px 8px rgba(0, 0, 0, 0.08)',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 500,
+        },
+      },
+    },
   },
 });
 
@@ -108,6 +173,18 @@ const getAdminTheme = (mode) => createTheme({
     },
     secondary: {
       main: mode === 'dark' ? '#2ECC71' : '#27AE60',
+    },
+    success: {
+      main: '#2ECC71',
+    },
+    warning: {
+      main: '#F39C12',
+    },
+    error: {
+      main: '#E74C3C',
+    },
+    info: {
+      main: '#3498DB',
     },
     ...(mode === 'dark' ? {
       background: {
@@ -396,13 +473,59 @@ function MainAppContent() {
           }
         />
 
-        {/* Add Edit Job Interview Route */}
+        {/* Edit Job Interview Route */}
         <Route
           path="/edit-job-interview/:id"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
                 <EditJobInterview />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Candidate Interview Management Route - Main Page */}
+        <Route
+          path="/candidate-interviews"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <CandidateInterview darkMode={darkMode} />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Candidate CRUD Operation Routes */}
+        <Route
+          path="/candidate-interviews/details/:id"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <CandidateDetails />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/candidate-interviews/edit/:id"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <EditCandidate />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/candidate-interviews/add"
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <AddCandidate />
               </MainLayout>
             </ProtectedRoute>
           }
@@ -420,6 +543,7 @@ function MainAppContent() {
           }
         />
 
+        {/* Chat Routes */}
         <Route
           path="/chat"
           element={
@@ -476,6 +600,7 @@ function MainAppContent() {
           }
         />
 
+        {/* Settings Route */}
         <Route
           path="/settings"
           element={

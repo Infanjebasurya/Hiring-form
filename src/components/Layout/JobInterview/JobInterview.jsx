@@ -38,6 +38,14 @@ import {
   Snackbar,
   Skeleton,
   Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  CardActionArea,
+  Badge,
+  Fab,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -57,6 +65,8 @@ import {
   Refresh as RefreshIcon,
   Work as WorkIcon,
   Sort as SortIcon,
+  Menu as MenuIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 
 // Enhanced API service with better pagination
@@ -187,6 +197,8 @@ const JobInterviews = ({ darkMode }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' });
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Fetch job interviews with all parameters
   const fetchJobInterviews = useCallback(async () => {
@@ -263,11 +275,16 @@ const JobInterviews = ({ darkMode }) => {
   };
 
   const handleFilterClick = (event) => {
-    setFilterAnchorEl(event.currentTarget);
+    if (isMobile) {
+      setMobileFilterOpen(true);
+    } else {
+      setFilterAnchorEl(event.currentTarget);
+    }
   };
 
   const handleFilterClose = () => {
     setFilterAnchorEl(null);
+    setMobileFilterOpen(false);
   };
 
   const handleStatusFilter = (status) => {
@@ -425,12 +442,12 @@ const JobInterviews = ({ darkMode }) => {
 
   const StatusChip = ({ status }) => {
     const statusConfig = {
-      'Done': { color: 'success', icon: <CheckCircleIcon fontSize="small" />, bgcolor: '#d4edda' },
-      'In progress': { color: 'primary', icon: <InProgressIcon fontSize="small" />, bgcolor: '#d1ecf1' },
-      'Pending': { color: 'warning', icon: <PendingIcon fontSize="small" />, bgcolor: '#fff3cd' },
+      'Done': { color: 'success', icon: <CheckCircleIcon fontSize="small" /> },
+      'In progress': { color: 'primary', icon: <InProgressIcon fontSize="small" /> },
+      'Pending': { color: 'warning', icon: <PendingIcon fontSize="small" /> },
     };
 
-    const config = statusConfig[status] || { color: 'default', icon: null, bgcolor: '#e2e3e5' };
+    const config = statusConfig[status] || { color: 'default', icon: null };
 
     return (
       <Chip
@@ -448,13 +465,13 @@ const JobInterviews = ({ darkMode }) => {
     );
   };
 
-  // Enhanced Statistics Cards
+  // Enhanced Statistics Cards - Mobile friendly
   const stats = statistics ? [
     { 
       label: 'Total Interviews', 
       value: statistics.totalInterviews.toString(), 
       subLabel: `${statistics.averageRounds} avg rounds`,
-      color: '#667eea', 
+      color: theme.palette.mode === 'dark' ? '#667eea' : '#667eea', 
       progress: 100,
       icon: <WorkIcon />,
     },
@@ -462,7 +479,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'In Progress', 
       value: statistics.inProgress.toString(), 
       subLabel: `${((statistics.inProgress / statistics.totalInterviews) * 100).toFixed(1)}% of total`,
-      color: '#4caf50', 
+      color: theme.palette.mode === 'dark' ? '#4caf50' : '#4caf50', 
       progress: statistics.totalInterviews > 0 ? (statistics.inProgress / statistics.totalInterviews) * 100 : 0,
       icon: <InProgressIcon />,
     },
@@ -470,7 +487,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Completed', 
       value: statistics.completed.toString(), 
       subLabel: `${statistics.totalCandidates} candidates`,
-      color: '#2196f3', 
+      color: theme.palette.mode === 'dark' ? '#2196f3' : '#2196f3', 
       progress: statistics.totalInterviews > 0 ? (statistics.completed / statistics.totalInterviews) * 100 : 0,
       icon: <CheckCircleIcon />,
     },
@@ -478,7 +495,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Pending', 
       value: statistics.pending.toString(), 
       subLabel: 'Awaiting action',
-      color: '#ff9800', 
+      color: theme.palette.mode === 'dark' ? '#ff9800' : '#ff9800', 
       progress: statistics.totalInterviews > 0 ? (statistics.pending / statistics.totalInterviews) * 100 : 0,
       icon: <PendingIcon />,
     },
@@ -500,6 +517,154 @@ const JobInterviews = ({ darkMode }) => {
     );
   };
 
+ // Mobile Card View Component - FIXED
+const MobileCardView = () => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+    {jobInterviews.map((row) => (
+      <Card 
+        key={row.id}
+        sx={{ 
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+            : '0 2px 8px rgba(0, 0, 0, 0.08)',
+        }}
+      >
+        <CardContent>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <Box>
+              <Typography variant="h6" fontWeight="600" color="primary">
+                {row.jobId}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {row.rounds} rounds • {row.candidates} candidates
+              </Typography>
+            </Box>
+            <StatusChip status={row.status} />
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              JD Link:
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LinkIcon fontSize="small" sx={{ color: 'primary.main' }} />
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'primary.main',
+                  textDecoration: 'underline',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                onClick={() => window.open(row.jdLink, '_blank')}
+                style={{ cursor: 'pointer' }}
+              >
+                {row.jdLink}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <AvatarGroup max={3} sx={{ justifyContent: 'flex-start' }}>
+                {row.team && row.team.map((initial, index) => (
+                  <Avatar
+                    key={index}
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      bgcolor: theme.palette.primary.main,
+                    }}
+                  >
+                    {initial}
+                  </Avatar>
+                ))}
+              </AvatarGroup>
+              <Typography variant="body2" color="text.secondary">
+                Team
+              </Typography>
+            </Box>
+            <Button
+              size="small"
+              startIcon={<PersonAddIcon fontSize="small" />}
+              sx={{
+                fontSize: '0.75rem',
+                borderRadius: 1,
+                textTransform: 'none',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedRow(row);
+                handleAddCandidate();
+              }}
+            >
+              Add Candidate
+            </Button>
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title="Edit">
+                <IconButton 
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedRow(row);
+                    navigate(`/edit-job-interview/${row.id}`, { 
+                      state: { editData: row } 
+                    });
+                  }}
+                  sx={{ 
+                    color: 'warning.main',
+                    bgcolor: alpha(theme.palette.warning.main, 0.1),
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton 
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedRow(row);
+                    setDeleteDialogOpen(true);
+                  }}
+                  sx={{ 
+                    color: 'error.main',
+                    bgcolor: alpha(theme.palette.error.main, 0.1),
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(e, row);
+              }}
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </CardContent>
+      </Card>
+    ))}
+  </Box>
+);
+
+
+
   if (error) {
     return (
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
@@ -519,59 +684,151 @@ const JobInterviews = ({ darkMode }) => {
 
   return (
     <Box sx={{ 
-      p: { xs: 2, sm: 3 },
-      bgcolor: '#f5f5f5',
+      p: { xs: 1, sm: 2, md: 3 },
+      bgcolor: theme.palette.background.default,
       minHeight: '100vh'
     }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      {/* Header - Responsive */}
+      <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Box>
-            <Typography variant="h5" fontWeight="600" gutterBottom>
+            <Typography variant="h5" fontWeight="600" gutterBottom color="text.primary">
               Job Interviews
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Manage and track all your job interview processes
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              startIcon={<RefreshIcon />}
-              onClick={handleRefresh}
-              disabled={loading}
-              sx={{
-                borderRadius: 2,
-                px: 2,
-                bgcolor: '#fff',
-                border: '1px solid #e0e0e0',
-                '&:hover': {
-                  bgcolor: '#f8f9fa',
-                }
-              }}
-            >
-              Refresh
-            </Button>
-          </Box>
+          
+          {/* Mobile Menu Button */}
+          {isMobile && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton
+                onClick={() => setMobileMenuOpen(true)}
+                sx={{
+                  color: 'text.primary',
+                  bgcolor: 'background.paper',
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
+          )}
+          
+          {/* Desktop Actions */}
+          {!isMobile && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                startIcon={<RefreshIcon />}
+                onClick={handleRefresh}
+                disabled={loading}
+                sx={{
+                  borderRadius: 2,
+                  px: 2,
+                  bgcolor: 'background.paper',
+                  border: `1px solid ${theme.palette.divider}`,
+                  color: 'text.primary',
+                  '&:hover': {
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                  }
+                }}
+              >
+                Refresh
+              </Button>
+            </Box>
+          )}
         </Box>
       </Box>
 
-      {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      {/* Mobile Menu Drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 280,
+            bgcolor: 'background.paper',
+            p: 2,
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h6" fontWeight="600">
+            Menu
+          </Typography>
+          <IconButton onClick={() => setMobileMenuOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        
+        <List>
+          <ListItem 
+            button 
+            onClick={() => {
+              handleNewJob();
+              setMobileMenuOpen(false);
+            }}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <AddIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="New Job" 
+              primaryTypographyProps={{ fontWeight: 500 }}
+            />
+          </ListItem>
+          
+          <ListItem 
+            button 
+            onClick={handleRefresh}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <RefreshIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Refresh" 
+              primaryTypographyProps={{ fontWeight: 500 }}
+            />
+          </ListItem>
+          
+          <ListItem 
+            button 
+            onClick={handleExport}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <DownloadIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Export" 
+              primaryTypographyProps={{ fontWeight: 500 }}
+            />
+          </ListItem>
+        </List>
+      </Drawer>
+
+      {/* Statistics Cards - Responsive Grid */}
+      <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
         {statisticsLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={6} sm={6} md={3} key={index}>
               <Card 
                 sx={{ 
-                  bgcolor: '#fff',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  bgcolor: 'background.paper',
                   borderRadius: 2,
-                  overflow: 'hidden',
+                  boxShadow: theme.palette.mode === 'dark' 
+                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
                   height: '100%',
                 }}
               >
-                <CardContent>
-                  <Skeleton variant="text" width="60%" height={24} />
-                  <Skeleton variant="text" width="40%" height={40} sx={{ mt: 1 }} />
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                  <Skeleton variant="text" width="60%" height={20} />
+                  <Skeleton variant="text" width="40%" height={32} sx={{ mt: 1 }} />
                   <Skeleton variant="rectangular" width="100%" height={6} sx={{ mt: 2, borderRadius: 3 }} />
                 </CardContent>
               </Card>
@@ -579,27 +836,31 @@ const JobInterviews = ({ darkMode }) => {
           ))
         ) : (
           stats.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={6} sm={6} md={3} key={index}>
               <Card 
                 sx={{ 
-                  bgcolor: '#fff',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  bgcolor: 'background.paper',
                   borderRadius: 2,
-                  overflow: 'hidden',
+                  boxShadow: theme.palette.mode === 'dark' 
+                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  height: '100%',
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                    boxShadow: theme.palette.mode === 'dark'
+                      ? '0 4px 20px rgba(0,0,0,0.4)'
+                      : '0 4px 12px rgba(0,0,0,0.12)',
                   }
                 }}
               >
-                <CardContent>
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box>
                       <Typography variant="body2" color="text.secondary" gutterBottom>
                         {stat.label}
                       </Typography>
-                      <Typography variant="h4" fontWeight="600">
+                      <Typography variant="h4" fontWeight="600" color="text.primary">
                         {stat.value}
                       </Typography>
                       {stat.subLabel && (
@@ -610,8 +871,8 @@ const JobInterviews = ({ darkMode }) => {
                     </Box>
                     <Box
                       sx={{
-                        width: 44,
-                        height: 44,
+                        width: 40,
+                        height: 40,
                         borderRadius: '12px',
                         bgcolor: alpha(stat.color, 0.1),
                         display: 'flex',
@@ -629,7 +890,7 @@ const JobInterviews = ({ darkMode }) => {
                     sx={{
                       height: 6,
                       borderRadius: 3,
-                      bgcolor: alpha('#000', 0.1),
+                      bgcolor: alpha(theme.palette.mode === 'dark' ? '#fff' : '#000', 0.1),
                       '& .MuiLinearProgress-bar': {
                         bgcolor: stat.color,
                         borderRadius: 3,
@@ -643,7 +904,7 @@ const JobInterviews = ({ darkMode }) => {
         )}
       </Grid>
 
-      {/* Actions Bar */}
+      {/* Actions Bar - Responsive */}
       <Box
         sx={{
           display: 'flex',
@@ -652,33 +913,36 @@ const JobInterviews = ({ darkMode }) => {
           alignItems: { xs: 'stretch', sm: 'center' },
           gap: 2,
           mb: 3,
-          p: 3,
-          bgcolor: '#fff',
+          p: { xs: 2, sm: 3 },
+          bgcolor: 'background.paper',
           borderRadius: 2,
-          border: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 1px 3px rgba(0,0,0,0.3)' 
+            : '0 1px 3px rgba(0,0,0,0.05)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
           <TextField
             placeholder="Search by Job ID, Status..."
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
+              flex: { xs: 1, sm: '0 0 auto' },
               width: { xs: '100%', sm: 300 },
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
-                bgcolor: '#f8f9fa',
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
                 '&:hover': {
-                  bgcolor: '#f1f3f4',
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4',
                 }
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
+                  <SearchIcon fontSize="small" color="action" />
                 </InputAdornment>
               ),
             }}
@@ -690,10 +954,11 @@ const JobInterviews = ({ darkMode }) => {
               borderRadius: 2,
               px: 2,
               py: 1,
-              border: '1px solid rgba(0,0,0,0.23)',
-              bgcolor: '#fff',
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: 'background.paper',
+              color: 'text.primary',
               '&:hover': {
-                bgcolor: '#f8f9fa',
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
               }
             }}
           >
@@ -708,119 +973,232 @@ const JobInterviews = ({ darkMode }) => {
           />
         </Box>
         
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleNewJob}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              py: 1,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              fontWeight: 600,
-              '&:hover': {
-                background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
-              },
-            }}
-          >
-            New Job
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<DownloadIcon />}
-            onClick={handleExport}
-            sx={{ 
-              borderRadius: 2, 
-              px: 3,
-              py: 1,
-              bgcolor: '#fff',
-              fontWeight: 500,
-              '&:hover': {
-                bgcolor: '#f8f9fa',
-              }
-            }}
-          >
-            Export
-          </Button>
-        </Box>
+        {!isMobile && (
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleNewJob}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                background: theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                fontWeight: 600,
+                '&:hover': {
+                  background: theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)'
+                    : 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                },
+              }}
+            >
+              New Job
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={handleExport}
+              sx={{ 
+                borderRadius: 2, 
+                px: 3,
+                py: 1,
+                bgcolor: 'background.paper',
+                borderColor: theme.palette.divider,
+                color: 'text.primary',
+                fontWeight: 500,
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                  borderColor: theme.palette.divider,
+                }
+              }}
+            >
+              Export
+            </Button>
+          </Box>
+        )}
       </Box>
 
-      {/* Filter Menu */}
-      <Menu
-        anchorEl={filterAnchorEl}
-        open={Boolean(filterAnchorEl)}
+      {/* Mobile Filter Drawer */}
+      <Drawer
+        anchor="bottom"
+        open={mobileFilterOpen}
         onClose={handleFilterClose}
         PaperProps={{
           sx: {
-            borderRadius: 2,
-            minWidth: 200,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            bgcolor: 'background.paper',
+            p: 3,
           }
         }}
       >
-        <MenuItem 
-          onClick={() => handleStatusFilter('all')}
-          selected={statusFilter === 'all'}
-          sx={{ 
-            fontWeight: statusFilter === 'all' ? 600 : 400,
-            borderRadius: 1,
-            mx: 1,
-            my: 0.5,
-          }}
-        >
-          All Status
-        </MenuItem>
-        <MenuItem 
-          onClick={() => handleStatusFilter('In progress')}
-          selected={statusFilter === 'In progress'}
-          sx={{ 
-            fontWeight: statusFilter === 'In progress' ? 600 : 400,
-            borderRadius: 1,
-            mx: 1,
-            my: 0.5,
-          }}
-        >
-          <InProgressIcon fontSize="small" sx={{ mr: 1.5, color: 'primary.main' }} />
-          In Progress
-        </MenuItem>
-        <MenuItem 
-          onClick={() => handleStatusFilter('Done')}
-          selected={statusFilter === 'Done'}
-          sx={{ 
-            fontWeight: statusFilter === 'Done' ? 600 : 400,
-            borderRadius: 1,
-            mx: 1,
-            my: 0.5,
-          }}
-        >
-          <CheckCircleIcon fontSize="small" sx={{ mr: 1.5, color: 'success.main' }} />
-          Done
-        </MenuItem>
-        <MenuItem 
-          onClick={() => handleStatusFilter('Pending')}
-          selected={statusFilter === 'Pending'}
-          sx={{ 
-            fontWeight: statusFilter === 'Pending' ? 600 : 400,
-            borderRadius: 1,
-            mx: 1,
-            my: 0.5,
-          }}
-        >
-          <PendingIcon fontSize="small" sx={{ mr: 1.5, color: 'warning.main' }} />
-          Pending
-        </MenuItem>
-      </Menu>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h6" fontWeight="600">
+            Filter by Status
+          </Typography>
+          <IconButton onClick={handleFilterClose}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        
+        <List>
+          <ListItem 
+            button 
+            onClick={() => handleStatusFilter('all')}
+            selected={statusFilter === 'all'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemText 
+              primary="All Status" 
+              primaryTypographyProps={{ 
+                fontWeight: statusFilter === 'all' ? 600 : 400,
+                color: statusFilter === 'all' ? 'primary.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+          <ListItem 
+            button 
+            onClick={() => handleStatusFilter('In progress')}
+            selected={statusFilter === 'In progress'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <InProgressIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="In Progress" 
+              primaryTypographyProps={{ 
+                fontWeight: statusFilter === 'In progress' ? 600 : 400,
+                color: statusFilter === 'In progress' ? 'primary.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+          <ListItem 
+            button 
+            onClick={() => handleStatusFilter('Done')}
+            selected={statusFilter === 'Done'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <CheckCircleIcon color="success" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Done" 
+              primaryTypographyProps={{ 
+                fontWeight: statusFilter === 'Done' ? 600 : 400,
+                color: statusFilter === 'Done' ? 'success.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+          <ListItem 
+            button 
+            onClick={() => handleStatusFilter('Pending')}
+            selected={statusFilter === 'Pending'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <PendingIcon color="warning" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Pending" 
+              primaryTypographyProps={{ 
+                fontWeight: statusFilter === 'Pending' ? 600 : 400,
+                color: statusFilter === 'Pending' ? 'warning.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+        </List>
+      </Drawer>
 
-      {/* Table */}
+      {/* Filter Menu for Desktop */}
+      {!isMobile && (
+        <Menu
+          anchorEl={filterAnchorEl}
+          open={Boolean(filterAnchorEl)}
+          onClose={handleFilterClose}
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              minWidth: 200,
+              bgcolor: 'background.paper',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 8px 32px rgba(0,0,0,0.4)'
+                : '0 8px 32px rgba(0,0,0,0.15)',
+            }
+          }}
+        >
+          <MenuItem 
+            onClick={() => handleStatusFilter('all')}
+            selected={statusFilter === 'all'}
+            sx={{ 
+              fontWeight: statusFilter === 'all' ? 600 : 400,
+              borderRadius: 1,
+              mx: 1,
+              my: 0.5,
+              color: statusFilter === 'all' ? 'primary.main' : 'text.primary',
+            }}
+          >
+            All Status
+          </MenuItem>
+          <MenuItem 
+            onClick={() => handleStatusFilter('In progress')}
+            selected={statusFilter === 'In progress'}
+            sx={{ 
+              fontWeight: statusFilter === 'In progress' ? 600 : 400,
+              borderRadius: 1,
+              mx: 1,
+              my: 0.5,
+              color: statusFilter === 'In progress' ? 'primary.main' : 'text.primary',
+            }}
+          >
+            <InProgressIcon fontSize="small" sx={{ mr: 1.5, color: 'primary.main' }} />
+            In Progress
+          </MenuItem>
+          <MenuItem 
+            onClick={() => handleStatusFilter('Done')}
+            selected={statusFilter === 'Done'}
+            sx={{ 
+              fontWeight: statusFilter === 'Done' ? 600 : 400,
+              borderRadius: 1,
+              mx: 1,
+              my: 0.5,
+              color: statusFilter === 'Done' ? 'success.main' : 'text.primary',
+            }}
+          >
+            <CheckCircleIcon fontSize="small" sx={{ mr: 1.5, color: 'success.main' }} />
+            Done
+          </MenuItem>
+          <MenuItem 
+            onClick={() => handleStatusFilter('Pending')}
+            selected={statusFilter === 'Pending'}
+            sx={{ 
+              fontWeight: statusFilter === 'Pending' ? 600 : 400,
+              borderRadius: 1,
+              mx: 1,
+              my: 0.5,
+              color: statusFilter === 'Pending' ? 'warning.main' : 'text.primary',
+            }}
+          >
+            <PendingIcon fontSize="small" sx={{ mr: 1.5, color: 'warning.main' }} />
+            Pending
+          </MenuItem>
+        </Menu>
+      )}
+
+      {/* Table for Desktop / Cards for Mobile */}
       <Paper
         sx={{
           width: '100%',
           overflow: 'hidden',
-          bgcolor: '#fff',
+          bgcolor: 'background.paper',
           borderRadius: 2,
-          border: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 1px 3px rgba(0,0,0,0.3)' 
+            : '0 1px 3px rgba(0,0,0,0.05)',
           minHeight: 400,
           position: 'relative',
           mb: 4,
@@ -832,224 +1210,239 @@ const JobInterviews = ({ darkMode }) => {
           </Box>
         ) : (
           <>
-            <TableContainer sx={{ maxHeight: 600 }}>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell 
-                      sx={{ 
-                        fontWeight: 600, 
-                        bgcolor: '#f8fafc',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: '#f1f3f4' }
-                      }}
-                      onClick={() => handleSort('jobId')}
-                    >
-                      Job ID
-                      <SortIndicator field="jobId" />
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600, bgcolor: '#f8fafc' }}>
-                      JD Link
-                    </TableCell>
-                    <TableCell 
-                      sx={{ 
-                        fontWeight: 600, 
-                        bgcolor: '#f8fafc',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: '#f1f3f4' }
-                      }}
-                      onClick={() => handleSort('rounds')}
-                    >
-                      Rounds
-                      <SortIndicator field="rounds" />
-                    </TableCell>
-                    <TableCell 
-                      sx={{ 
-                        fontWeight: 600, 
-                        bgcolor: '#f8fafc',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: '#f1f3f4' }
-                      }}
-                      onClick={() => handleSort('status')}
-                    >
-                      Status
-                      <SortIndicator field="status" />
-                    </TableCell>
-                    <TableCell 
-                      sx={{ 
-                        fontWeight: 600, 
-                        bgcolor: '#f8fafc',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: '#f1f3f4' }
-                      }}
-                      onClick={() => handleSort('candidates')}
-                    >
-                      Candidates
-                      <SortIndicator field="candidates" />
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600, bgcolor: '#f8fafc' }}>
-                      Actions
-                    </TableCell>
-                    {!isMobile && (
-                      <TableCell sx={{ fontWeight: 600, bgcolor: '#f8fafc' }}>
-                        Team
-                      </TableCell>
-                    )}
-                    <TableCell sx={{ fontWeight: 600, bgcolor: '#f8fafc', width: 60 }}>
-                      {/* More options */}
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {jobInterviews.length > 0 ? (
-                    jobInterviews.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        hover
-                        sx={{
-                          '&:hover': {
-                            bgcolor: alpha('#000', 0.02),
-                          },
-                          '&:last-child td': {
-                            borderBottom: 0,
+            {isMobile ? (
+              <Box sx={{ p: 2 }}>
+                <MobileCardView />
+              </Box>
+            ) : (
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell 
+                        sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                          cursor: 'pointer',
+                          '&:hover': { 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
                           }
                         }}
+                        onClick={() => handleSort('jobId')}
                       >
-                        <TableCell>
-                          <Typography variant="body2" fontWeight="600" color="primary">
-                            {row.jobId}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <LinkIcon fontSize="small" sx={{ color: 'primary.main' }} />
-                            <Tooltip title={row.jdLink}>
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  color: 'primary.main',
-                                  textDecoration: 'underline',
-                                  cursor: 'pointer',
-                                  maxWidth: '200px',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  '&:hover': {
-                                    color: 'primary.dark',
-                                  },
-                                }}
-                                onClick={() => window.open(row.jdLink, '_blank')}
-                              >
-                                {row.jdLink}
-                              </Typography>
-                            </Tooltip>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={row.rounds}
-                            size="small"
-                            sx={{
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                              color: 'primary.main',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              minWidth: '36px',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <StatusChip status={row.status} />
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body2" fontWeight="600">
-                              {row.candidates}
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          Job ID
+                          <SortIndicator field="jobId" />
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                        JD Link
+                      </TableCell>
+                      <TableCell 
+                        sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                          cursor: 'pointer',
+                          '&:hover': { 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                          }
+                        }}
+                        onClick={() => handleSort('rounds')}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          Rounds
+                          <SortIndicator field="rounds" />
+                        </Box>
+                      </TableCell>
+                      <TableCell 
+                        sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                          cursor: 'pointer',
+                          '&:hover': { 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                          }
+                        }}
+                        onClick={() => handleSort('status')}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          Status
+                          <SortIndicator field="status" />
+                        </Box>
+                      </TableCell>
+                      <TableCell 
+                        sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                          cursor: 'pointer',
+                          '&:hover': { 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                          }
+                        }}
+                        onClick={() => handleSort('candidates')}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          Candidates
+                          <SortIndicator field="candidates" />
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                        Actions
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                        Team
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {jobInterviews.length > 0 ? (
+                      jobInterviews.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          hover
+                          sx={{
+                            '&:hover': {
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                            },
+                            '&:last-child td': {
+                              borderBottom: 0,
+                            }
+                          }}
+                        >
+                          <TableCell>
+                            <Typography variant="body2" fontWeight="600" color="primary">
+                              {row.jobId}
                             </Typography>
-                            <Button
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <LinkIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                              <Tooltip title={row.jdLink}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: 'primary.main',
+                                    textDecoration: 'underline',
+                                    cursor: 'pointer',
+                                    maxWidth: '200px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    '&:hover': {
+                                      color: 'primary.dark',
+                                    },
+                                  }}
+                                  onClick={() => window.open(row.jdLink, '_blank')}
+                                >
+                                  {row.jdLink}
+                                </Typography>
+                              </Tooltip>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={row.rounds}
                               size="small"
-                              startIcon={<PersonAddIcon fontSize="small" />}
                               sx={{
-                                minWidth: 'auto',
-                                px: 1.5,
-                                fontSize: '0.75rem',
-                                borderRadius: 1,
-                                textTransform: 'none',
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                color: 'primary.main',
+                                fontWeight: 600,
+                                borderRadius: '6px',
+                                minWidth: '36px',
                               }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedRow(row);
-                                handleAddCandidate();
-                              }}
-                            >
-                              Add
-                            </Button>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Tooltip title="View Details">
-                              <IconButton 
-                                size="small" 
-                                sx={{ 
-                                  color: 'primary.main',
-                                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                  '&:hover': {
-                                    bgcolor: alpha(theme.palette.primary.main, 0.2),
-                                  }
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <StatusChip status={row.status} />
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="body2" fontWeight="600">
+                                {row.candidates}
+                              </Typography>
+                              <Button
+                                size="small"
+                                startIcon={<PersonAddIcon fontSize="small" />}
+                                sx={{
+                                  minWidth: 'auto',
+                                  px: 1.5,
+                                  fontSize: '0.75rem',
+                                  borderRadius: 1,
+                                  textTransform: 'none',
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedRow(row);
-                                  handleActionClick(e, row);
+                                  handleAddCandidate();
                                 }}
                               >
-                                <ViewIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Edit">
-                              <IconButton 
-                                size="small" 
-                                sx={{ 
-                                  color: 'warning.main',
-                                  bgcolor: alpha(theme.palette.warning.main, 0.1),
-                                  '&:hover': {
-                                    bgcolor: alpha(theme.palette.warning.main, 0.2),
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedRow(row);
-                                  navigate(`/edit-job-interview/${row.id}`, { 
-                                    state: { editData: row } 
-                                  });
-                                }}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton 
-                                size="small" 
-                                sx={{ 
-                                  color: 'error.main',
-                                  bgcolor: alpha(theme.palette.error.main, 0.1),
-                                  '&:hover': {
-                                    bgcolor: alpha(theme.palette.error.main, 0.2),
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedRow(row);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                        </TableCell>
-                        {!isMobile && (
+                                Add
+                              </Button>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Tooltip title="View Details">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ 
+                                    color: 'primary.main',
+                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                    '&:hover': {
+                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                    }
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedRow(row);
+                                    handleActionClick(e, row);
+                                  }}
+                                >
+                                  <ViewIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Edit">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ 
+                                    color: 'warning.main',
+                                    bgcolor: alpha(theme.palette.warning.main, 0.1),
+                                    '&:hover': {
+                                      bgcolor: alpha(theme.palette.warning.main, 0.2),
+                                    }
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedRow(row);
+                                    navigate(`/edit-job-interview/${row.id}`, { 
+                                      state: { editData: row } 
+                                    });
+                                  }}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ 
+                                    color: 'error.main',
+                                    bgcolor: alpha(theme.palette.error.main, 0.1),
+                                    '&:hover': {
+                                      bgcolor: alpha(theme.palette.error.main, 0.2),
+                                    }
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedRow(row);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </TableCell>
                           <TableCell>
                             <AvatarGroup max={3} sx={{ justifyContent: 'flex-start' }}>
                               {row.team && row.team.map((initial, index) => (
@@ -1060,12 +1453,12 @@ const JobInterviews = ({ darkMode }) => {
                                     height: 28,
                                     fontSize: '0.75rem',
                                     fontWeight: 600,
-                                    bgcolor: '#667eea',
+                                    bgcolor: theme.palette.primary.main,
                                     '&:first-of-type': {
-                                      bgcolor: '#4caf50',
+                                      bgcolor: theme.palette.success.main,
                                     },
                                     '&:nth-of-type(2)': {
-                                      bgcolor: '#2196f3',
+                                      bgcolor: theme.palette.info.main,
                                     },
                                   }}
                                 >
@@ -1074,65 +1467,52 @@ const JobInterviews = ({ darkMode }) => {
                               ))}
                             </AvatarGroup>
                           </TableCell>
-                        )}
-                        <TableCell>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => handleActionClick(e, row)}
-                            sx={{
-                              color: 'text.secondary',
-                              '&:hover': {
-                                color: 'text.primary',
-                                bgcolor: alpha('#000', 0.05),
-                              }
-                            }}
-                          >
-                            <MoreVertIcon fontSize="small" />
-                          </IconButton>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7}>
+                          <Box sx={{ textAlign: 'center', py: 6 }}>
+                            <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+                            <Typography variant="body1" color="text.secondary" gutterBottom>
+                              No job interviews found
+                            </Typography>
+                            {searchTerm ? (
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                No results for "{searchTerm}". Try a different search term.
+                              </Typography>
+                            ) : (
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                Get started by creating your first job interview process.
+                              </Typography>
+                            )}
+                            <Button
+                              variant="contained"
+                              startIcon={<AddIcon />}
+                              onClick={handleNewJob}
+                              sx={{ 
+                                borderRadius: 2,
+                                px: 3,
+                                py: 1,
+                                background: theme.palette.mode === 'dark'
+                                  ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
+                                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              }}
+                            >
+                              Create New Job Interview
+                            </Button>
+                          </Box>
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={isMobile ? 7 : 8}>
-                        <Box sx={{ textAlign: 'center', py: 6 }}>
-                          <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
-                          <Typography variant="body1" color="text.secondary" gutterBottom>
-                            No job interviews found
-                          </Typography>
-                          {searchTerm ? (
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                              No results for "{searchTerm}". Try a different search term.
-                            </Typography>
-                          ) : (
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                              Get started by creating your first job interview process.
-                            </Typography>
-                          )}
-                          <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={handleNewJob}
-                            sx={{ 
-                              borderRadius: 2,
-                              px: 3,
-                              py: 1,
-                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            }}
-                          >
-                            Create New Job Interview
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
 
-            {/* Enhanced Pagination */}
+            {/* Pagination - Responsive */}
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25, 50]}
+              rowsPerPageOptions={isMobile ? [5, 10, 25] : [5, 10, 25, 50]}
               component="div"
               count={totalCount}
               rowsPerPage={rowsPerPage}
@@ -1140,12 +1520,21 @@ const JobInterviews = ({ darkMode }) => {
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               sx={{
-                borderTop: '1px solid rgba(0,0,0,0.1)',
+                borderTop: `1px solid ${theme.palette.divider}`,
                 '& .MuiTablePagination-toolbar': {
                   minHeight: '60px',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  alignItems: isMobile ? 'flex-start' : 'center',
+                  gap: isMobile ? 2 : 0,
+                  px: isMobile ? 2 : 3,
+                  py: isMobile ? 2 : 0,
+                },
+                '& .MuiTablePagination-actions': {
+                  marginLeft: isMobile ? 0 : 'auto',
                 },
                 '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
                   fontWeight: 500,
+                  color: 'text.primary',
                 }
               }}
               labelRowsPerPage="Rows per page:"
@@ -1157,6 +1546,26 @@ const JobInterviews = ({ darkMode }) => {
         )}
       </Paper>
 
+      {/* Floating Action Button for Mobile */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={handleNewJob}
+          sx={{
+            position: 'fixed',
+            bottom: 80,
+            right: 16,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+            },
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
+
       {/* Action Menu */}
       <Menu
         anchorEl={actionAnchorEl}
@@ -1166,27 +1575,54 @@ const JobInterviews = ({ darkMode }) => {
           sx: {
             borderRadius: 2,
             minWidth: 180,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            bgcolor: 'background.paper',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 4px 20px rgba(0,0,0,0.15)',
           }
         }}
       >
         <MenuItem 
           onClick={handleViewDetails} 
-          sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
+          sx={{ 
+            borderRadius: 1, 
+            mx: 1, 
+            my: 0.5,
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            }
+          }}
         >
           <ViewIcon fontSize="small" sx={{ mr: 2, color: 'primary.main' }} />
           View Details
         </MenuItem>
         <MenuItem 
           onClick={handleEditJob} 
-          sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
+          sx={{ 
+            borderRadius: 1, 
+            mx: 1, 
+            my: 0.5,
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            }
+          }}
         >
           <EditIcon fontSize="small" sx={{ mr: 2, color: 'warning.main' }} />
           Edit Job
         </MenuItem>
         <MenuItem 
           onClick={handleAddCandidate} 
-          sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
+          sx={{ 
+            borderRadius: 1, 
+            mx: 1, 
+            my: 0.5,
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            }
+          }}
         >
           <PersonAddIcon fontSize="small" sx={{ mr: 2, color: 'info.main' }} />
           Add Candidate
@@ -1203,12 +1639,20 @@ const JobInterviews = ({ darkMode }) => {
               handleActionClose();
             }
           }} 
-          sx={{ borderRadius: 1, mx: 1, my: 0.5 }}
+          sx={{ 
+            borderRadius: 1, 
+            mx: 1, 
+            my: 0.5,
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            }
+          }}
         >
           <ShareIcon fontSize="small" sx={{ mr: 2, color: 'success.main' }} />
           Share Link
         </MenuItem>
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1, borderColor: theme.palette.divider }} />
         <MenuItem 
           onClick={handleDeleteClick} 
           sx={{ 
@@ -1233,13 +1677,16 @@ const JobInterviews = ({ darkMode }) => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            bgcolor: '#fff',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-            minWidth: 400,
+            bgcolor: 'background.paper',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 8px 32px rgba(0,0,0,0.15)',
+            minWidth: isMobile ? '90%' : 400,
+            mx: isMobile ? 2 : 0,
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600, pb: 1 }}>
+        <DialogTitle sx={{ fontWeight: 600, pb: 1, color: 'text.primary' }}>
           Delete Job Interview
         </DialogTitle>
         <DialogContent>
@@ -1259,7 +1706,7 @@ const JobInterviews = ({ darkMode }) => {
               <DeleteIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight="600">
+              <Typography variant="h6" fontWeight="600" color="text.primary">
                 {selectedRow?.jobId}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -1267,7 +1714,7 @@ const JobInterviews = ({ darkMode }) => {
               </Typography>
             </Box>
           </Box>
-          <Typography variant="body1">
+          <Typography variant="body1" color="text.primary" paragraph>
             Are you sure you want to delete this job interview? This action cannot be undone.
           </Typography>
           <Alert severity="warning" sx={{ mt: 2 }}>
@@ -1281,11 +1728,12 @@ const JobInterviews = ({ darkMode }) => {
               borderRadius: 2, 
               px: 3,
               py: 1,
-              bgcolor: '#fff',
-              border: '1px solid #e0e0e0',
+              bgcolor: 'background.paper',
+              border: `1px solid ${theme.palette.divider}`,
+              color: 'text.primary',
               fontWeight: 500,
               '&:hover': {
-                bgcolor: '#f8f9fa',
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
               }
             }}
           >
@@ -1315,7 +1763,7 @@ const JobInterviews = ({ darkMode }) => {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
       >
         <Alert 
           onClose={handleCloseSnackbar} 
@@ -1323,7 +1771,11 @@ const JobInterviews = ({ darkMode }) => {
           sx={{ 
             width: '100%',
             borderRadius: 2,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 4px 20px rgba(0,0,0,0.4)'
+              : '0 4px 12px rgba(0,0,0,0.15)',
+            bgcolor: 'background.paper',
+            color: 'text.primary',
           }}
         >
           {snackbar.message}
@@ -1331,14 +1783,14 @@ const JobInterviews = ({ darkMode }) => {
       </Snackbar>
 
       {/* Quick Stats Footer */}
-      {statistics && (
+      {statistics && !isMobile && (
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'center',
           gap: 3,
           mt: 2,
           pt: 2,
-          borderTop: '1px solid rgba(0,0,0,0.1)',
+          borderTop: `1px solid ${theme.palette.divider}`,
           flexWrap: 'wrap'
         }}>
           <Typography variant="caption" color="text.secondary">

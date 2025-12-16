@@ -14,6 +14,7 @@ import {
   useTheme,
   Alert,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -22,6 +23,7 @@ import {
   Link as LinkIcon,
   Save as SaveIcon,
   Edit as EditIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -86,6 +88,10 @@ const CreateNewProcess = () => {
 
   const handleBack = () => {
     navigate('/job-interviews');
+  };
+
+  const handleNavigateToCandidateManagement = () => {
+    navigate('/candidate-interviews');
   };
 
   const handleAddRound = () => {
@@ -232,39 +238,80 @@ const CreateNewProcess = () => {
       margin: '0 auto', 
       p: { xs: 2, sm: 3, md: 4 },
       minHeight: '100vh',
-      bgcolor: '#f5f5f5'
+      bgcolor: 'background.default'
     }}>
       {/* Header */}
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
+        justifyContent: 'space-between',
         mb: { xs: 3, sm: 4 },
-        gap: 2 
+        gap: 2,
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'stretch', sm: 'center' }
       }}>
-        <IconButton 
-          onClick={handleBack}
-          disabled={saving}
-          sx={{ 
-            p: { xs: 1, sm: 1.5 },
-            border: '1px solid #e0e0e0',
-            borderRadius: '8px',
-            bgcolor: '#fff',
-            '&:hover': {
-              bgcolor: '#f5f5f5'
-            }
-          }}
-        >
-          <ArrowBackIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
-        </IconButton>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            fontWeight: 600,
-            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
-          }}
-        >
-          {editData ? 'Edit Interview Process' : 'Create Interview Process'}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton 
+            onClick={handleBack}
+            disabled={saving}
+            sx={{ 
+              p: { xs: 1, sm: 1.5 },
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '8px',
+              bgcolor: 'background.paper',
+              '&:hover': {
+                bgcolor: 'action.hover'
+              }
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+          </IconButton>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+              color: 'text.primary'
+            }}
+          >
+            {editData ? 'Edit Interview Process' : 'Create Interview Process'}
+          </Typography>
+        </Box>
+
+        {/* Candidate Management Button */}
+        <Tooltip title="Go to Candidate Management">
+          <Button
+            variant="outlined"
+            startIcon={<PeopleIcon />}
+            onClick={handleNavigateToCandidateManagement}
+            disabled={saving}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.25 },
+              borderColor: 'primary.main',
+              color: 'primary.main',
+              fontSize: { xs: '0.85rem', sm: '0.95rem' },
+              bgcolor: 'background.paper',
+              '&:hover': {
+                borderColor: 'primary.dark',
+                color: 'primary.dark',
+                bgcolor: 'action.hover',
+              },
+              '&:disabled': {
+                borderColor: 'divider',
+                color: 'action.disabled',
+                bgcolor: 'action.disabledBackground',
+              },
+              width: { xs: '100%', sm: 'auto' },
+              mt: { xs: 1, sm: 0 }
+            }}
+          >
+            Manage Candidates
+          </Button>
+        </Tooltip>
       </Box>
 
       {/* Error Alert */}
@@ -300,7 +347,8 @@ const CreateNewProcess = () => {
             sx={{ 
               fontWeight: 600, 
               mb: 1.5,
-              fontSize: { xs: '1rem', sm: '1.125rem' }
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              color: 'text.primary'
             }}
           >
             Job ID
@@ -313,7 +361,7 @@ const CreateNewProcess = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '& input': {
                   fontSize: { xs: '0.9rem', sm: '1rem' },
                   fontWeight: 500,
@@ -331,7 +379,8 @@ const CreateNewProcess = () => {
             sx={{ 
               fontWeight: 600, 
               mb: 1.5,
-              fontSize: { xs: '1rem', sm: '1.125rem' }
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              color: 'text.primary'
             }}
           >
             JD Link
@@ -346,7 +395,7 @@ const CreateNewProcess = () => {
               startAdornment: (
                 <LinkIcon sx={{ 
                   mr: 1.5, 
-                  color: '#666',
+                  color: 'text.secondary',
                   fontSize: { xs: '1.2rem', sm: '1.5rem' }
                 }} />
               ),
@@ -354,7 +403,7 @@ const CreateNewProcess = () => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '& input': {
                   fontSize: { xs: '0.9rem', sm: '1rem' },
                   padding: { xs: '12px 14px', sm: '14px 16px' }
@@ -366,8 +415,7 @@ const CreateNewProcess = () => {
 
         <Divider sx={{ 
           my: { xs: 3, sm: 4 },
-          borderColor: '#e0e0e0',
-          borderWidth: '1px'
+          borderColor: 'divider',
         }} />
 
         {/* Interview Rounds Section */}
@@ -377,7 +425,8 @@ const CreateNewProcess = () => {
             sx={{ 
               fontWeight: 600, 
               mb: { xs: 2, sm: 3 },
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              color: 'text.primary'
             }}
           >
             Interview Rounds
@@ -391,9 +440,10 @@ const CreateNewProcess = () => {
               sx={{
                 p: { xs: 2, sm: 3 },
                 mb: 2,
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 borderRadius: '12px',
-                border: '1px solid #e0e0e0',
+                border: '1px solid',
+                borderColor: 'divider',
               }}
             >
               {/* Round Header - Always editable */}
@@ -410,7 +460,8 @@ const CreateNewProcess = () => {
                     fontWeight: 600, 
                     mr: 2,
                     fontSize: { xs: '0.9rem', sm: '1rem' },
-                    minWidth: '60px'
+                    minWidth: '60px',
+                    color: 'text.primary'
                   }}
                 >
                   Round {index + 1}
@@ -426,7 +477,7 @@ const CreateNewProcess = () => {
                     flexGrow: 1,
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '6px',
-                      bgcolor: '#f8f9fa',
+                      bgcolor: 'action.hover',
                     }
                   }}
                 />
@@ -438,8 +489,12 @@ const CreateNewProcess = () => {
                     disabled={saving}
                     sx={{ 
                       ml: 'auto', 
-                      color: '#666',
-                      p: { xs: 0.5, sm: 1 }
+                      color: 'text.secondary',
+                      p: { xs: 0.5, sm: 1 },
+                      '&:hover': {
+                        color: 'error.main',
+                        bgcolor: 'action.hover'
+                      }
                     }}
                   >
                     <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
@@ -460,7 +515,8 @@ const CreateNewProcess = () => {
                     fontWeight: 600, 
                     minWidth: { xs: '100%', sm: '60px' },
                     mb: isMobile ? 1 : 0,
-                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    color: 'text.primary'
                   }}
                 >
                   Assign
@@ -479,7 +535,7 @@ const CreateNewProcess = () => {
                     minWidth: { xs: '100%', sm: '200px' },
                     '& .MuiAutocomplete-inputRoot': {
                       padding: { xs: '4px 8px', sm: '8px 12px' },
-                      bgcolor: '#f8f9fa',
+                      bgcolor: 'action.hover',
                     }
                   }}
                   renderInput={(params) => (
@@ -509,14 +565,14 @@ const CreateNewProcess = () => {
                     sx={{
                       borderRadius: '6px',
                       textTransform: 'none',
-                      borderColor: '#666',
-                      color: '#666',
+                      borderColor: 'text.secondary',
+                      color: 'text.secondary',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' },
                       px: { xs: 1.5, sm: 2 },
                       flex: isMobile ? 1 : 'auto',
                       '&:hover': {
-                        borderColor: '#333',
-                        color: '#333',
+                        borderColor: 'text.primary',
+                        color: 'text.primary',
                       }
                     }}
                   >
@@ -532,17 +588,25 @@ const CreateNewProcess = () => {
                       borderRadius: '6px',
                       textTransform: 'none',
                       minWidth: { xs: '70px', sm: '80px' },
-                      borderColor: round.isSelfAssigned ? '#1976d2' : '#666',
-                      bgcolor: round.isSelfAssigned ? '#1976d2' : 'transparent',
-                      color: round.isSelfAssigned ? '#fff' : '#666',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' },
                       px: { xs: 1.5, sm: 2 },
                       flex: isMobile ? 1 : 'auto',
-                      '&:hover': {
-                        borderColor: round.isSelfAssigned ? '#1565c0' : '#333',
-                        bgcolor: round.isSelfAssigned ? '#1565c0' : 'transparent',
-                        color: round.isSelfAssigned ? '#fff' : '#333',
-                      }
+                      ...(round.isSelfAssigned
+                        ? {
+                            bgcolor: 'primary.main',
+                            color: 'primary.contrastText',
+                            '&:hover': {
+                              bgcolor: 'primary.dark',
+                            }
+                          }
+                        : {
+                            borderColor: 'text.secondary',
+                            color: 'text.secondary',
+                            '&:hover': {
+                              borderColor: 'text.primary',
+                              color: 'text.primary',
+                            }
+                          })
                     }}
                   >
                     Self
@@ -563,7 +627,7 @@ const CreateNewProcess = () => {
                   <Typography 
                     variant="body2" 
                     sx={{ 
-                      color: '#666',
+                      color: 'text.secondary',
                       fontSize: { xs: '0.8rem', sm: '0.875rem' }
                     }}
                   >
@@ -574,8 +638,20 @@ const CreateNewProcess = () => {
                     size="small"
                     onDelete={round.isSelfAssigned ? undefined : () => handleInterviewerChange(round.id, '')}
                     sx={{
-                      bgcolor: round.isSelfAssigned ? '#e3f2fd' : '#f0f0f0',
-                      color: round.isSelfAssigned ? '#1976d2' : '#333',
+                      bgcolor: round.isSelfAssigned 
+                        ? theme.palette.mode === 'light' 
+                          ? '#e3f2fd' 
+                          : 'rgba(30, 136, 229, 0.16)'
+                        : theme.palette.mode === 'light'
+                          ? '#f0f0f0'
+                          : 'rgba(255, 255, 255, 0.08)',
+                      color: round.isSelfAssigned 
+                        ? theme.palette.mode === 'light' 
+                          ? '#1976d2' 
+                          : '#90caf9'
+                        : theme.palette.mode === 'light'
+                          ? '#333'
+                          : 'text.primary',
                       fontWeight: 500,
                       borderRadius: '4px',
                       fontSize: { xs: '0.75rem', sm: '0.875rem' },
@@ -608,7 +684,7 @@ const CreateNewProcess = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
-                  bgcolor: '#fff',
+                  bgcolor: 'background.paper',
                   '& input': {
                     fontSize: { xs: '0.9rem', sm: '1rem' },
                     padding: { xs: '12px 14px', sm: '14px 16px' }
@@ -625,16 +701,16 @@ const CreateNewProcess = () => {
                 borderRadius: '8px',
                 textTransform: 'none',
                 minWidth: { xs: '100%', sm: '200px' },
-                borderColor: '#666',
-                color: '#666',
+                borderColor: 'text.secondary',
+                color: 'text.secondary',
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 px: { xs: 2, sm: 3 },
                 py: { xs: 1, sm: 1.25 },
-                bgcolor: '#fff',
+                bgcolor: 'background.paper',
                 '&:hover': {
-                  borderColor: '#1976d2',
-                  color: '#1976d2',
-                  bgcolor: '#f8f9fa',
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  bgcolor: 'action.hover',
                 }
               }}
             >
@@ -646,7 +722,7 @@ const CreateNewProcess = () => {
         {/* Save Button */}
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'flex-end', 
+          justifyContent: { xs: 'center', sm: 'flex-end' }, 
           mt: { xs: 3, sm: 4 },
           width: '100%'
         }}>
@@ -660,13 +736,9 @@ const CreateNewProcess = () => {
               textTransform: 'none',
               px: { xs: 3, sm: 4 },
               py: { xs: 1, sm: 1.25 },
-              bgcolor: '#1976d2',
               fontSize: { xs: '0.9rem', sm: '1rem' },
-              '&:hover': {
-                bgcolor: '#1565c0',
-              },
+              width: { xs: '100%', sm: 'auto' },
               '&:disabled': {
-                bgcolor: '#1976d2',
                 opacity: 0.7
               }
             }}

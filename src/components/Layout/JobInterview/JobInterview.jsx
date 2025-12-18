@@ -67,6 +67,7 @@ import {
   Sort as SortIcon,
   Menu as MenuIcon,
   Close as CloseIcon,
+  Group as GroupIcon,
 } from '@mui/icons-material';
 
 // Enhanced API service with better pagination
@@ -198,7 +199,6 @@ const JobInterviews = ({ darkMode }) => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Fetch job interviews with all parameters
   const fetchJobInterviews = useCallback(async () => {
@@ -384,6 +384,17 @@ const JobInterviews = ({ darkMode }) => {
     handleActionClose();
   };
 
+  const handleViewCandidates = (row) => {
+    if (row) {
+      navigate('/candidate-interviews', { 
+        state: { 
+          jobFilter: row.jobId
+        } 
+      });
+    }
+    handleActionClose();
+  };
+
   const handleAddCandidate = () => {
     if (selectedRow) {
       setSnackbar({
@@ -517,153 +528,153 @@ const JobInterviews = ({ darkMode }) => {
     );
   };
 
- // Mobile Card View Component - FIXED
-const MobileCardView = () => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
-    {jobInterviews.map((row) => (
-      <Card 
-        key={row.id}
-        sx={{ 
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
-            : '0 2px 8px rgba(0, 0, 0, 0.08)',
-        }}
-      >
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Box>
-              <Typography variant="h6" fontWeight="600" color="primary">
-                {row.jobId}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                {row.rounds} rounds • {row.candidates} candidates
-              </Typography>
+  // Mobile Card View Component
+  const MobileCardView = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+      {jobInterviews.map((row) => (
+        <Card 
+          key={row.id}
+          sx={{ 
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: theme.palette.mode === 'dark' 
+              ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 8px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+              <Box>
+                <Typography variant="h6" fontWeight="600" color="primary">
+                  {row.jobId}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {row.rounds} rounds • {row.candidates} candidates
+                </Typography>
+              </Box>
+              <StatusChip status={row.status} />
             </Box>
-            <StatusChip status={row.status} />
-          </Box>
 
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              JD Link:
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LinkIcon fontSize="small" sx={{ color: 'primary.main' }} />
-              <Typography
-                variant="body2"
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                JD Link:
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <LinkIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'underline',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onClick={() => window.open(row.jdLink, '_blank')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {row.jdLink}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <AvatarGroup max={3} sx={{ justifyContent: 'flex-start' }}>
+                  {row.team && row.team.map((initial, index) => (
+                    <Avatar
+                      key={index}
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        bgcolor: theme.palette.primary.main,
+                      }}
+                    >
+                      {initial}
+                    </Avatar>
+                  ))}
+                </AvatarGroup>
+                <Typography variant="body2" color="text.secondary">
+                  Team
+                </Typography>
+              </Box>
+              <Button
+                size="small"
+                startIcon={<GroupIcon fontSize="small" />}
+                onClick={() => handleViewCandidates(row)}
                 sx={{
+                  fontSize: '0.75rem',
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  fontWeight: 600,
                   color: 'primary.main',
-                  textDecoration: 'underline',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.primary.main, 0.2),
+                  }
                 }}
-                onClick={() => window.open(row.jdLink, '_blank')}
-                style={{ cursor: 'pointer' }}
               >
-                {row.jdLink}
-              </Typography>
+                {row.candidates}
+              </Button>
             </Box>
-          </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AvatarGroup max={3} sx={{ justifyContent: 'flex-start' }}>
-                {row.team && row.team.map((initial, index) => (
-                  <Avatar
-                    key={index}
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      bgcolor: theme.palette.primary.main,
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Tooltip title="Edit">
+                  <IconButton 
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedRow(row);
+                      navigate(`/edit-job-interview/${row.id}`, { 
+                        state: { editData: row } 
+                      });
+                    }}
+                    sx={{ 
+                      color: 'warning.main',
+                      bgcolor: alpha(theme.palette.warning.main, 0.1),
                     }}
                   >
-                    {initial}
-                  </Avatar>
-                ))}
-              </AvatarGroup>
-              <Typography variant="body2" color="text.secondary">
-                Team
-              </Typography>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton 
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedRow(row);
+                      setDeleteDialogOpen(true);
+                    }}
+                    sx={{ 
+                      color: 'error.main',
+                      bgcolor: alpha(theme.palette.error.main, 0.1),
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleActionClick(e, row);
+                }}
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
             </Box>
-            <Button
-              size="small"
-              startIcon={<PersonAddIcon fontSize="small" />}
-              sx={{
-                fontSize: '0.75rem',
-                borderRadius: 1,
-                textTransform: 'none',
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedRow(row);
-                handleAddCandidate();
-              }}
-            >
-              Add Candidate
-            </Button>
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Tooltip title="Edit">
-                <IconButton 
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedRow(row);
-                    navigate(`/edit-job-interview/${row.id}`, { 
-                      state: { editData: row } 
-                    });
-                  }}
-                  sx={{ 
-                    color: 'warning.main',
-                    bgcolor: alpha(theme.palette.warning.main, 0.1),
-                  }}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <IconButton 
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedRow(row);
-                    setDeleteDialogOpen(true);
-                  }}
-                  sx={{ 
-                    color: 'error.main',
-                    bgcolor: alpha(theme.palette.error.main, 0.1),
-                  }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleActionClick(e, row);
-              }}
-              sx={{
-                color: 'text.secondary',
-              }}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </CardContent>
-      </Card>
-    ))}
-  </Box>
-);
-
-
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
+  );
 
   if (error) {
     return (
@@ -688,128 +699,17 @@ const MobileCardView = () => (
       bgcolor: theme.palette.background.default,
       minHeight: '100vh'
     }}>
-      {/* Header - Responsive */}
+      {/* Header - Simplified */}
       <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Box>
-            <Typography variant="h5" fontWeight="600" gutterBottom color="text.primary">
-              Job Interviews
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Manage and track all your job interview processes
-            </Typography>
-          </Box>
-          
-          {/* Mobile Menu Button */}
-          {isMobile && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton
-                onClick={() => setMobileMenuOpen(true)}
-                sx={{
-                  color: 'text.primary',
-                  bgcolor: 'background.paper',
-                  border: `1px solid ${theme.palette.divider}`,
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-            </Box>
-          )}
-          
-          {/* Desktop Actions */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                startIcon={<RefreshIcon />}
-                onClick={handleRefresh}
-                disabled={loading}
-                sx={{
-                  borderRadius: 2,
-                  px: 2,
-                  bgcolor: 'background.paper',
-                  border: `1px solid ${theme.palette.divider}`,
-                  color: 'text.primary',
-                  '&:hover': {
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
-                  }
-                }}
-              >
-                Refresh
-              </Button>
-            </Box>
-          )}
+        <Box>
+          <Typography variant="h5" fontWeight="600" gutterBottom color="text.primary">
+            Job Interviews
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage and track all your job interview processes
+          </Typography>
         </Box>
       </Box>
-
-      {/* Mobile Menu Drawer */}
-      <Drawer
-        anchor="right"
-        open={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        PaperProps={{
-          sx: {
-            width: 280,
-            bgcolor: 'background.paper',
-            p: 2,
-          }
-        }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" fontWeight="600">
-            Menu
-          </Typography>
-          <IconButton onClick={() => setMobileMenuOpen(false)}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        
-        <List>
-          <ListItem 
-            button 
-            onClick={() => {
-              handleNewJob();
-              setMobileMenuOpen(false);
-            }}
-            sx={{ borderRadius: 1, mb: 1 }}
-          >
-            <ListItemIcon>
-              <AddIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText 
-              primary="New Job" 
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
-          </ListItem>
-          
-          <ListItem 
-            button 
-            onClick={handleRefresh}
-            sx={{ borderRadius: 1, mb: 1 }}
-          >
-            <ListItemIcon>
-              <RefreshIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Refresh" 
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
-          </ListItem>
-          
-          <ListItem 
-            button 
-            onClick={handleExport}
-            sx={{ borderRadius: 1, mb: 1 }}
-          >
-            <ListItemIcon>
-              <DownloadIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Export" 
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
-          </ListItem>
-        </List>
-      </Drawer>
 
       {/* Statistics Cards - Responsive Grid */}
       <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
@@ -904,7 +804,7 @@ const MobileCardView = () => (
         )}
       </Grid>
 
-      {/* Actions Bar - Responsive */}
+      {/* Actions Bar - Responsive with integrated buttons */}
       <Box
         sx={{
           display: 'flex',
@@ -922,7 +822,15 @@ const MobileCardView = () => (
             : '0 1px 3px rgba(0,0,0,0.05)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
+        {/* Left side: Search and Filter */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2, 
+          flexWrap: 'wrap', 
+          flex: 1,
+          minWidth: { xs: '100%', sm: 'auto' }
+        }}>
           <TextField
             placeholder="Search by Job ID, Status..."
             size="small"
@@ -947,6 +855,7 @@ const MobileCardView = () => (
               ),
             }}
           />
+          
           <Button
             startIcon={<FilterIcon />}
             onClick={handleFilterClick}
@@ -964,6 +873,7 @@ const MobileCardView = () => (
           >
             Filter {statusFilter !== 'all' && `(${statusFilter})`}
           </Button>
+          
           <Chip
             label={`${totalCount} total`}
             size="small"
@@ -972,9 +882,55 @@ const MobileCardView = () => (
             sx={{ fontWeight: 500 }}
           />
         </Box>
-        
+
+        {/* Right side: Action buttons for desktop, hidden on mobile */}
         {!isMobile && (
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            flexShrink: 0
+          }}>
+            <Button
+              startIcon={<RefreshIcon />}
+              onClick={handleRefresh}
+              disabled={loading}
+              sx={{
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                bgcolor: 'background.paper',
+                border: `1px solid ${theme.palette.divider}`,
+                color: 'text.primary',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                }
+              }}
+            >
+              Refresh
+            </Button>
+            
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={handleExport}
+              sx={{ 
+                borderRadius: 2, 
+                px: 2,
+                py: 1,
+                bgcolor: 'background.paper',
+                borderColor: theme.palette.divider,
+                color: 'text.primary',
+                fontWeight: 500,
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                  borderColor: theme.palette.divider,
+                }
+              }}
+            >
+              Export
+            </Button>
+            
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -997,26 +953,65 @@ const MobileCardView = () => (
             >
               New Job
             </Button>
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={handleExport}
-              sx={{ 
-                borderRadius: 2, 
-                px: 3,
-                py: 1,
-                bgcolor: 'background.paper',
-                borderColor: theme.palette.divider,
-                color: 'text.primary',
-                fontWeight: 500,
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
-                  borderColor: theme.palette.divider,
-                }
-              }}
-            >
-              Export
-            </Button>
+          </Box>
+        )}
+
+        {/* Mobile view actions as icons */}
+        {isMobile && (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: 1,
+            width: '100%',
+            pt: 2,
+            borderTop: `1px solid ${theme.palette.divider}`
+          }}>
+            <Tooltip title="Refresh">
+              <IconButton
+                onClick={handleRefresh}
+                disabled={loading}
+                sx={{
+                  color: 'text.primary',
+                  bgcolor: 'background.paper',
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="Export Data">
+              <IconButton
+                onClick={handleExport}
+                disabled={loading}
+                sx={{
+                  color: 'text.primary',
+                  bgcolor: 'background.paper',
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <DownloadIcon />
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="New Job Interview">
+              <IconButton
+                onClick={handleNewJob}
+                sx={{
+                  color: 'white',
+                  bgcolor: theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  '&:hover': {
+                    bgcolor: theme.palette.mode === 'dark'
+                      ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)'
+                      : 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                  }
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
         )}
       </Box>
@@ -1266,7 +1261,7 @@ const MobileCardView = () => (
                         onClick={() => handleSort('status')}
                       >
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          Status
+                          STATUS
                           <SortIndicator field="status" />
                         </Box>
                       </TableCell>
@@ -1282,15 +1277,15 @@ const MobileCardView = () => (
                         onClick={() => handleSort('candidates')}
                       >
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          Candidates
+                          CANDIDATES
                           <SortIndicator field="candidates" />
                         </Box>
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        Actions
+                        ACTIONS
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        Team
+                        TEAM
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -1357,27 +1352,31 @@ const MobileCardView = () => (
                           </TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="body2" fontWeight="600">
-                                {row.candidates}
-                              </Typography>
-                              <Button
-                                size="small"
-                                startIcon={<PersonAddIcon fontSize="small" />}
-                                sx={{
-                                  minWidth: 'auto',
-                                  px: 1.5,
-                                  fontSize: '0.75rem',
-                                  borderRadius: 1,
-                                  textTransform: 'none',
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedRow(row);
-                                  handleAddCandidate();
-                                }}
-                              >
-                                Add
-                              </Button>
+                              <Tooltip title={`View ${row.candidates} candidates for ${row.jobId}`}>
+                                <Button
+                                  size="small"
+                                  startIcon={<GroupIcon fontSize="small" />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewCandidates(row);
+                                  }}
+                                  sx={{
+                                    minWidth: 'auto',
+                                    px: 1.5,
+                                    fontSize: '0.75rem',
+                                    borderRadius: 1,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    color: 'primary.main',
+                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                    '&:hover': {
+                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                    }
+                                  }}
+                                >
+                                  {row.candidates}
+                                </Button>
+                              </Tooltip>
                             </Box>
                           </TableCell>
                           <TableCell>
@@ -1546,7 +1545,7 @@ const MobileCardView = () => (
         )}
       </Paper>
 
-      {/* Floating Action Button for Mobile */}
+      {/* Floating Action Button for Mobile - New Job */}
       {isMobile && (
         <Fab
           color="primary"
@@ -1611,6 +1610,21 @@ const MobileCardView = () => (
         >
           <EditIcon fontSize="small" sx={{ mr: 2, color: 'warning.main' }} />
           Edit Job
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handleViewCandidates(selectedRow)} 
+          sx={{ 
+            borderRadius: 1, 
+            mx: 1, 
+            my: 0.5,
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            }
+          }}
+        >
+          <GroupIcon fontSize="small" sx={{ mr: 2, color: 'info.main' }} />
+          View Candidates
         </MenuItem>
         <MenuItem 
           onClick={handleAddCandidate} 

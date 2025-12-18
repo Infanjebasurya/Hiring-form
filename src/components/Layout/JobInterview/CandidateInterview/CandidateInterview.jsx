@@ -1,5 +1,6 @@
 // src/components/CandidateInterview/CandidateInterview.jsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; // Added useNavigate
 import {
   Box,
   Paper,
@@ -42,6 +43,7 @@ import {
   DialogContent,
   DialogActions,
   Fab,
+  Stack,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -59,6 +61,12 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  Close as CloseIcon,
+  Work as WorkIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  CalendarToday as CalendarIcon,
+  ArrowBack as ArrowBackIcon, // Added ArrowBackIcon
 } from '@mui/icons-material';
 
 // Import separate components
@@ -77,38 +85,158 @@ const candidateInterviewsApi = {
     
     // Add mock data if empty
     if (data.length === 0) {
-      const mockData = Array.from({ length: 50 }, (_, i) => {
-        const statuses = ['Scheduled', 'Pending Feedback', 'Completed', 'Cancelled', 'No Show'];
-        const interviewTypes = ['Technical Interview', 'Hiring Manager', 'Intro', 'HR Screening', 'Final Round'];
-        const positions = ['Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'DevOps Engineer', 'Product Manager'];
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
-        const interviewType = interviewTypes[Math.floor(Math.random() * interviewTypes.length)];
-        
-        return {
-          id: i + 1,
-          candidateId: `CAND${String(i + 1).padStart(3, '0')}`,
-          name: `Candidate ${i + 1}`,
-          email: `candidate${i + 1}@email.com`,
-          phone: `+1 (555) ${String(100 + i).padStart(3, '0')}-${String(1000 + i).padStart(4, '0')}`,
-          position: positions[Math.floor(Math.random() * positions.length)],
-          currentRound: interviewType,
-          status: status,
-          lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          interviewDate: new Date(Date.now() + Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          interviewer: ['Alice Johnson', 'Bob Smith', 'Charlie Brown', 'David Wilson'][Math.floor(Math.random() * 4)],
-          experience: `${Math.floor(Math.random() * 10) + 1} years`,
-          source: ['LinkedIn', 'Referral', 'Career Page', 'Job Board'][Math.floor(Math.random() * 4)],
-          rating: Math.floor(Math.random() * 5) + 1,
-          notes: i % 3 === 0 ? 'Strong technical background' : '',
-          resumeLink: `http://company.com/resumes/${i + 1}`,
-          skills: ['React', 'JavaScript', 'Node.js', 'TypeScript', 'MongoDB'].slice(0, Math.floor(Math.random() * 5) + 1),
-          education: i % 2 === 0 ? 'Bachelor in Computer Science' : 'Master in Software Engineering',
-          location: ['New York', 'San Francisco', 'Remote', 'Chicago', 'Austin'][Math.floor(Math.random() * 5)],
-          availability: ['Immediate', '2 Weeks', '1 Month', '3 Months'][Math.floor(Math.random() * 4)],
-          expectedSalary: `$${Math.floor(Math.random() * 60) + 80}k`,
-          feedback: i % 4 === 0 ? 'Strong cultural fit, excellent technical skills.' : '',
-        };
-      });
+      const mockData = [
+        {
+          id: 1,
+          candidateId: 'CAND001',
+          jobId: 'JOB001',
+          name: 'Alice Johnson',
+          email: 'alice.j@email.com',
+          phone: '+1 (555) 123-4567',
+          position: 'Frontend Developer',
+          currentRound: 'Technical Interview',
+          status: 'Scheduled',
+          lastUpdated: '2023-10-26',
+          interviewDate: '2023-10-28',
+          interviewer: 'John Smith',
+          experience: '5 years',
+          source: 'LinkedIn',
+          rating: 4,
+          notes: 'Strong technical background',
+          resumeLink: 'http://company.com/resumes/1',
+          skills: ['React', 'JavaScript', 'TypeScript'],
+          education: 'Bachelor in Computer Science',
+          location: 'New York',
+          availability: 'Immediate',
+          expectedSalary: '$90k',
+          feedback: '',
+        },
+        {
+          id: 2,
+          candidateId: 'CAND002',
+          jobId: 'JOB002',
+          name: 'Bob Smith',
+          email: 'bob.s@email.com',
+          phone: '+1 (555) 234-5678',
+          position: 'Backend Developer',
+          currentRound: 'Hiring Manager',
+          status: 'Pending Feedback',
+          lastUpdated: '2023-10-25',
+          interviewDate: '2023-10-27',
+          interviewer: 'Jane Doe',
+          experience: '3 years',
+          source: 'Referral',
+          rating: 3,
+          notes: 'Good cultural fit',
+          resumeLink: 'http://company.com/resumes/2',
+          skills: ['Node.js', 'Python', 'MongoDB'],
+          education: 'Master in Software Engineering',
+          location: 'San Francisco',
+          availability: '2 Weeks',
+          expectedSalary: '$85k',
+          feedback: '',
+        },
+        {
+          id: 3,
+          candidateId: 'CAND003',
+          jobId: 'JOB003',
+          name: 'Charlie Brown',
+          email: 'charlie.b@email.com',
+          phone: '+1 (555) 345-6789',
+          position: 'Full Stack Developer',
+          currentRound: 'Intro',
+          status: 'Completed',
+          lastUpdated: '2023-10-24',
+          interviewDate: '2023-10-26',
+          interviewer: 'Mike Wilson',
+          experience: '7 years',
+          source: 'Career Page',
+          rating: 5,
+          notes: 'Excellent communication skills',
+          resumeLink: 'http://company.com/resumes/3',
+          skills: ['React', 'Node.js', 'PostgreSQL'],
+          education: 'Bachelor in Computer Science',
+          location: 'Remote',
+          availability: '1 Month',
+          expectedSalary: '$100k',
+          feedback: 'Strong cultural fit, excellent technical skills.',
+        },
+        {
+          id: 4,
+          candidateId: 'CAND004',
+          jobId: 'JOB001',
+          name: 'David Wilson',
+          email: 'david.w@email.com',
+          phone: '+1 (555) 456-7890',
+          position: 'Frontend Developer',
+          currentRound: 'HR Screening',
+          status: 'Scheduled',
+          lastUpdated: '2023-10-23',
+          interviewDate: '2023-10-25',
+          interviewer: 'Sarah Johnson',
+          experience: '2 years',
+          source: 'Job Board',
+          rating: 3,
+          notes: 'Junior candidate with potential',
+          resumeLink: 'http://company.com/resumes/4',
+          skills: ['React', 'JavaScript', 'CSS'],
+          education: 'Bootcamp Graduate',
+          location: 'Chicago',
+          availability: 'Immediate',
+          expectedSalary: '$70k',
+          feedback: '',
+        },
+        {
+          id: 5,
+          candidateId: 'CAND005',
+          jobId: 'JOB002',
+          name: 'Emma Davis',
+          email: 'emma.d@email.com',
+          phone: '+1 (555) 567-8901',
+          position: 'Backend Developer',
+          currentRound: 'Final Round',
+          status: 'Pending Feedback',
+          lastUpdated: '2023-10-22',
+          interviewDate: '2023-10-24',
+          interviewer: 'Robert Brown',
+          experience: '4 years',
+          source: 'LinkedIn',
+          rating: 4,
+          notes: 'Strong database skills',
+          resumeLink: 'http://company.com/resumes/5',
+          skills: ['Python', 'Django', 'PostgreSQL'],
+          education: 'Master in Computer Science',
+          location: 'Austin',
+          availability: '3 Months',
+          expectedSalary: '$95k',
+          feedback: '',
+        },
+        {
+          id: 6,
+          candidateId: 'CAND006',
+          jobId: 'JOB003',
+          name: 'Frank Miller',
+          email: 'frank.m@email.com',
+          phone: '+1 (555) 678-9012',
+          position: 'Full Stack Developer',
+          currentRound: 'Technical Interview',
+          status: 'Completed',
+          lastUpdated: '2023-10-21',
+          interviewDate: '2023-10-23',
+          interviewer: 'Lisa Taylor',
+          experience: '6 years',
+          source: 'Referral',
+          rating: 4,
+          notes: 'Architecture experience',
+          resumeLink: 'http://company.com/resumes/6',
+          skills: ['React', 'Node.js', 'AWS'],
+          education: 'Bachelor in Software Engineering',
+          location: 'Remote',
+          availability: '2 Weeks',
+          expectedSalary: '$110k',
+          feedback: 'Excellent system design skills.',
+        },
+      ];
       localStorage.setItem('candidateInterviews', JSON.stringify(mockData));
       data = mockData;
     }
@@ -133,6 +261,13 @@ const candidateInterviewsApi = {
 
     if (params.positionFilter && params.positionFilter.length > 0) {
       filteredData = filteredData.filter(row => params.positionFilter.includes(row.position));
+    }
+
+    // Add job filter
+    if (params.jobFilter) {
+      filteredData = filteredData.filter(row => 
+        row.jobId === params.jobFilter
+      );
     }
 
     // Apply sorting
@@ -170,44 +305,51 @@ const candidateInterviewsApi = {
     };
   },
 
-  getStatistics: async () => {
+  getStatistics: async (jobFilter = '') => {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
     
-    const statusCounts = data.reduce((acc, item) => {
+    // Filter by job if specified
+    let filteredData = data;
+    if (jobFilter) {
+      filteredData = data.filter(row => row.jobId === jobFilter);
+    }
+    
+    const statusCounts = filteredData.reduce((acc, item) => {
       acc[item.status] = (acc[item.status] || 0) + 1;
       return acc;
     }, {});
     
-    const positionCounts = data.reduce((acc, item) => {
+    const positionCounts = filteredData.reduce((acc, item) => {
       acc[item.position] = (acc[item.position] || 0) + 1;
       return acc;
     }, {});
     
-    const interviewCounts = data.reduce((acc, item) => {
+    const interviewCounts = filteredData.reduce((acc, item) => {
       acc[item.currentRound] = (acc[item.currentRound] || 0) + 1;
       return acc;
     }, {});
     
     return {
-      totalCandidates: data.length,
+      totalCandidates: filteredData.length,
       scheduled: statusCounts['Scheduled'] || 0,
       pendingFeedback: statusCounts['Pending Feedback'] || 0,
       completed: statusCounts['Completed'] || 0,
       cancelled: statusCounts['Cancelled'] || 0,
-      averageRating: data.length > 0 
-        ? (data.reduce((sum, item) => sum + item.rating, 0) / data.length).toFixed(1)
+      noShow: statusCounts['No Show'] || 0,
+      averageRating: filteredData.length > 0 
+        ? (filterledData.reduce((sum, item) => sum + item.rating, 0) / filteredData.length).toFixed(1)
         : 0,
       positions: Object.entries(positionCounts).map(([position, count]) => ({
         position,
         count,
-        percentage: ((count / data.length) * 100).toFixed(1)
+        percentage: ((count / filteredData.length) * 100).toFixed(1)
       })),
       interviewTypes: Object.entries(interviewCounts).map(([type, count]) => ({
         type,
         count,
-        percentage: ((count / data.length) * 100).toFixed(1)
+        percentage: ((count / filteredData.length) * 100).toFixed(1)
       }))
     };
   },
@@ -250,6 +392,8 @@ const candidateInterviewsApi = {
 const CandidateInterview = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const location = useLocation();
+  const navigate = useNavigate(); // Added useNavigate
   
   // State for data
   const [candidateInterviews, setCandidateInterviews] = useState([]);
@@ -270,6 +414,7 @@ const CandidateInterview = () => {
   const [actionAnchorEl, setActionAnchorEl] = useState(null);
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [jobFilter, setJobFilter] = useState('');
   
   // Modal states
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -277,6 +422,11 @@ const CandidateInterview = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+
+  // Add back navigation handler
+  const handleBack = () => {
+    navigate('/job-interviews');
+  };
 
   // Available positions for filter
   const availablePositions = [
@@ -298,6 +448,20 @@ const CandidateInterview = () => {
     'No Show'
   ];
 
+  // Handle URL state for job filtering
+  useEffect(() => {
+    if (location.state?.jobFilter) {
+      const filter = location.state.jobFilter;
+      setJobFilter(filter);
+      setSnackbar({
+        open: true,
+        message: `Showing candidates for Job ID: ${filter}`,
+        severity: 'info'
+      });
+      setPage(0);
+    }
+  }, [location.state]);
+
   // Fetch candidate interviews with all parameters
   const fetchCandidateInterviews = useCallback(async () => {
     try {
@@ -312,6 +476,7 @@ const CandidateInterview = () => {
         positionFilter,
         sortBy: sortConfig.field,
         sortOrder: sortConfig.direction,
+        jobFilter: jobFilter,
       };
       
       const response = await candidateInterviewsApi.getCandidateInterviews(params);
@@ -323,20 +488,20 @@ const CandidateInterview = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, searchTerm, statusFilter, positionFilter, sortConfig]);
+  }, [page, rowsPerPage, searchTerm, statusFilter, positionFilter, sortConfig, jobFilter]);
 
   // Fetch statistics
   const fetchStatistics = useCallback(async () => {
     try {
       setStatisticsLoading(true);
-      const stats = await candidateInterviewsApi.getStatistics();
+      const stats = await candidateInterviewsApi.getStatistics(jobFilter);
       setStatistics(stats);
     } catch (err) {
       console.error('Error fetching statistics:', err);
     } finally {
       setStatisticsLoading(false);
     }
-  }, []);
+  }, [jobFilter]);
 
   // Initial data fetch
   useEffect(() => {
@@ -364,6 +529,19 @@ const CandidateInterview = () => {
     fetchCandidateInterviews();
   }, [sortConfig, fetchCandidateInterviews]);
 
+  // Handle filter changes
+  useEffect(() => {
+    setPage(0);
+    fetchCandidateInterviews();
+  }, [statusFilter, positionFilter, fetchCandidateInterviews]);
+
+  // Handle job filter change
+  useEffect(() => {
+    setPage(0);
+    fetchCandidateInterviews();
+    fetchStatistics();
+  }, [jobFilter, fetchCandidateInterviews, fetchStatistics]);
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -388,17 +566,24 @@ const CandidateInterview = () => {
     } else {
       setStatusFilter(value);
     }
-    setPage(0);
   };
 
   const handlePositionFilterChange = (event) => {
     const value = event.target.value;
     setPositionFilter(value);
-    setPage(0);
+  };
+
+  const handleClearJobFilter = () => {
+    setJobFilter('');
+    setSnackbar({
+      open: true,
+      message: 'Job filter cleared',
+      severity: 'info'
+    });
   };
 
   const handleSort = (field) => {
-    if (!isMobile) { // Only allow sorting on desktop
+    if (!isMobile) {
       setSortConfig(prev => ({
         field,
         direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
@@ -467,9 +652,10 @@ const CandidateInterview = () => {
   };
 
   const convertToCSV = (data) => {
-    const headers = ['Candidate ID', 'Name', 'Email', 'Phone', 'Position', 'Current Round', 'Status', 'Last Updated', 'Interview Date', 'Interviewer', 'Experience', 'Source', 'Rating'];
+    const headers = ['Candidate ID', 'Job ID', 'Name', 'Email', 'Phone', 'Position', 'Current Round', 'Status', 'Last Updated', 'Interview Date', 'Interviewer', 'Experience', 'Source', 'Rating'];
     const rows = data.map(item => [
       item.candidateId,
+      item.jobId || '',
       item.name,
       item.email,
       item.phone,
@@ -525,24 +711,25 @@ const CandidateInterview = () => {
 
   const StatusChip = ({ status }) => {
     const statusConfig = {
-      'Scheduled': { color: 'primary', icon: <ScheduleIcon fontSize="small" /> },
-      'Pending Feedback': { color: 'warning', icon: <PendingIcon fontSize="small" /> },
-      'Completed': { color: 'success', icon: <CheckCircleIcon fontSize="small" /> },
-      'Cancelled': { color: 'error', icon: <ScheduleIcon fontSize="small" /> },
-      'No Show': { color: 'default', icon: <ScheduleIcon fontSize="small" /> },
+      'Scheduled': { color: 'primary', icon: <ScheduleIcon fontSize="small" />, bgColor: theme.palette.mode === 'dark' ? '#1976d2' : '#e3f2fd' },
+      'Pending Feedback': { color: 'warning', icon: <PendingIcon fontSize="small" />, bgColor: theme.palette.mode === 'dark' ? '#ed6c02' : '#fff3e0' },
+      'Completed': { color: 'success', icon: <CheckCircleIcon fontSize="small" />, bgColor: theme.palette.mode === 'dark' ? '#2e7d32' : '#e8f5e9' },
+      'Cancelled': { color: 'error', icon: <ScheduleIcon fontSize="small" />, bgColor: theme.palette.mode === 'dark' ? '#d32f2f' : '#ffebee' },
+      'No Show': { color: 'default', icon: <ScheduleIcon fontSize="small" />, bgColor: theme.palette.mode === 'dark' ? '#616161' : '#f5f5f5' },
     };
 
-    const config = statusConfig[status] || { color: 'default', icon: null };
+    const config = statusConfig[status] || { color: 'default', icon: null, bgColor: '#f5f5f5' };
 
     return (
       <Chip
         icon={config.icon}
         label={status}
-        color={config.color}
         size="small"
         sx={{
           fontWeight: 600,
           fontSize: '0.75rem',
+          bgcolor: config.bgColor,
+          color: theme.palette.mode === 'dark' ? '#fff' : 'inherit',
           '& .MuiChip-icon': {
             color: 'inherit',
             marginLeft: '4px',
@@ -623,7 +810,8 @@ const CandidateInterview = () => {
                 <Avatar sx={{ 
                   bgcolor: theme.palette.primary.main,
                   width: 48,
-                  height: 48
+                  height: 48,
+                  fontWeight: 600,
                 }}>
                   {row.name.charAt(0)}
                 </Avatar>
@@ -631,9 +819,12 @@ const CandidateInterview = () => {
                   <Typography variant="h6" fontWeight="600" color="text.primary" noWrap>
                     {row.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" noWrap>
-                    {row.email}
-                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <EmailIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 14 }} />
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      {row.email}
+                    </Typography>
+                  </Stack>
                 </Box>
               </Box>
               <StatusChip status={row.status} />
@@ -642,17 +833,25 @@ const CandidateInterview = () => {
             <Grid container spacing={1.5} sx={{ mb: 2 }}>
               <Grid item xs={6}>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  Position
+                  Job ID
                 </Typography>
-                <Typography variant="body2" fontWeight="600" color="text.primary" noWrap>
-                  {row.position}
+                <Typography variant="body2" fontWeight="600" color="primary" noWrap>
+                  {row.jobId || 'N/A'}
                 </Typography>
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="caption" color="text.secondary" display="block">
-                  Current Round
+                  Position
                 </Typography>
                 <Typography variant="body2" fontWeight="500" color="text.primary" noWrap>
+                  {row.position}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  Current Round
+                </Typography>
+                <Typography variant="body2" fontWeight="500" color="text.primary">
                   {row.currentRound}
                 </Typography>
               </Grid>
@@ -660,17 +859,23 @@ const CandidateInterview = () => {
                 <Typography variant="caption" color="text.secondary" display="block">
                   Last Updated
                 </Typography>
-                <Typography variant="body2" color="text.primary">
-                  {row.lastUpdated}
-                </Typography>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <CalendarIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 12 }} />
+                  <Typography variant="body2" color="text.primary">
+                    {row.lastUpdated}
+                  </Typography>
+                </Stack>
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="caption" color="text.secondary" display="block">
                   Interview Date
                 </Typography>
-                <Typography variant="body2" fontWeight="500" color="text.primary">
-                  {row.interviewDate}
-                </Typography>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <CalendarIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 12 }} />
+                  <Typography variant="body2" fontWeight="500" color="text.primary">
+                    {row.interviewDate}
+                  </Typography>
+                </Stack>
               </Grid>
             </Grid>
 
@@ -769,16 +974,33 @@ const CandidateInterview = () => {
     );
   }
 
+
+
   return (
     <Box sx={{ 
       p: { xs: 1, sm: 2, md: 3 },
       bgcolor: 'background.default',
       minHeight: '100vh',
-      pb: isMobile ? 8 : 0 // Add padding for FAB on mobile
+      pb: isMobile ? 8 : 0
     }}>
-      {/* Header */}
+      {/* Header with Back Arrow */}
       <Box sx={{ mb: { xs: 2, sm: 3 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
+          <IconButton 
+            onClick={handleBack}
+            sx={{ 
+              p: { xs: 1, sm: 1.5 },
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: '8px',
+              bgcolor: 'background.paper',
+              '&:hover': {
+                bgcolor: 'action.hover'
+              }
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+          </IconButton>
           <Box>
             <Typography variant="h5" fontWeight="600" gutterBottom color="text.primary">
               Candidate Interview Management
@@ -787,8 +1009,10 @@ const CandidateInterview = () => {
               Manage and track all your candidate interviews
             </Typography>
           </Box>
-          
-          {!isMobile && (
+        </Box>
+        
+        {!isMobile && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Button
                 startIcon={<RefreshIcon />}
@@ -808,9 +1032,29 @@ const CandidateInterview = () => {
                 Refresh
               </Button>
             </Box>
-          )}
-        </Box>
+          </Box>
+        )}
       </Box>
+
+      {/* Job Filter Alert */}
+      {jobFilter && (
+        <Alert 
+          severity="info" 
+          sx={{ mb: 3 }}
+          action={
+            <IconButton
+              aria-label="clear filter"
+              color="inherit"
+              size="small"
+              onClick={handleClearJobFilter}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          Showing candidates for Job ID: <strong>{jobFilter}</strong>
+        </Alert>
+      )}
 
       {/* Statistics Cards - Responsive Grid */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -918,13 +1162,13 @@ const CandidateInterview = () => {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
           <TextField
-            placeholder="Search candidates..."
+            placeholder="Search by Name, Status..."
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
               flex: { xs: 1, sm: '0 0 auto' },
-              width: { xs: '100%', sm: 250 },
+              width: { xs: '100%', sm: 300 },
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
                 bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
@@ -958,6 +1202,15 @@ const CandidateInterview = () => {
           >
             Filter
           </Button>
+          {jobFilter && (
+            <Chip
+              label={`Job: ${jobFilter}`}
+              color="primary"
+              size="small"
+              onDelete={handleClearJobFilter}
+              sx={{ fontWeight: 500 }}
+            />
+          )}
           <Chip
             label={`${totalCount} total`}
             size="small"
@@ -1015,6 +1268,7 @@ const CandidateInterview = () => {
         )}
       </Box>
 
+      {/* Rest of the component remains the same... */}
       {/* Filter Dialog for Mobile */}
       <Dialog
         open={filterDialogOpen}
@@ -1144,207 +1398,230 @@ const CandidateInterview = () => {
             {isMobile ? (
               <MobileCardView />
             ) : (
-              <TableContainer sx={{ maxHeight: 600 }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell 
-                        sx={{ 
-                          fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
-                          cursor: 'pointer',
-                          '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
-                          }
-                        }}
-                        onClick={() => handleSort('name')}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          CANDIDATE
-                          <SortIndicator field="name" />
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        POSITION
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        CURRENT ROUND
-                      </TableCell>
-                      <TableCell 
-                        sx={{ 
-                          fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
-                          cursor: 'pointer',
-                          '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
-                          }
-                        }}
-                        onClick={() => handleSort('status')}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          STATUS
-                          <SortIndicator field="status" />
-                        </Box>
-                      </TableCell>
-                      <TableCell 
-                        sx={{ 
-                          fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
-                          cursor: 'pointer',
-                          '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
-                          }
-                        }}
-                        onClick={() => handleSort('lastUpdated')}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          LAST UPDATED
-                          <SortIndicator field="lastUpdated" />
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        INTERVIEW DATE
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
-                        ACTIONS
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {candidateInterviews.length > 0 ? (
-                      candidateInterviews.map((row) => (
-                        <TableRow
-                          key={row.id}
-                          hover
-                          sx={{
-                            '&:hover': {
-                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+              <>
+                <TableContainer sx={{ maxHeight: 600 }}>
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell 
+                          sx={{ 
+                            fontWeight: 600, 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                            cursor: 'pointer',
+                            '&:hover': { 
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
                             },
-                            '&:last-child td': {
-                              borderBottom: 0,
-                            }
+                            py: 2,
                           }}
+                          onClick={() => handleSort('name')}
                         >
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-                                {row.name.charAt(0)}
-                              </Avatar>
-                              <Box>
-                                <Typography variant="body2" fontWeight="600" color="text.primary">
-                                  {row.name}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  {row.email}
-                                </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            CANDIDATE
+                            <SortIndicator field="name" />
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
+                          JOB ID
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
+                          POSITION
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
+                          CURRENT ROUND
+                        </TableCell>
+                        <TableCell 
+                          sx={{ 
+                            fontWeight: 600, 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                            cursor: 'pointer',
+                            '&:hover': { 
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            },
+                            py: 2,
+                          }}
+                          onClick={() => handleSort('status')}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            STATUS
+                            <SortIndicator field="status" />
+                          </Box>
+                        </TableCell>
+                        <TableCell 
+                          sx={{ 
+                            fontWeight: 600, 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                            cursor: 'pointer',
+                            '&:hover': { 
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            },
+                            py: 2,
+                          }}
+                          onClick={() => handleSort('lastUpdated')}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            LAST UPDATED
+                            <SortIndicator field="lastUpdated" />
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
+                          ACTIONS
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {candidateInterviews.length > 0 ? (
+                        candidateInterviews.map((row) => (
+                          <TableRow
+                            key={row.id}
+                            hover
+                            sx={{
+                              '&:hover': {
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                              },
+                              '&:last-child td': {
+                                borderBottom: 0,
+                              }
+                            }}
+                          >
+                            <TableCell sx={{ py: 2 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ 
+                                  bgcolor: theme.palette.primary.main,
+                                  width: 40,
+                                  height: 40,
+                                  fontWeight: 600,
+                                }}>
+                                  {row.name.charAt(0)}
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="body2" fontWeight="600" color="text.primary">
+                                    {row.name}
+                                  </Typography>
+                                  <Stack direction="row" spacing={1} alignItems="center">
+                                    <EmailIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 12 }} />
+                                    <Typography variant="caption" color="text.secondary">
+                                      {row.email}
+                                    </Typography>
+                                  </Stack>
+                                </Box>
                               </Box>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.position}
-                              size="small"
-                              sx={{
-                                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                color: 'primary.dark',
-                                fontWeight: 500,
-                                borderRadius: '6px',
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" fontWeight="500" color="text.primary">
-                              {row.currentRound}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {row.interviewer}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <StatusChip status={row.status} />
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" color="text.primary">
-                              {row.lastUpdated}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" fontWeight="500" color="text.primary">
-                              {row.interviewDate}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
-                              <Tooltip title="View Details">
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <Chip
+                                label={row.jobId || 'N/A'}
+                                size="small"
+                                sx={{
+                                  bgcolor: alpha(theme.palette.info.main, 0.1),
+                                  color: 'info.dark',
+                                  fontWeight: 600,
+                                  borderRadius: '6px',
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <Chip
+                                label={row.position}
+                                size="small"
+                                sx={{
+                                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                  color: 'primary.dark',
+                                  fontWeight: 600,
+                                  borderRadius: '6px',
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <Typography variant="body2" fontWeight="500" color="text.primary">
+                                {row.currentRound}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {row.interviewer}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <StatusChip status={row.status} />
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <CalendarIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 14 }} />
+                                <Typography variant="body2" color="text.primary">
+                                  {row.lastUpdated}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title="View Details">
+                                  <IconButton 
+                                    size="small" 
+                                    sx={{ 
+                                      color: 'primary.main',
+                                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                      '&:hover': {
+                                        bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                      }
+                                    }}
+                                    onClick={() => handleViewDetails(row)}
+                                  >
+                                    <ViewIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
                                 <IconButton 
-                                  size="small" 
+                                  size="small"
+                                  onClick={(e) => handleActionClick(e, row)}
                                   sx={{ 
-                                    color: 'primary.main',
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                    color: 'text.secondary',
                                     '&:hover': {
-                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                      bgcolor: alpha(theme.palette.mode === 'dark' ? '#fff' : '#000', 0.1),
                                     }
                                   }}
-                                  onClick={() => handleViewDetails(row)}
                                 >
-                                  <ViewIcon fontSize="small" />
+                                  <MoreVertIcon fontSize="small" />
                                 </IconButton>
-                              </Tooltip>
-                              <IconButton 
-                                size="small"
-                                onClick={(e) => handleActionClick(e, row)}
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7}>
+                            <Box sx={{ textAlign: 'center', py: 6 }}>
+                              <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
+                              <Typography variant="body1" color="text.secondary" gutterBottom>
+                                No candidate interviews found
+                              </Typography>
+                              {searchTerm || jobFilter ? (
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                  No results found. Try adjusting your search or filters.
+                                </Typography>
+                              ) : (
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                  Get started by adding your first candidate.
+                                </Typography>
+                              )}
+                              <Button
+                                variant="contained"
+                                startIcon={<PersonAddIcon />}
+                                onClick={handleAddCandidate}
                                 sx={{ 
-                                  color: 'text.secondary',
-                                  '&:hover': {
-                                    bgcolor: alpha(theme.palette.mode === 'dark' ? '#fff' : '#000', 0.1),
-                                  }
+                                  borderRadius: 2,
+                                  px: 3,
+                                  py: 1,
+                                  background: theme.palette.mode === 'dark'
+                                    ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
+                                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 }}
                               >
-                                <MoreVertIcon fontSize="small" />
-                              </IconButton>
+                                Add New Candidate
+                              </Button>
                             </Box>
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={7}>
-                          <Box sx={{ textAlign: 'center', py: 6 }}>
-                            <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
-                            <Typography variant="body1" color="text.secondary" gutterBottom>
-                              No candidate interviews found
-                            </Typography>
-                            {searchTerm ? (
-                              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                No results for "{searchTerm}". Try a different search term.
-                              </Typography>
-                            ) : (
-                              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                Get started by adding your first candidate.
-                              </Typography>
-                            )}
-                            <Button
-                              variant="contained"
-                              startIcon={<PersonAddIcon />}
-                              onClick={handleAddCandidate}
-                              sx={{ 
-                                borderRadius: 2,
-                                px: 3,
-                                py: 1,
-                                background: theme.palette.mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
-                                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              }}
-                            >
-                              Add New Candidate
-                            </Button>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
             )}
 
             {/* Pagination - Responsive */}

@@ -68,33 +68,48 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
   Group as GroupIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 
-// Enhanced API service with better pagination
+// Enhanced API service with better pagination and self/others filtering
 const jobInterviewsApi = {
   getJobInterviews: async (params = {}) => {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     let data = JSON.parse(localStorage.getItem('jobInterviews') || '[]');
     
-    // Add some mock data if empty
+    // Add some mock data if empty - enhanced with self/others data
     if (data.length === 0) {
-      const mockData = Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        jobId: `JOB${String(i + 1).padStart(3, '0')}`,
-        jdLink: `http://company.com/jd/${i + 1}`,
-        interviewRounds: Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, j) => ({
-          id: Date.now() + j,
-          name: `Round ${j + 1}`,
-          interviewer: 'Rajesh R (rajesh@company.com)',
-          isSelfAssigned: Math.random() > 0.5,
-        })),
-        rounds: Math.floor(Math.random() * 5) + 1,
-        status: ['In progress', 'Done', 'Pending'][Math.floor(Math.random() * 3)],
-        candidates: Math.floor(Math.random() * 50),
-        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-        team: ['JD', 'MJ', 'AR'].slice(0, Math.floor(Math.random() * 3) + 1),
-      }));
+      const mockData = Array.from({ length: 20 }, (_, i) => {
+        const hasSelfInterviews = Math.random() > 0.5;
+        const interviewRounds = Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, j) => {
+          const isSelfAssigned = hasSelfInterviews && (j === 0 || Math.random() > 0.7); // First round or random
+          return {
+            id: Date.now() + j,
+            name: `Round ${j + 1}`,
+            interviewer: isSelfAssigned 
+              ? 'Rajesh R (rajesh@company.com)' 
+              : ['John Doe (john@company.com)', 'Jane Smith (jane@company.com)', 'Bob Johnson (bob@company.com)'][Math.floor(Math.random() * 3)],
+            isSelfAssigned: isSelfAssigned,
+          };
+        });
+        
+        // Check if any round is self assigned for filtering
+        const hasSelfAssignedRounds = interviewRounds.some(round => round.isSelfAssigned);
+        
+        return {
+          id: i + 1,
+          jobId: `JOB${String(i + 1).padStart(3, '0')}`,
+          jdLink: `http://company.com/jd/${i + 1}`,
+          interviewRounds: interviewRounds,
+          rounds: interviewRounds.length,
+          status: ['In progress', 'Done', 'Pending'][Math.floor(Math.random() * 3)],
+          candidates: Math.floor(Math.random() * 50),
+          createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
+          team: ['JD', 'MJ', 'AR'].slice(0, Math.floor(Math.random() * 3) + 1),
+          hasSelfAssignedRounds: hasSelfAssignedRounds,
+        };
+      });
       localStorage.setItem('jobInterviews', JSON.stringify(mockData));
       data = mockData;
     }
@@ -113,6 +128,15 @@ const jobInterviewsApi = {
 
     if (params.statusFilter && params.statusFilter !== 'all') {
       filteredData = filteredData.filter(row => row.status === params.statusFilter);
+    }
+
+    // NEW: Apply self/others filter
+    if (params.interviewerFilter && params.interviewerFilter !== 'all') {
+      if (params.interviewerFilter === 'self') {
+        filteredData = filteredData.filter(row => row.hasSelfAssignedRounds === true);
+      } else if (params.interviewerFilter === 'others') {
+        filteredData = filteredData.filter(row => row.hasSelfAssignedRounds === false);
+      }
     }
 
     // Apply sorting
@@ -145,20 +169,32 @@ const jobInterviewsApi = {
     };
   },
 
-  getStatistics: async () => {
+  getStatistics: async (interviewerFilter = '') => {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     const data = JSON.parse(localStorage.getItem('jobInterviews') || '[]');
     
+    // Filter by interviewer type if specified
+    let filteredData = data;
+    if (interviewerFilter) {
+      if (interviewerFilter === 'self') {
+        filteredData = data.filter(item => item.hasSelfAssignedRounds === true);
+      } else if (interviewerFilter === 'others') {
+        filteredData = data.filter(item => item.hasSelfAssignedRounds === false);
+      }
+    }
+    
     return {
-      totalInterviews: data.length,
-      inProgress: data.filter(item => item.status === 'In progress').length,
-      completed: data.filter(item => item.status === 'Done').length,
-      pending: data.filter(item => item.status === 'Pending').length,
-      averageRounds: data.length > 0 
-        ? (data.reduce((sum, item) => sum + item.rounds, 0) / data.length).toFixed(1)
+      totalInterviews: filteredData.length,
+      inProgress: filteredData.filter(item => item.status === 'In progress').length,
+      completed: filteredData.filter(item => item.status === 'Done').length,
+      pending: filteredData.filter(item => item.status === 'Pending').length,
+      averageRounds: filteredData.length > 0 
+        ? (filteredData.reduce((sum, item) => sum + item.rounds, 0) / filteredData.length).toFixed(1)
         : 0,
-      totalCandidates: data.reduce((sum, item) => sum + item.candidates, 0),
+      totalCandidates: filteredData.reduce((sum, item) => sum + item.candidates, 0),
+      selfAssigned: data.filter(item => item.hasSelfAssignedRounds === true).length,
+      othersAssigned: data.filter(item => item.hasSelfAssignedRounds === false).length,
     };
   },
 
@@ -193,6 +229,7 @@ const JobInterviews = ({ darkMode }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [interviewerFilter, setInterviewerFilter] = useState('all'); // NEW: self/others filter
   const [selectedRow, setSelectedRow] = useState(null);
   const [actionAnchorEl, setActionAnchorEl] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -211,6 +248,7 @@ const JobInterviews = ({ darkMode }) => {
         limit: rowsPerPage,
         search: searchTerm,
         statusFilter: statusFilter !== 'all' ? statusFilter : undefined,
+        interviewerFilter: interviewerFilter !== 'all' ? interviewerFilter : undefined, // NEW
         sortBy: sortConfig.field,
         sortOrder: sortConfig.direction,
       };
@@ -224,20 +262,20 @@ const JobInterviews = ({ darkMode }) => {
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, searchTerm, statusFilter, sortConfig]);
+  }, [page, rowsPerPage, searchTerm, statusFilter, interviewerFilter, sortConfig]); // UPDATED: Added interviewerFilter
 
   // Fetch statistics
   const fetchStatistics = useCallback(async () => {
     try {
       setStatisticsLoading(true);
-      const stats = await jobInterviewsApi.getStatistics();
+      const stats = await jobInterviewsApi.getStatistics(interviewerFilter);
       setStatistics(stats);
     } catch (err) {
       console.error('Error fetching statistics:', err);
     } finally {
       setStatisticsLoading(false);
     }
-  }, []);
+  }, [interviewerFilter]); // UPDATED: Added interviewerFilter dependency
 
   // Initial data fetch
   useEffect(() => {
@@ -265,6 +303,12 @@ const JobInterviews = ({ darkMode }) => {
     fetchJobInterviews();
   }, [sortConfig, fetchJobInterviews]);
 
+  // Handle filter changes
+  useEffect(() => {
+    setPage(0);
+    fetchJobInterviews();
+  }, [statusFilter, interviewerFilter, fetchJobInterviews]); // UPDATED: Added interviewerFilter
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -289,6 +333,21 @@ const JobInterviews = ({ darkMode }) => {
 
   const handleStatusFilter = (status) => {
     setStatusFilter(status);
+    setPage(0);
+    handleFilterClose();
+  };
+
+  // NEW: Handle interviewer filter
+  const handleInterviewerFilter = (filter) => {
+    setInterviewerFilter(filter);
+    setPage(0);
+    handleFilterClose();
+  };
+
+  // NEW: Clear all filters
+  const handleClearFilters = () => {
+    setStatusFilter('all');
+    setInterviewerFilter('all');
     setPage(0);
     handleFilterClose();
   };
@@ -419,7 +478,7 @@ const JobInterviews = ({ darkMode }) => {
   };
 
   const convertToCSV = (data) => {
-    const headers = ['Job ID', 'JD Link', 'Rounds', 'Status', 'Candidates', 'Created At', 'Team'];
+    const headers = ['Job ID', 'JD Link', 'Rounds', 'Status', 'Candidates', 'Created At', 'Team', 'Has Self Assigned'];
     const rows = data.map(item => [
       item.jobId,
       item.jdLink,
@@ -427,7 +486,8 @@ const JobInterviews = ({ darkMode }) => {
       item.status,
       item.candidates,
       new Date(item.createdAt).toLocaleDateString(),
-      item.team.join(', ')
+      item.team.join(', '),
+      item.hasSelfAssignedRounds ? 'Yes' : 'No'
     ]);
     
     return [headers, ...rows].map(row => 
@@ -476,6 +536,29 @@ const JobInterviews = ({ darkMode }) => {
     );
   };
 
+  // NEW: Self/Others indicator chip
+  const SelfOthersChip = ({ hasSelfAssigned }) => {
+    if (hasSelfAssigned === undefined) return null;
+    
+    return (
+      <Chip
+        icon={<PersonIcon fontSize="small" />}
+        label={hasSelfAssigned ? "Self" : "Others"}
+        size="small"
+        color={hasSelfAssigned ? "primary" : "default"}
+        variant="outlined"
+        sx={{
+          fontWeight: 600,
+          fontSize: '0.75rem',
+          '& .MuiChip-icon': {
+            color: 'inherit',
+            marginLeft: '4px',
+          },
+        }}
+      />
+    );
+  };
+
   // Enhanced Statistics Cards - Mobile friendly
   const stats = statistics ? [
     { 
@@ -487,20 +570,22 @@ const JobInterviews = ({ darkMode }) => {
       icon: <WorkIcon />,
     },
     { 
-      label: 'In Progress', 
-      value: statistics.inProgress.toString(), 
-      subLabel: `${((statistics.inProgress / statistics.totalInterviews) * 100).toFixed(1)}% of total`,
+      label: 'Self Assigned', 
+      value: statistics.selfAssigned.toString(), 
+      subLabel: `${((statistics.selfAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100).toFixed(1)}% of total`,
       color: theme.palette.mode === 'dark' ? '#4caf50' : '#4caf50', 
-      progress: statistics.totalInterviews > 0 ? (statistics.inProgress / statistics.totalInterviews) * 100 : 0,
-      icon: <InProgressIcon />,
+      progress: statistics.selfAssigned + statistics.othersAssigned > 0 ? 
+        (statistics.selfAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100 : 0,
+      icon: <PersonIcon />,
     },
     { 
-      label: 'Completed', 
-      value: statistics.completed.toString(), 
+      label: 'Others Assigned', 
+      value: statistics.othersAssigned.toString(), 
       subLabel: `${statistics.totalCandidates} candidates`,
       color: theme.palette.mode === 'dark' ? '#2196f3' : '#2196f3', 
-      progress: statistics.totalInterviews > 0 ? (statistics.completed / statistics.totalInterviews) * 100 : 0,
-      icon: <CheckCircleIcon />,
+      progress: statistics.selfAssigned + statistics.othersAssigned > 0 ? 
+        (statistics.othersAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100 : 0,
+      icon: <GroupIcon />,
     },
     { 
       label: 'Pending', 
@@ -552,7 +637,10 @@ const JobInterviews = ({ darkMode }) => {
                   {row.rounds} rounds • {row.candidates} candidates
                 </Typography>
               </Box>
-              <StatusChip status={row.status} />
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                <StatusChip status={row.status} />
+                <SelfOthersChip hasSelfAssigned={row.hasSelfAssignedRounds} />
+              </Box>
             </Box>
 
             <Box sx={{ mb: 2 }}>
@@ -871,7 +959,16 @@ const JobInterviews = ({ darkMode }) => {
               }
             }}
           >
-            Filter {statusFilter !== 'all' && `(${statusFilter})`}
+            Filter 
+            {(statusFilter !== 'all' || interviewerFilter !== 'all') && (
+              <Box component="span" sx={{ ml: 0.5 }}>
+                (
+                {statusFilter !== 'all' && `${statusFilter}`}
+                {statusFilter !== 'all' && interviewerFilter !== 'all' && ', '}
+                {interviewerFilter !== 'all' && `${interviewerFilter}`}
+                )
+              </Box>
+            )}
           </Button>
           
           <Chip
@@ -1016,7 +1113,7 @@ const JobInterviews = ({ darkMode }) => {
         )}
       </Box>
 
-      {/* Mobile Filter Drawer */}
+      {/* Mobile Filter Drawer - UPDATED with new filters */}
       <Drawer
         anchor="bottom"
         open={mobileFilterOpen}
@@ -1027,19 +1124,24 @@ const JobInterviews = ({ darkMode }) => {
             borderTopRightRadius: 16,
             bgcolor: 'background.paper',
             p: 3,
+            maxHeight: '80vh',
           }
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h6" fontWeight="600">
-            Filter by Status
+            Filters
           </Typography>
           <IconButton onClick={handleFilterClose}>
             <CloseIcon />
           </IconButton>
         </Box>
         
-        <List>
+        {/* Status Filter Section */}
+        <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
+          Status Filter
+        </Typography>
+        <List sx={{ mb: 3 }}>
           <ListItem 
             button 
             onClick={() => handleStatusFilter('all')}
@@ -1106,9 +1208,86 @@ const JobInterviews = ({ darkMode }) => {
             />
           </ListItem>
         </List>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Interviewer Filter Section - NEW */}
+        <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
+          Interviewer Filter
+        </Typography>
+        <List sx={{ mb: 3 }}>
+          <ListItem 
+            button 
+            onClick={() => handleInterviewerFilter('all')}
+            selected={interviewerFilter === 'all'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemText 
+              primary="All Interviews" 
+              primaryTypographyProps={{ 
+                fontWeight: interviewerFilter === 'all' ? 600 : 400,
+                color: interviewerFilter === 'all' ? 'primary.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+          <ListItem 
+            button 
+            onClick={() => handleInterviewerFilter('self')}
+            selected={interviewerFilter === 'self'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <PersonIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Self Interviews" 
+              primaryTypographyProps={{ 
+                fontWeight: interviewerFilter === 'self' ? 600 : 400,
+                color: interviewerFilter === 'self' ? 'primary.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+          <ListItem 
+            button 
+            onClick={() => handleInterviewerFilter('others')}
+            selected={interviewerFilter === 'others'}
+            sx={{ borderRadius: 1, mb: 1 }}
+          >
+            <ListItemIcon>
+              <GroupIcon color="info" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Others Interviews" 
+              primaryTypographyProps={{ 
+                fontWeight: interviewerFilter === 'others' ? 600 : 400,
+                color: interviewerFilter === 'others' ? 'info.main' : 'text.primary'
+              }}
+            />
+          </ListItem>
+        </List>
+
+        {/* Clear All Filters Button */}
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={handleClearFilters}
+          sx={{
+            borderRadius: 2,
+            mt: 2,
+            py: 1.5,
+            borderColor: 'divider',
+            color: 'text.secondary',
+            '&:hover': {
+              borderColor: 'text.primary',
+              color: 'text.primary',
+            }
+          }}
+        >
+          Clear All Filters
+        </Button>
       </Drawer>
 
-      {/* Filter Menu for Desktop */}
+      {/* Filter Menu for Desktop - UPDATED with new filters */}
       {!isMobile && (
         <Menu
           anchorEl={filterAnchorEl}
@@ -1117,7 +1296,7 @@ const JobInterviews = ({ darkMode }) => {
           PaperProps={{
             sx: {
               borderRadius: 2,
-              minWidth: 200,
+              minWidth: 280,
               bgcolor: 'background.paper',
               boxShadow: theme.palette.mode === 'dark'
                 ? '0 8px 32px rgba(0,0,0,0.4)'
@@ -1125,61 +1304,131 @@ const JobInterviews = ({ darkMode }) => {
             }
           }}
         >
-          <MenuItem 
-            onClick={() => handleStatusFilter('all')}
-            selected={statusFilter === 'all'}
-            sx={{ 
-              fontWeight: statusFilter === 'all' ? 600 : 400,
-              borderRadius: 1,
-              mx: 1,
-              my: 0.5,
-              color: statusFilter === 'all' ? 'primary.main' : 'text.primary',
-            }}
-          >
-            All Status
-          </MenuItem>
-          <MenuItem 
-            onClick={() => handleStatusFilter('In progress')}
-            selected={statusFilter === 'In progress'}
-            sx={{ 
-              fontWeight: statusFilter === 'In progress' ? 600 : 400,
-              borderRadius: 1,
-              mx: 1,
-              my: 0.5,
-              color: statusFilter === 'In progress' ? 'primary.main' : 'text.primary',
-            }}
-          >
-            <InProgressIcon fontSize="small" sx={{ mr: 1.5, color: 'primary.main' }} />
-            In Progress
-          </MenuItem>
-          <MenuItem 
-            onClick={() => handleStatusFilter('Done')}
-            selected={statusFilter === 'Done'}
-            sx={{ 
-              fontWeight: statusFilter === 'Done' ? 600 : 400,
-              borderRadius: 1,
-              mx: 1,
-              my: 0.5,
-              color: statusFilter === 'Done' ? 'success.main' : 'text.primary',
-            }}
-          >
-            <CheckCircleIcon fontSize="small" sx={{ mr: 1.5, color: 'success.main' }} />
-            Done
-          </MenuItem>
-          <MenuItem 
-            onClick={() => handleStatusFilter('Pending')}
-            selected={statusFilter === 'Pending'}
-            sx={{ 
-              fontWeight: statusFilter === 'Pending' ? 600 : 400,
-              borderRadius: 1,
-              mx: 1,
-              my: 0.5,
-              color: statusFilter === 'Pending' ? 'warning.main' : 'text.primary',
-            }}
-          >
-            <PendingIcon fontSize="small" sx={{ mr: 1.5, color: 'warning.main' }} />
-            Pending
-          </MenuItem>
+          {/* Status Filter Section */}
+          <Box sx={{ px: 2, pt: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: 'text.secondary' }}>
+              STATUS
+            </Typography>
+            <MenuItem 
+              onClick={() => handleStatusFilter('all')}
+              selected={statusFilter === 'all'}
+              sx={{ 
+                fontWeight: statusFilter === 'all' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: statusFilter === 'all' ? 'primary.main' : 'text.primary',
+              }}
+            >
+              All Status
+            </MenuItem>
+            <MenuItem 
+              onClick={() => handleStatusFilter('In progress')}
+              selected={statusFilter === 'In progress'}
+              sx={{ 
+                fontWeight: statusFilter === 'In progress' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: statusFilter === 'In progress' ? 'primary.main' : 'text.primary',
+              }}
+            >
+              <InProgressIcon fontSize="small" sx={{ mr: 1.5, color: 'primary.main' }} />
+              In Progress
+            </MenuItem>
+            <MenuItem 
+              onClick={() => handleStatusFilter('Done')}
+              selected={statusFilter === 'Done'}
+              sx={{ 
+                fontWeight: statusFilter === 'Done' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: statusFilter === 'Done' ? 'success.main' : 'text.primary',
+              }}
+            >
+              <CheckCircleIcon fontSize="small" sx={{ mr: 1.5, color: 'success.main' }} />
+              Done
+            </MenuItem>
+            <MenuItem 
+              onClick={() => handleStatusFilter('Pending')}
+              selected={statusFilter === 'Pending'}
+              sx={{ 
+                fontWeight: statusFilter === 'Pending' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: statusFilter === 'Pending' ? 'warning.main' : 'text.primary',
+              }}
+            >
+              <PendingIcon fontSize="small" sx={{ mr: 1.5, color: 'warning.main' }} />
+              Pending
+            </MenuItem>
+          </Box>
+
+          <Divider sx={{ my: 1 }} />
+
+          {/* Interviewer Filter Section - NEW */}
+          <Box sx={{ px: 2, pb: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: 'text.secondary' }}>
+              INTERVIEWER
+            </Typography>
+            <MenuItem 
+              onClick={() => handleInterviewerFilter('all')}
+              selected={interviewerFilter === 'all'}
+              sx={{ 
+                fontWeight: interviewerFilter === 'all' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: interviewerFilter === 'all' ? 'primary.main' : 'text.primary',
+              }}
+            >
+              All Interviews
+            </MenuItem>
+            <MenuItem 
+              onClick={() => handleInterviewerFilter('self')}
+              selected={interviewerFilter === 'self'}
+              sx={{ 
+                fontWeight: interviewerFilter === 'self' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: interviewerFilter === 'self' ? 'primary.main' : 'text.primary',
+              }}
+            >
+              <PersonIcon fontSize="small" sx={{ mr: 1.5, color: 'primary.main' }} />
+              Self Interviews
+            </MenuItem>
+            <MenuItem 
+              onClick={() => handleInterviewerFilter('others')}
+              selected={interviewerFilter === 'others'}
+              sx={{ 
+                fontWeight: interviewerFilter === 'others' ? 600 : 400,
+                borderRadius: 1,
+                mb: 0.5,
+                color: interviewerFilter === 'others' ? 'info.main' : 'text.primary',
+              }}
+            >
+              <GroupIcon fontSize="small" sx={{ mr: 1.5, color: 'info.main' }} />
+              Others Interviews
+            </MenuItem>
+          </Box>
+
+          <Divider sx={{ my: 1 }} />
+
+          {/* Clear Filters Button */}
+          <Box sx={{ px: 2, pb: 1 }}>
+            <MenuItem 
+              onClick={handleClearFilters}
+              sx={{ 
+                fontWeight: 600,
+                borderRadius: 1,
+                justifyContent: 'center',
+                color: 'text.secondary',
+                '&:hover': {
+                  color: 'text.primary',
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                }
+              }}
+            >
+              Clear All Filters
+            </MenuItem>
+          </Box>
         </Menu>
       )}
 
@@ -1248,6 +1497,9 @@ const JobInterviews = ({ darkMode }) => {
                           Rounds
                           <SortIndicator field="rounds" />
                         </Box>
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                        Self/Others
                       </TableCell>
                       <TableCell 
                         sx={{ 
@@ -1346,6 +1598,9 @@ const JobInterviews = ({ darkMode }) => {
                                 minWidth: '36px',
                               }}
                             />
+                          </TableCell>
+                          <TableCell>
+                            <SelfOthersChip hasSelfAssigned={row.hasSelfAssignedRounds} />
                           </TableCell>
                           <TableCell>
                             <StatusChip status={row.status} />
@@ -1470,15 +1725,15 @@ const JobInterviews = ({ darkMode }) => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={7}>
+                        <TableCell colSpan={8}>
                           <Box sx={{ textAlign: 'center', py: 6 }}>
                             <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
                             <Typography variant="body1" color="text.secondary" gutterBottom>
                               No job interviews found
                             </Typography>
-                            {searchTerm ? (
+                            {searchTerm || statusFilter !== 'all' || interviewerFilter !== 'all' ? (
                               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                No results for "{searchTerm}". Try a different search term.
+                                No results found. Try adjusting your search or filters.
                               </Typography>
                             ) : (
                               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -1817,7 +2072,10 @@ const JobInterviews = ({ darkMode }) => {
             <strong>{statistics.totalCandidates}</strong> Total Candidates
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            <strong>{((statistics.completed / statistics.totalInterviews) * 100).toFixed(1)}%</strong> Completion Rate
+            <strong>{statistics.selfAssigned}</strong> Self Assigned
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            <strong>{statistics.othersAssigned}</strong> Others Assigned
           </Typography>
         </Box>
       )}

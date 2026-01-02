@@ -1,6 +1,5 @@
-// src/components/CandidateInterview/CandidateInterview.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // Added useNavigate
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -66,11 +65,12 @@ import {
   Email as EmailIcon,
   Phone as PhoneIcon,
   CalendarToday as CalendarIcon,
-  ArrowBack as ArrowBackIcon, // Added ArrowBackIcon
+  ArrowBack as ArrowBackIcon,
+  Numbers as NumbersIcon,
 } from '@mui/icons-material';
 
-// Import separate components
-import CandidateDetails from './CandidateDetails';
+// Import separate components (commented out CandidateDetails as requested)
+// import CandidateDetails from './CandidateDetails';
 import EditCandidate from './EditCandidate';
 import AddCandidate from './AddCandidate';
 import DeleteConfirmation from './DeleteConfirmation';
@@ -83,8 +83,8 @@ const candidateInterviewsApi = {
     
     let data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
     
-    // Add mock data if empty
-    if (data.length === 0) {
+    // Always use only 10 mock data records, clear any existing data first
+    if (data.length === 0 || data.length !== 10) {
       const mockData = [
         {
           id: 1,
@@ -95,9 +95,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 123-4567',
           position: 'Frontend Developer',
           currentRound: 'Technical Interview',
+          roundsCompleted: 2,
           status: 'Scheduled',
-          lastUpdated: '2023-10-26',
-          interviewDate: '2023-10-28',
+          lastUpdated: '2025-12-18',
+          interviewDate: '2025-12-20',
           interviewer: 'John Smith',
           experience: '5 years',
           source: 'LinkedIn',
@@ -120,9 +121,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 234-5678',
           position: 'Backend Developer',
           currentRound: 'Hiring Manager',
+          roundsCompleted: 1,
           status: 'Pending Feedback',
-          lastUpdated: '2023-10-25',
-          interviewDate: '2023-10-27',
+          lastUpdated: '2025-12-17',
+          interviewDate: '2025-12-19',
           interviewer: 'Jane Doe',
           experience: '3 years',
           source: 'Referral',
@@ -145,9 +147,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 345-6789',
           position: 'Full Stack Developer',
           currentRound: 'Intro',
+          roundsCompleted: 0,
           status: 'Completed',
-          lastUpdated: '2023-10-24',
-          interviewDate: '2023-10-26',
+          lastUpdated: '2025-12-16',
+          interviewDate: '2025-12-18',
           interviewer: 'Mike Wilson',
           experience: '7 years',
           source: 'Career Page',
@@ -170,9 +173,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 456-7890',
           position: 'Frontend Developer',
           currentRound: 'HR Screening',
+          roundsCompleted: 1,
           status: 'Scheduled',
-          lastUpdated: '2023-10-23',
-          interviewDate: '2023-10-25',
+          lastUpdated: '2025-12-15',
+          interviewDate: '2025-12-17',
           interviewer: 'Sarah Johnson',
           experience: '2 years',
           source: 'Job Board',
@@ -195,9 +199,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 567-8901',
           position: 'Backend Developer',
           currentRound: 'Final Round',
+          roundsCompleted: 3,
           status: 'Pending Feedback',
-          lastUpdated: '2023-10-22',
-          interviewDate: '2023-10-24',
+          lastUpdated: '2025-12-14',
+          interviewDate: '2025-12-16',
           interviewer: 'Robert Brown',
           experience: '4 years',
           source: 'LinkedIn',
@@ -220,9 +225,10 @@ const candidateInterviewsApi = {
           phone: '+1 (555) 678-9012',
           position: 'Full Stack Developer',
           currentRound: 'Technical Interview',
+          roundsCompleted: 2,
           status: 'Completed',
-          lastUpdated: '2023-10-21',
-          interviewDate: '2023-10-23',
+          lastUpdated: '2025-12-13',
+          interviewDate: '2025-12-15',
           interviewer: 'Lisa Taylor',
           experience: '6 years',
           source: 'Referral',
@@ -235,6 +241,110 @@ const candidateInterviewsApi = {
           availability: '2 Weeks',
           expectedSalary: '$110k',
           feedback: 'Excellent system design skills.',
+        },
+        {
+          id: 7,
+          candidateId: 'CAND007',
+          jobId: 'JOB001',
+          name: 'Grace Wilson',
+          email: 'grace.w@email.com',
+          phone: '+1 (555) 789-0123',
+          position: 'UX Designer',
+          currentRound: 'Portfolio Review',
+          roundsCompleted: 1,
+          status: 'Scheduled',
+          lastUpdated: '2025-12-12',
+          interviewDate: '2025-12-14',
+          interviewer: 'Tom Harris',
+          experience: '4 years',
+          source: 'LinkedIn',
+          rating: 4,
+          notes: 'Strong design portfolio',
+          resumeLink: 'http://company.com/resumes/7',
+          skills: ['Figma', 'Adobe XD', 'UI/UX'],
+          education: 'Bachelor in Design',
+          location: 'Seattle',
+          availability: 'Immediate',
+          expectedSalary: '$85k',
+          feedback: '',
+        },
+        {
+          id: 8,
+          candidateId: 'CAND008',
+          jobId: 'JOB002',
+          name: 'Henry Clark',
+          email: 'henry.c@email.com',
+          phone: '+1 (555) 890-1234',
+          position: 'DevOps Engineer',
+          currentRound: 'Technical Interview',
+          roundsCompleted: 2,
+          status: 'Pending Feedback',
+          lastUpdated: '2025-12-11',
+          interviewDate: '2025-12-13',
+          interviewer: 'Sarah Miller',
+          experience: '5 years',
+          source: 'Referral',
+          rating: 4,
+          notes: 'Strong AWS experience',
+          resumeLink: 'http://company.com/resumes/8',
+          skills: ['AWS', 'Docker', 'Kubernetes'],
+          education: 'Master in Computer Science',
+          location: 'Austin',
+          availability: '1 Month',
+          expectedSalary: '$120k',
+          feedback: '',
+        },
+        {
+          id: 9,
+          candidateId: 'CAND009',
+          jobId: 'JOB003',
+          name: 'Ivy Thompson',
+          email: 'ivy.t@email.com',
+          phone: '+1 (555) 901-2345',
+          position: 'Data Scientist',
+          currentRound: 'Case Study',
+          roundsCompleted: 1,
+          status: 'Scheduled',
+          lastUpdated: '2025-12-10',
+          interviewDate: '2025-12-12',
+          interviewer: 'David Lee',
+          experience: '3 years',
+          source: 'Job Board',
+          rating: 3,
+          notes: 'Strong analytical skills',
+          resumeLink: 'http://company.com/resumes/9',
+          skills: ['Python', 'Machine Learning', 'SQL'],
+          education: 'Master in Data Science',
+          location: 'Remote',
+          availability: '2 Weeks',
+          expectedSalary: '$95k',
+          feedback: '',
+        },
+        {
+          id: 10,
+          candidateId: 'CAND010',
+          jobId: 'JOB001',
+          name: 'Jack Roberts',
+          email: 'jack.r@email.com',
+          phone: '+1 (555) 012-3456',
+          position: 'Product Manager',
+          currentRound: 'Final Round',
+          roundsCompleted: 3,
+          status: 'Completed',
+          lastUpdated: '2025-12-09',
+          interviewDate: '2025-12-11',
+          interviewer: 'CEO Jane Smith',
+          experience: '8 years',
+          source: 'LinkedIn',
+          rating: 5,
+          notes: 'Strong leadership experience',
+          resumeLink: 'http://company.com/resumes/10',
+          skills: ['Product Strategy', 'Agile', 'Roadmapping'],
+          education: 'MBA',
+          location: 'New York',
+          availability: '1 Month',
+          expectedSalary: '$150k',
+          feedback: 'Excellent strategic thinking and leadership skills.',
         },
       ];
       localStorage.setItem('candidateInterviews', JSON.stringify(mockData));
@@ -288,20 +398,21 @@ const candidateInterviewsApi = {
       });
     }
 
-    // Get total count for pagination
+    // Get total count for pagination - Will always be 10 or less
     const total = filteredData.length;
     
-    // Apply pagination
-    const startIndex = (params.page || 0) * (params.limit || 10);
-    const endIndex = startIndex + (params.limit || 10);
+    // Apply pagination - Set default limit to 10
+    const limit = params.limit || 10;
+    const startIndex = (params.page || 0) * limit;
+    const endIndex = startIndex + limit;
     const paginatedData = filteredData.slice(startIndex, endIndex);
 
     return {
       data: paginatedData,
       total,
       page: params.page || 0,
-      limit: params.limit || 10,
-      totalPages: Math.ceil(total / (params.limit || 10)),
+      limit: limit,
+      totalPages: Math.ceil(total / limit),
     };
   },
 
@@ -331,6 +442,18 @@ const candidateInterviewsApi = {
       return acc;
     }, {});
     
+    // Calculate average rounds completed
+    const totalRoundsCompleted = filteredData.reduce((sum, item) => sum + (item.roundsCompleted || 0), 0);
+    const averageRoundsCompleted = filteredData.length > 0 
+      ? (totalRoundsCompleted / filteredData.length).toFixed(1)
+      : 0;
+    
+    // Calculate average rating
+    const totalRating = filteredData.reduce((sum, item) => sum + item.rating, 0);
+    const averageRating = filteredData.length > 0 
+      ? (totalRating / filteredData.length).toFixed(1)
+      : 0;
+    
     return {
       totalCandidates: filteredData.length,
       scheduled: statusCounts['Scheduled'] || 0,
@@ -338,9 +461,8 @@ const candidateInterviewsApi = {
       completed: statusCounts['Completed'] || 0,
       cancelled: statusCounts['Cancelled'] || 0,
       noShow: statusCounts['No Show'] || 0,
-      averageRating: filteredData.length > 0 
-        ? (filterledData.reduce((sum, item) => sum + item.rating, 0) / filteredData.length).toFixed(1)
-        : 0,
+      averageRating: averageRating,
+      averageRoundsCompleted: averageRoundsCompleted,
       positions: Object.entries(positionCounts).map(([position, count]) => ({
         position,
         count,
@@ -359,7 +481,14 @@ const candidateInterviewsApi = {
     
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
     const updatedData = data.map(item => 
-      item.id === id ? { ...item, ...updates, lastUpdated: new Date().toISOString().split('T')[0] } : item
+      item.id === id ? { 
+        ...item, 
+        ...updates, 
+        lastUpdated: new Date().toISOString().split('T')[0],
+        // Ensure roundsCompleted is a number
+        roundsCompleted: updates.roundsCompleted !== undefined ? 
+          parseInt(updates.roundsCompleted) || 0 : item.roundsCompleted
+      } : item
     );
     localStorage.setItem('candidateInterviews', JSON.stringify(updatedData));
     
@@ -393,7 +522,7 @@ const CandidateInterview = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
-  const navigate = useNavigate(); // Added useNavigate
+  const navigate = useNavigate();
   
   // State for data
   const [candidateInterviews, setCandidateInterviews] = useState([]);
@@ -406,7 +535,7 @@ const CandidateInterview = () => {
   // State for UI
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(10); // Set to 10 by default
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState(['all']);
   const [positionFilter, setPositionFilter] = useState([]);
@@ -417,7 +546,7 @@ const CandidateInterview = () => {
   const [jobFilter, setJobFilter] = useState('');
   
   // Modal states
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false); // Keep for future use
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -601,11 +730,12 @@ const CandidateInterview = () => {
     setActionAnchorEl(null);
   };
 
-  const handleViewDetails = (row) => {
-    setSelectedRow(row);
-    setDetailsOpen(true);
-    handleActionClose();
-  };
+  // Commented out handleViewDetails since we're removing the details popup
+  // const handleViewDetails = (row) => {
+  //   setSelectedRow(row);
+  //   setDetailsOpen(true);
+  //   handleActionClose();
+  // };
 
   const handleEditCandidate = (row) => {
     setSelectedRow(row);
@@ -652,7 +782,7 @@ const CandidateInterview = () => {
   };
 
   const convertToCSV = (data) => {
-    const headers = ['Candidate ID', 'Job ID', 'Name', 'Email', 'Phone', 'Position', 'Current Round', 'Status', 'Last Updated', 'Interview Date', 'Interviewer', 'Experience', 'Source', 'Rating'];
+    const headers = ['Candidate ID', 'Job ID', 'Name', 'Email', 'Phone', 'Position', 'Current Round', 'Rounds Completed', 'Status', 'Last Updated', 'Interview Date', 'Interviewer', 'Experience', 'Source', 'Rating'];
     const rows = data.map(item => [
       item.candidateId,
       item.jobId || '',
@@ -661,6 +791,7 @@ const CandidateInterview = () => {
       item.phone,
       item.position,
       item.currentRound,
+      item.roundsCompleted || 0,
       item.status,
       item.lastUpdated,
       item.interviewDate,
@@ -739,6 +870,36 @@ const CandidateInterview = () => {
     );
   };
 
+  const RoundsChip = ({ roundsCompleted }) => {
+    const getColor = (rounds) => {
+      if (rounds === 0) return 'default';
+      if (rounds === 1) return 'info';
+      if (rounds === 2) return 'primary';
+      if (rounds === 3) return 'warning';
+      return 'success';
+    };
+
+    const rounds = roundsCompleted || 0;
+
+    return (
+      <Chip
+        icon={<NumbersIcon fontSize="small" />}
+        label={`${rounds}`}
+        size="small"
+        color={getColor(rounds)}
+        variant="outlined"
+        sx={{
+          fontWeight: 600,
+          fontSize: '0.75rem',
+          '& .MuiChip-icon': {
+            color: 'inherit',
+            marginLeft: '4px',
+          },
+        }}
+      />
+    );
+  };
+
   const SortIndicator = ({ field }) => {
     if (sortConfig.field !== field) return null;
     
@@ -781,12 +942,12 @@ const CandidateInterview = () => {
       icon: <PendingIcon />,
     },
     { 
-      label: 'Completed', 
-      value: statistics.completed.toString(), 
-      subLabel: 'Interviews done',
-      color: '#4caf50', 
-      progress: statistics.totalCandidates > 0 ? (statistics.completed / statistics.totalCandidates) * 100 : 0,
-      icon: <CheckCircleIcon />,
+      label: 'Avg Rounds', 
+      value: statistics.averageRoundsCompleted.toString(), 
+      subLabel: 'Rounds completed',
+      color: '#9c27b0', 
+      progress: statistics.totalCandidates > 0 ? (statistics.averageRoundsCompleted / 4) * 100 : 0,
+      icon: <NumbersIcon />,
     },
   ] : [];
 
@@ -847,13 +1008,24 @@ const CandidateInterview = () => {
                   {row.position}
                 </Typography>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Typography variant="caption" color="text.secondary" display="block">
                   Current Round
                 </Typography>
                 <Typography variant="body2" fontWeight="500" color="text.primary">
                   {row.currentRound}
                 </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  Rounds Completed
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <NumbersIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 12 }} />
+                  <Typography variant="body2" fontWeight="600" color="text.primary">
+                    {row.roundsCompleted || 0}
+                  </Typography>
+                </Box>
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="caption" color="text.secondary" display="block">
@@ -887,7 +1059,8 @@ const CandidateInterview = () => {
               borderTop: `1px solid ${theme.palette.divider}`
             }}>
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Tooltip title="View Details">
+                {/* Commented out View Details button since we're removing the popup */}
+                {/* <Tooltip title="View Details">
                   <IconButton 
                     size="small"
                     onClick={() => handleViewDetails(row)}
@@ -901,7 +1074,7 @@ const CandidateInterview = () => {
                   >
                     <ViewIcon fontSize="small" />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="Edit">
                   <IconButton 
                     size="small"
@@ -973,8 +1146,6 @@ const CandidateInterview = () => {
       </Box>
     );
   }
-
-
 
   return (
     <Box sx={{ 
@@ -1268,7 +1439,6 @@ const CandidateInterview = () => {
         )}
       </Box>
 
-      {/* Rest of the component remains the same... */}
       {/* Filter Dialog for Mobile */}
       <Dialog
         open={filterDialogOpen}
@@ -1399,8 +1569,9 @@ const CandidateInterview = () => {
               <MobileCardView />
             ) : (
               <>
-                <TableContainer sx={{ maxHeight: 600 }}>
-                  <Table stickyHeader>
+                {/* REMOVED maxHeight to eliminate scrollbar but keep table scrollable */}
+                <TableContainer>
+                  <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell 
@@ -1428,6 +1599,9 @@ const CandidateInterview = () => {
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
                           CURRENT ROUND
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
+                          ROUNDS COMPLETED
                         </TableCell>
                         <TableCell 
                           sx={{ 
@@ -1539,6 +1713,9 @@ const CandidateInterview = () => {
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ py: 2 }}>
+                              <RoundsChip roundsCompleted={row.roundsCompleted || 0} />
+                            </TableCell>
+                            <TableCell sx={{ py: 2 }}>
                               <StatusChip status={row.status} />
                             </TableCell>
                             <TableCell sx={{ py: 2 }}>
@@ -1551,19 +1728,19 @@ const CandidateInterview = () => {
                             </TableCell>
                             <TableCell sx={{ py: 2 }}>
                               <Box sx={{ display: 'flex', gap: 1 }}>
-                                <Tooltip title="View Details">
+                                <Tooltip title="Edit">
                                   <IconButton 
                                     size="small" 
                                     sx={{ 
-                                      color: 'primary.main',
-                                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                      color: 'warning.main',
+                                      bgcolor: alpha(theme.palette.warning.main, 0.1),
                                       '&:hover': {
-                                        bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                        bgcolor: alpha(theme.palette.warning.main, 0.2),
                                       }
                                     }}
-                                    onClick={() => handleViewDetails(row)}
+                                    onClick={() => handleEditCandidate(row)}
                                   >
-                                    <ViewIcon fontSize="small" />
+                                    <EditIcon fontSize="small" />
                                   </IconButton>
                                 </Tooltip>
                                 <IconButton 
@@ -1584,7 +1761,7 @@ const CandidateInterview = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={7}>
+                          <TableCell colSpan={8}>
                             <Box sx={{ textAlign: 'center', py: 6 }}>
                               <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
                               <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -1701,7 +1878,8 @@ const CandidateInterview = () => {
           }
         }}
       >
-        <MenuItem 
+        {/* Commented out View Details menu item since we're removing the popup */}
+        {/* <MenuItem 
           onClick={() => handleViewDetails(selectedRow)} 
           sx={{ 
             borderRadius: 1, 
@@ -1715,7 +1893,7 @@ const CandidateInterview = () => {
         >
           <ViewIcon fontSize="small" sx={{ mr: 2, color: 'primary.main' }} />
           View Details
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem 
           onClick={() => handleEditCandidate(selectedRow)} 
           sx={{ 
@@ -1765,11 +1943,12 @@ const CandidateInterview = () => {
       </Menu>
 
       {/* Separate CRUD Components */}
-      <CandidateDetails
+      {/* Commented out CandidateDetails since we're removing the popup */}
+      {/* <CandidateDetails
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
         candidate={selectedRow}
-      />
+      /> */}
 
       <EditCandidate
         open={editOpen}
@@ -1857,7 +2036,7 @@ const CandidateInterview = () => {
             <strong>{statistics.completed}</strong> Completed
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            <strong>{statistics.averageRating}</strong> Avg Rating
+            <strong>{statistics.averageRoundsCompleted}</strong> Avg Rounds
           </Typography>
         </Box>
       )}

@@ -67,22 +67,22 @@ import {
   CalendarToday as CalendarIcon,
   ArrowBack as ArrowBackIcon,
   Numbers as NumbersIcon,
+  KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,
 } from '@mui/icons-material';
 
-// Import separate components (commented out CandidateDetails as requested)
-// import CandidateDetails from './CandidateDetails';
+// Import separate components
 import EditCandidate from './EditCandidate';
 import AddCandidate from './AddCandidate';
 import DeleteConfirmation from './DeleteConfirmation';
 import StatusChangeDialog from './StatusChangeDialog';
 
-// API Service
+// API Service (unchanged)
 const candidateInterviewsApi = {
   getCandidateInterviews: async (params = {}) => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     let data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
-    
+
     // Always use only 10 mock data records, clear any existing data first
     if (data.length === 0 || data.length !== 10) {
       const mockData = [
@@ -353,7 +353,7 @@ const candidateInterviewsApi = {
 
     // Apply filtering based on params
     let filteredData = [...data];
-    
+
     if (params.search) {
       const searchTerm = params.search.toLowerCase();
       filteredData = filteredData.filter(row =>
@@ -375,7 +375,7 @@ const candidateInterviewsApi = {
 
     // Add job filter
     if (params.jobFilter) {
-      filteredData = filteredData.filter(row => 
+      filteredData = filteredData.filter(row =>
         row.jobId === params.jobFilter
       );
     }
@@ -385,12 +385,12 @@ const candidateInterviewsApi = {
       filteredData.sort((a, b) => {
         let aValue = a[params.sortBy];
         let bValue = b[params.sortBy];
-        
+
         if (params.sortBy === 'lastUpdated' || params.sortBy === 'interviewDate') {
           aValue = new Date(aValue);
           bValue = new Date(bValue);
         }
-        
+
         if (params.sortOrder === 'desc') {
           return aValue < bValue ? 1 : -1;
         }
@@ -400,7 +400,7 @@ const candidateInterviewsApi = {
 
     // Get total count for pagination - Will always be 10 or less
     const total = filteredData.length;
-    
+
     // Apply pagination - Set default limit to 10
     const limit = params.limit || 10;
     const startIndex = (params.page || 0) * limit;
@@ -418,42 +418,42 @@ const candidateInterviewsApi = {
 
   getStatistics: async (jobFilter = '') => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
-    
+
     // Filter by job if specified
     let filteredData = data;
     if (jobFilter) {
       filteredData = data.filter(row => row.jobId === jobFilter);
     }
-    
+
     const statusCounts = filteredData.reduce((acc, item) => {
       acc[item.status] = (acc[item.status] || 0) + 1;
       return acc;
     }, {});
-    
+
     const positionCounts = filteredData.reduce((acc, item) => {
       acc[item.position] = (acc[item.position] || 0) + 1;
       return acc;
     }, {});
-    
+
     const interviewCounts = filteredData.reduce((acc, item) => {
       acc[item.currentRound] = (acc[item.currentRound] || 0) + 1;
       return acc;
     }, {});
-    
+
     // Calculate average rounds completed
     const totalRoundsCompleted = filteredData.reduce((sum, item) => sum + (item.roundsCompleted || 0), 0);
-    const averageRoundsCompleted = filteredData.length > 0 
+    const averageRoundsCompleted = filteredData.length > 0
       ? (totalRoundsCompleted / filteredData.length).toFixed(1)
       : 0;
-    
+
     // Calculate average rating
     const totalRating = filteredData.reduce((sum, item) => sum + item.rating, 0);
-    const averageRating = filteredData.length > 0 
+    const averageRating = filteredData.length > 0
       ? (totalRating / filteredData.length).toFixed(1)
       : 0;
-    
+
     return {
       totalCandidates: filteredData.length,
       scheduled: statusCounts['Scheduled'] || 0,
@@ -478,42 +478,42 @@ const candidateInterviewsApi = {
 
   updateCandidate: async (id, updates) => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
-    const updatedData = data.map(item => 
-      item.id === id ? { 
-        ...item, 
-        ...updates, 
+    const updatedData = data.map(item =>
+      item.id === id ? {
+        ...item,
+        ...updates,
         lastUpdated: new Date().toISOString().split('T')[0],
         // Ensure roundsCompleted is a number
-        roundsCompleted: updates.roundsCompleted !== undefined ? 
+        roundsCompleted: updates.roundsCompleted !== undefined ?
           parseInt(updates.roundsCompleted) || 0 : item.roundsCompleted
       } : item
     );
     localStorage.setItem('candidateInterviews', JSON.stringify(updatedData));
-    
+
     return { success: true, message: 'Candidate updated successfully' };
   },
 
   deleteCandidateInterview: async (id) => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
     const updatedData = data.filter(item => item.id !== id);
     localStorage.setItem('candidateInterviews', JSON.stringify(updatedData));
-    
+
     return { success: true, message: 'Candidate interview deleted successfully' };
   },
 
   updateCandidateStatus: async (id, status) => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
-    const updatedData = data.map(item => 
+    const updatedData = data.map(item =>
       item.id === id ? { ...item, status, lastUpdated: new Date().toISOString().split('T')[0] } : item
     );
     localStorage.setItem('candidateInterviews', JSON.stringify(updatedData));
-    
+
     return { success: true, message: `Status updated to ${status}` };
   },
 };
@@ -523,7 +523,7 @@ const CandidateInterview = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // State for data
   const [candidateInterviews, setCandidateInterviews] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -531,7 +531,7 @@ const CandidateInterview = () => {
   const [loading, setLoading] = useState(true);
   const [statisticsLoading, setStatisticsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // State for UI
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
@@ -544,9 +544,8 @@ const CandidateInterview = () => {
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [jobFilter, setJobFilter] = useState('');
-  
+
   // Modal states
-  const [detailsOpen, setDetailsOpen] = useState(false); // Keep for future use
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -596,7 +595,7 @@ const CandidateInterview = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = {
         page,
         limit: rowsPerPage,
@@ -607,7 +606,7 @@ const CandidateInterview = () => {
         sortOrder: sortConfig.direction,
         jobFilter: jobFilter,
       };
-      
+
       const response = await candidateInterviewsApi.getCandidateInterviews(params);
       setCandidateInterviews(response.data);
       setTotalCount(response.total);
@@ -730,13 +729,6 @@ const CandidateInterview = () => {
     setActionAnchorEl(null);
   };
 
-  // Commented out handleViewDetails since we're removing the details popup
-  // const handleViewDetails = (row) => {
-  //   setSelectedRow(row);
-  //   setDetailsOpen(true);
-  //   handleActionClose();
-  // };
-
   const handleEditCandidate = (row) => {
     setSelectedRow(row);
     setEditOpen(true);
@@ -773,7 +765,7 @@ const CandidateInterview = () => {
     const data = JSON.parse(localStorage.getItem('candidateInterviews') || '[]');
     const csvContent = convertToCSV(data);
     downloadCSV(csvContent, `candidate_interviews_${new Date().toISOString().split('T')[0]}.csv`);
-    
+
     setSnackbar({
       open: true,
       message: `Exported ${data.length} records successfully`,
@@ -800,8 +792,8 @@ const CandidateInterview = () => {
       item.source,
       item.rating
     ]);
-    
-    return [headers, ...rows].map(row => 
+
+    return [headers, ...rows].map(row =>
       row.map(cell => `"${cell}"`).join(',')
     ).join('\n');
   };
@@ -902,50 +894,50 @@ const CandidateInterview = () => {
 
   const SortIndicator = ({ field }) => {
     if (sortConfig.field !== field) return null;
-    
+
     return (
-      <SortIcon 
-        sx={{ 
-          ml: 1, 
+      <SortIcon
+        sx={{
+          ml: 1,
           fontSize: '0.875rem',
           transform: sortConfig.direction === 'desc' ? 'rotate(180deg)' : 'none',
           transition: 'transform 0.2s',
-        }} 
+        }}
       />
     );
   };
 
   // Enhanced Statistics Cards
   const stats = statistics ? [
-    { 
-      label: 'Total Candidates', 
-      value: statistics.totalCandidates.toString(), 
+    {
+      label: 'Total Candidates',
+      value: statistics.totalCandidates.toString(),
       subLabel: `${statistics.averageRating} avg rating`,
-      color: theme.palette.mode === 'dark' ? '#667eea' : '#667eea', 
+      color: theme.palette.mode === 'dark' ? '#667eea' : '#667eea',
       progress: 100,
       icon: <PersonIcon />,
     },
-    { 
-      label: 'Scheduled', 
-      value: statistics.scheduled.toString(), 
+    {
+      label: 'Scheduled',
+      value: statistics.scheduled.toString(),
       subLabel: `${((statistics.scheduled / statistics.totalCandidates) * 100).toFixed(1)}% of total`,
-      color: '#2196f3', 
+      color: '#2196f3',
       progress: statistics.totalCandidates > 0 ? (statistics.scheduled / statistics.totalCandidates) * 100 : 0,
       icon: <ScheduleIcon />,
     },
-    { 
-      label: 'Pending Feedback', 
-      value: statistics.pendingFeedback.toString(), 
+    {
+      label: 'Pending Feedback',
+      value: statistics.pendingFeedback.toString(),
       subLabel: 'Awaiting review',
-      color: '#ff9800', 
+      color: '#ff9800',
       progress: statistics.totalCandidates > 0 ? (statistics.pendingFeedback / statistics.totalCandidates) * 100 : 0,
       icon: <PendingIcon />,
     },
-    { 
-      label: 'Avg Rounds', 
-      value: statistics.averageRoundsCompleted.toString(), 
+    {
+      label: 'Avg Rounds',
+      value: statistics.averageRoundsCompleted.toString(),
       subLabel: 'Rounds completed',
-      color: '#9c27b0', 
+      color: '#9c27b0',
       progress: statistics.totalCandidates > 0 ? (statistics.averageRoundsCompleted / 4) * 100 : 0,
       icon: <NumbersIcon />,
     },
@@ -955,20 +947,20 @@ const CandidateInterview = () => {
   const MobileCardView = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2, p: 2 }}>
       {candidateInterviews.map((row) => (
-        <Card 
+        <Card
           key={row.id}
-          sx={{ 
+          sx={{
             bgcolor: 'background.paper',
             borderRadius: 2,
-            boxShadow: theme.palette.mode === 'dark' 
-              ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 2px 4px rgba(0, 0, 0, 0.3)'
               : '0 2px 8px rgba(0, 0, 0, 0.08)',
           }}
         >
           <CardContent sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-                <Avatar sx={{ 
+                <Avatar sx={{
                   bgcolor: theme.palette.primary.main,
                   width: 48,
                   height: 48,
@@ -1051,20 +1043,19 @@ const CandidateInterview = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
               pt: 1,
               borderTop: `1px solid ${theme.palette.divider}`
             }}>
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                {/* Commented out View Details button since we're removing the popup */}
-                {/* <Tooltip title="View Details">
-                  <IconButton 
+                <Tooltip title="View Details Page">
+                  <IconButton
                     size="small"
-                    onClick={() => handleViewDetails(row)}
-                    sx={{ 
+                    onClick={() => navigate(`/candidate/${row.id}`)}  // This should be correct
+                    sx={{
                       color: 'primary.main',
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                       '&:hover': {
@@ -1072,14 +1063,14 @@ const CandidateInterview = () => {
                       }
                     }}
                   >
-                    <ViewIcon fontSize="small" />
+                    <KeyboardDoubleArrowLeftIcon fontSize="small" />
                   </IconButton>
-                </Tooltip> */}
+                </Tooltip>
                 <Tooltip title="Edit">
-                  <IconButton 
+                  <IconButton
                     size="small"
                     onClick={() => handleEditCandidate(row)}
-                    sx={{ 
+                    sx={{
                       color: 'warning.main',
                       bgcolor: alpha(theme.palette.warning.main, 0.1),
                       '&:hover': {
@@ -1091,10 +1082,10 @@ const CandidateInterview = () => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
-                  <IconButton 
+                  <IconButton
                     size="small"
                     onClick={() => handleDeleteCandidate(row)}
-                    sx={{ 
+                    sx={{
                       color: 'error.main',
                       bgcolor: alpha(theme.palette.error.main, 0.1),
                       '&:hover': {
@@ -1124,20 +1115,20 @@ const CandidateInterview = () => {
 
   if (error) {
     return (
-      <Box sx={{ 
-        p: 3, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+      <Box sx={{
+        p: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         minHeight: '50vh',
         bgcolor: 'background.default'
       }}>
         <Alert severity="error" sx={{ mb: 2, width: '100%', maxWidth: 600 }}>
           {error}
         </Alert>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={fetchCandidateInterviews}
           startIcon={<RefreshIcon />}
         >
@@ -1148,7 +1139,7 @@ const CandidateInterview = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       p: { xs: 1, sm: 2, md: 3 },
       bgcolor: 'background.default',
       minHeight: '100vh',
@@ -1157,9 +1148,9 @@ const CandidateInterview = () => {
       {/* Header with Back Arrow */}
       <Box sx={{ mb: { xs: 2, sm: 3 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
-          <IconButton 
+          <IconButton
             onClick={handleBack}
-            sx={{ 
+            sx={{
               p: { xs: 1, sm: 1.5 },
               border: '1px solid',
               borderColor: 'divider',
@@ -1181,7 +1172,7 @@ const CandidateInterview = () => {
             </Typography>
           </Box>
         </Box>
-        
+
         {!isMobile && (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1 }}>
@@ -1209,8 +1200,8 @@ const CandidateInterview = () => {
 
       {/* Job Filter Alert */}
       {jobFilter && (
-        <Alert 
-          severity="info" 
+        <Alert
+          severity="info"
           sx={{ mb: 3 }}
           action={
             <IconButton
@@ -1232,12 +1223,12 @@ const CandidateInterview = () => {
         {statisticsLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <Grid item xs={6} sm={6} md={3} key={index}>
-              <Card 
-                sx={{ 
+              <Card
+                sx={{
                   bgcolor: 'background.paper',
                   borderRadius: 2,
-                  boxShadow: theme.palette.mode === 'dark' 
-                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 2px 4px rgba(0, 0, 0, 0.3)'
                     : '0 2px 8px rgba(0, 0, 0, 0.08)',
                   height: '100%',
                 }}
@@ -1253,12 +1244,12 @@ const CandidateInterview = () => {
         ) : (
           stats.map((stat, index) => (
             <Grid item xs={6} sm={6} md={3} key={index}>
-              <Card 
-                sx={{ 
+              <Card
+                sx={{
                   bgcolor: 'background.paper',
                   borderRadius: 2,
-                  boxShadow: theme.palette.mode === 'dark' 
-                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 2px 4px rgba(0, 0, 0, 0.3)'
                     : '0 2px 8px rgba(0, 0, 0, 0.08)',
                   height: '100%',
                 }}
@@ -1326,8 +1317,8 @@ const CandidateInterview = () => {
           bgcolor: 'background.paper',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 1px 3px rgba(0,0,0,0.3)' 
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 1px 3px rgba(0,0,0,0.3)'
             : '0 1px 3px rgba(0,0,0,0.05)',
         }}
       >
@@ -1390,7 +1381,7 @@ const CandidateInterview = () => {
             sx={{ fontWeight: 500 }}
           />
         </Box>
-        
+
         {!isMobile && (
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Button
@@ -1419,8 +1410,8 @@ const CandidateInterview = () => {
               variant="outlined"
               startIcon={<DownloadIcon />}
               onClick={handleExport}
-              sx={{ 
-                borderRadius: 2, 
+              sx={{
+                borderRadius: 2,
                 px: 3,
                 py: 1,
                 bgcolor: 'background.paper',
@@ -1453,9 +1444,9 @@ const CandidateInterview = () => {
           }
         }}
       >
-        <DialogTitle sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <DialogTitle sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           borderBottom: `1px solid ${theme.palette.divider}`,
           pb: 2
@@ -1521,7 +1512,7 @@ const CandidateInterview = () => {
               setStatusFilter(['all']);
               setPositionFilter([]);
             }}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               flex: 1,
               py: 1
@@ -1532,7 +1523,7 @@ const CandidateInterview = () => {
           <Button
             variant="contained"
             onClick={handleFilterClose}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               flex: 1,
               py: 1
@@ -1551,8 +1542,8 @@ const CandidateInterview = () => {
           bgcolor: 'background.paper',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 1px 3px rgba(0,0,0,0.3)' 
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 1px 3px rgba(0,0,0,0.3)'
             : '0 1px 3px rgba(0,0,0,0.05)',
           minHeight: 400,
           position: 'relative',
@@ -1574,13 +1565,13 @@ const CandidateInterview = () => {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell 
-                          sx={{ 
-                            fontWeight: 600, 
+                        <TableCell
+                          sx={{
+                            fontWeight: 600,
                             bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                             cursor: 'pointer',
-                            '&:hover': { 
-                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            '&:hover': {
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4'
                             },
                             py: 2,
                           }}
@@ -1603,13 +1594,13 @@ const CandidateInterview = () => {
                         <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc', py: 2 }}>
                           ROUNDS COMPLETED
                         </TableCell>
-                        <TableCell 
-                          sx={{ 
-                            fontWeight: 600, 
+                        <TableCell
+                          sx={{
+                            fontWeight: 600,
                             bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                             cursor: 'pointer',
-                            '&:hover': { 
-                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            '&:hover': {
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4'
                             },
                             py: 2,
                           }}
@@ -1620,13 +1611,13 @@ const CandidateInterview = () => {
                             <SortIndicator field="status" />
                           </Box>
                         </TableCell>
-                        <TableCell 
-                          sx={{ 
-                            fontWeight: 600, 
+                        <TableCell
+                          sx={{
+                            fontWeight: 600,
                             bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                             cursor: 'pointer',
-                            '&:hover': { 
-                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            '&:hover': {
+                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4'
                             },
                             py: 2,
                           }}
@@ -1659,7 +1650,7 @@ const CandidateInterview = () => {
                           >
                             <TableCell sx={{ py: 2 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Avatar sx={{ 
+                                <Avatar sx={{
                                   bgcolor: theme.palette.primary.main,
                                   width: 40,
                                   height: 40,
@@ -1729,9 +1720,9 @@ const CandidateInterview = () => {
                             <TableCell sx={{ py: 2 }}>
                               <Box sx={{ display: 'flex', gap: 1 }}>
                                 <Tooltip title="Edit">
-                                  <IconButton 
-                                    size="small" 
-                                    sx={{ 
+                                  <IconButton
+                                    size="small"
+                                    sx={{
                                       color: 'warning.main',
                                       bgcolor: alpha(theme.palette.warning.main, 0.1),
                                       '&:hover': {
@@ -1743,10 +1734,10 @@ const CandidateInterview = () => {
                                     <EditIcon fontSize="small" />
                                   </IconButton>
                                 </Tooltip>
-                                <IconButton 
+                                <IconButton
                                   size="small"
                                   onClick={(e) => handleActionClick(e, row)}
-                                  sx={{ 
+                                  sx={{
                                     color: 'text.secondary',
                                     '&:hover': {
                                       bgcolor: alpha(theme.palette.mode === 'dark' ? '#fff' : '#000', 0.1),
@@ -1780,7 +1771,7 @@ const CandidateInterview = () => {
                                 variant="contained"
                                 startIcon={<PersonAddIcon />}
                                 onClick={handleAddCandidate}
-                                sx={{ 
+                                sx={{
                                   borderRadius: 2,
                                   px: 3,
                                   py: 1,
@@ -1829,7 +1820,7 @@ const CandidateInterview = () => {
                 }
               }}
               labelRowsPerPage="Rows per page:"
-              labelDisplayedRows={({ from, to, count }) => 
+              labelDisplayedRows={({ from, to, count }) =>
                 `${from}-${to} of ${count}`
               }
             />
@@ -1878,12 +1869,11 @@ const CandidateInterview = () => {
           }
         }}
       >
-        {/* Commented out View Details menu item since we're removing the popup */}
-        {/* <MenuItem 
-          onClick={() => handleViewDetails(selectedRow)} 
-          sx={{ 
-            borderRadius: 1, 
-            mx: 1, 
+        <MenuItem
+          onClick={() => navigate(`/candidate/${selectedRow?.id}`)}
+          sx={{
+            borderRadius: 1,
+            mx: 1,
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
@@ -1891,14 +1881,14 @@ const CandidateInterview = () => {
             }
           }}
         >
-          <ViewIcon fontSize="small" sx={{ mr: 2, color: 'primary.main' }} />
-          View Details
-        </MenuItem> */}
-        <MenuItem 
-          onClick={() => handleEditCandidate(selectedRow)} 
-          sx={{ 
-            borderRadius: 1, 
-            mx: 1, 
+          <KeyboardDoubleArrowLeftIcon fontSize="small" sx={{ mr: 2, color: 'primary.main' }} />
+          View Details Page
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleEditCandidate(selectedRow)}
+          sx={{
+            borderRadius: 1,
+            mx: 1,
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
@@ -1909,11 +1899,11 @@ const CandidateInterview = () => {
           <EditIcon fontSize="small" sx={{ mr: 2, color: 'warning.main' }} />
           Edit
         </MenuItem>
-        <MenuItem 
-          onClick={() => handleStatusChange(selectedRow)} 
-          sx={{ 
-            borderRadius: 1, 
-            mx: 1, 
+        <MenuItem
+          onClick={() => handleStatusChange(selectedRow)}
+          sx={{
+            borderRadius: 1,
+            mx: 1,
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
@@ -1925,11 +1915,11 @@ const CandidateInterview = () => {
           Change Status
         </MenuItem>
         <Divider sx={{ my: 1, borderColor: theme.palette.divider }} />
-        <MenuItem 
-          onClick={() => handleDeleteCandidate(selectedRow)} 
-          sx={{ 
-            borderRadius: 1, 
-            mx: 1, 
+        <MenuItem
+          onClick={() => handleDeleteCandidate(selectedRow)}
+          sx={{
+            borderRadius: 1,
+            mx: 1,
             my: 0.5,
             color: 'error.main',
             '&:hover': {
@@ -1943,13 +1933,6 @@ const CandidateInterview = () => {
       </Menu>
 
       {/* Separate CRUD Components */}
-      {/* Commented out CandidateDetails since we're removing the popup */}
-      {/* <CandidateDetails
-        open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        candidate={selectedRow}
-      /> */}
-
       <EditCandidate
         open={editOpen}
         onClose={() => setEditOpen(false)}
@@ -1995,10 +1978,10 @@ const CandidateInterview = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ 
+          sx={{
             width: '100%',
             borderRadius: 2,
             boxShadow: theme.palette.mode === 'dark'
@@ -2014,8 +1997,8 @@ const CandidateInterview = () => {
 
       {/* Quick Stats Footer */}
       {statistics && !isMobile && (
-        <Box sx={{ 
-          display: 'flex', 
+        <Box sx={{
+          display: 'flex',
           justifyContent: 'center',
           gap: 3,
           mt: 2,

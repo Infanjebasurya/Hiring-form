@@ -32,6 +32,9 @@ import AddCandidate from './components/Layout/JobInterview/CandidateInterview/Ad
 import DeleteConfirmation from './components/Layout/JobInterview/CandidateInterview/DeleteConfirmation';
 import StatusChangeDialog from './components/Layout/JobInterview/CandidateInterview/StatusChangeDialog';
 
+import CandidateDetailsPage from './components/Layout/JobInterview/CandidateInterview/CandidateDetailsPage/CandidateDetailsPage';
+
+
 // Theme configurations
 const getTheme = (mode) => createTheme({
   palette: {
@@ -148,8 +151,8 @@ const getTheme = (mode) => createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: mode === 'dark' 
-            ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+          boxShadow: mode === 'dark'
+            ? '0 2px 4px rgba(0, 0, 0, 0.3)'
             : '0 2px 8px rgba(0, 0, 0, 0.08)',
         },
       },
@@ -497,6 +500,20 @@ function MainAppContent() {
           }
         />
 
+
+        <Route
+          path="/candidate/:candidateId"  
+          element={
+            <ProtectedRoute requireUser={true}>
+              <MainLayout {...layoutProps}>
+                <CandidateDetailsPage darkMode={darkMode} />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+
+
         {/* Candidate CRUD Operation Routes */}
         <Route
           path="/candidate-interviews/details/:id"
@@ -616,16 +633,16 @@ function MainAppContent() {
         />
 
         {/* 404 Page - Redirect to home */}
-        <Route 
-          path="/404" 
+        <Route
+          path="/404"
           element={
             <ProtectedRoute requireUser={true}>
               <MainLayout {...layoutProps}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   height: '100%',
                   textAlign: 'center',
                   p: 3
@@ -639,8 +656,8 @@ function MainAppContent() {
                   <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500 }}>
                     The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
                   </Typography>
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     size="large"
                     onClick={() => navigate('/')}
                     sx={{ borderRadius: 2, px: 4 }}
@@ -650,7 +667,7 @@ function MainAppContent() {
                 </Box>
               </MainLayout>
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Catch all route for regular users */}

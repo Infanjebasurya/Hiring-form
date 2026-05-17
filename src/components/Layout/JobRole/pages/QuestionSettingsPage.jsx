@@ -90,6 +90,9 @@ const QuestionSettingsPage = () => {
   const automaticOverLimit = totalQuestions > 0 && automaticTotal > totalQuestions;
   const manualRemaining = Math.max(0, totalQuestions - manualDraftQuestions.length);
 
+  const newSetModeLabel =
+    newSetMode === 'automatic' ? 'Automatic' : newSetMode === 'resume' ? 'By Resume' : 'Manual';
+
   useEffect(() => {
     if (!isResumePickerOpen) return;
 
@@ -97,7 +100,30 @@ const QuestionSettingsPage = () => {
       const raw = window.localStorage.getItem('candidateInterviews');
       const parsed = raw ? JSON.parse(raw) : [];
       const normalized = Array.isArray(parsed) ? parsed : [];
-      setResumeCandidates(normalized);
+
+      if (normalized.length) {
+        setResumeCandidates(normalized);
+        return;
+      }
+
+      setResumeCandidates([
+        {
+          id: 'MOCK-CAND-1',
+          candidateId: 'CAND-1001',
+          name: 'Aarav Mehta',
+          position: 'Senior Frontend Engineer',
+          resumeLink: 'mock://resume/aarav-mehta.pdf',
+          skills: ['React', 'TypeScript', 'Testing Library', 'System Design'],
+        },
+        {
+          id: 'MOCK-CAND-2',
+          candidateId: 'CAND-1002',
+          name: 'Sara Khan',
+          position: 'UI Engineer',
+          resumeLink: 'mock://resume/sara-khan.pdf',
+          skills: ['React', 'MUI', 'Accessibility', 'CSS Architecture'],
+        },
+      ]);
     } catch {
       setResumeCandidates([]);
     }
@@ -177,12 +203,45 @@ const QuestionSettingsPage = () => {
     if (questionSource !== 'new_set') {
       setQuestionSource('new_set');
     }
-    if (newSetMode !== 'manual') {
-      setNewSetMode('manual');
+    if (newSetMode !== 'resume') {
+      setNewSetMode('resume');
     }
 
     setResumeCandidateId(selectedCandidate?.id ? String(selectedCandidate.id) : '');
     setIsResumePickerOpen(true);
+  };
+
+  const handleAddResumeQuestion = () => {
+    if (totalQuestions > 0 && manualDraftQuestions.length >= totalQuestions) {
+      return;
+    }
+
+    if (questionSource !== 'new_set') {
+      setQuestionSource('new_set');
+    }
+    if (newSetMode !== 'resume') {
+      setNewSetMode('resume');
+    }
+
+    setManualDraftQuestions((prev) => [
+      ...prev,
+      {
+        id: `MAN-${Date.now()}`,
+        questionType: 'theory',
+        prompt: '',
+        answerText: '',
+        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        correctOptionIndex: 0,
+        correctOptionIndexes: [0],
+        blanks: 3,
+        blankAnswers: ['', '', ''],
+        pairs: [{ left: '', right: '' }],
+        orderedItems: [''],
+        starterCode: '',
+        expectedOutput: '',
+        evaluationNotes: '',
+      },
+    ]);
   };
 
   const handleConfirmResumeCandidate = () => {
@@ -800,6 +859,7 @@ const QuestionSettingsPage = () => {
                 >
                   <ToggleButton value="automatic">Automatic</ToggleButton>
                   <ToggleButton value="manual">Manual</ToggleButton>
+                  <ToggleButton value="resume">By Resume</ToggleButton>
                 </ToggleButtonGroup>
 
                 <Typography variant="body2" color="text.secondary">
@@ -807,7 +867,9 @@ const QuestionSettingsPage = () => {
                     ? 'Select "Create New Set" above to configure automatic or manual question workflows.'
                     : newSetMode === 'automatic'
                       ? `Automatic plan: ${automaticTotal}/${totalQuestions} questions across ${automaticPlanRows.length} blocks.`
-                      : `Manual plan: ${manualDraftQuestions.length}/${totalQuestions} questions added.`}
+                      : newSetMode === 'resume'
+                        ? `By resume plan: ${manualDraftQuestions.length}/${totalQuestions} questions added.`
+                        : `Manual plan: ${manualDraftQuestions.length}/${totalQuestions} questions added.`}
                 </Typography>
 
                 <Button
@@ -815,7 +877,7 @@ const QuestionSettingsPage = () => {
                   onClick={() => setIsNewSetConfigOpen(true)}
                   disabled={questionSource !== 'new_set'}
                 >
-                  Configure {newSetMode === 'automatic' ? 'Automatic' : 'Manual'}
+                  Configure {newSetModeLabel}
                 </Button>
                 </Stack>
               </Box>
@@ -825,7 +887,7 @@ const QuestionSettingsPage = () => {
                 onClose={() => setIsNewSetConfigOpen(false)}
                 fullScreen
               >
-                <DialogTitle>Configure {newSetMode === 'automatic' ? 'Automatic' : 'Manual'} Questions</DialogTitle>
+                <DialogTitle>Configure {newSetModeLabel} Questions</DialogTitle>
                 <DialogContent dividers>
                   {newSetMode === 'automatic' && (
                     <Stack spacing={2}>
@@ -956,6 +1018,84 @@ const QuestionSettingsPage = () => {
                           <Typography variant="body2" color="text.secondary">
                             Added: {manualDraftQuestions.length} / {totalQuestions} | Remaining: {manualRemaining}
                           </Typography>
+                        </Box>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="flex-end">
+                          <Button
+                            variant="outlined"
+                            startIcon={<AddIcon />}
+                            onClick={handleAddManualQuestion}
+                            disabled={totalQuestions > 0 && manualDraftQuestions.length >= totalQuestions}
+                          >
+                            Add Question
+                          </Button>
+                        </Stack>
+                      </Stack>
+
+                      <Stack spacing={2}>
+                        {manualDraftQuestions.map((item, index) => (
+                          <Stack key={item.id} spacing={1.5} sx={{ p: 1.5, bgcolor: 'background.paper', borderRadius: 2 }}>
+                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                Question {index + 1}
+                              </Typography>
+                              <IconButton aria-label="remove" onClick={() => handleRemoveManualQuestion(item.id)}>
+                                <DeleteOutlineIcon />
+                              </IconButton>
+                            </Stack>
+
+                            <FormControl fullWidth>
+                              <InputLabel id={`${item.id}-manual-type-label`}>Type of Question</InputLabel>
+                              <Select
+                                labelId={`${item.id}-manual-type-label`}
+                                label="Type of Question"
+                                value={item.questionType}
+                                onChange={(event) => handleUpdateManualQuestion(item.id, { questionType: event.target.value })}
+                              >
+                                {questionTypeDefinitions.map((type) => (
+                                  <MenuItem key={type.value} value={type.value}>
+                                    {type.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+
+                            <TextField
+                              fullWidth
+                              label="Question"
+                              value={item.prompt}
+                              onChange={(event) => handleUpdateManualQuestion(item.id, { prompt: event.target.value })}
+                              multiline
+                              minRows={3}
+                            />
+
+                            {renderManualTypeFields(item)}
+                          </Stack>
+                        ))}
+
+                        {!manualDraftQuestions.length && (
+                          <Typography variant="body2" color="text.secondary">
+                            Add manual questions here. You can't add more than Total Questions.
+                          </Typography>
+                        )}
+                      </Stack>
+                    </Stack>
+                  )}
+
+                  {newSetMode === 'resume' && (
+                    <Stack spacing={2}>
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={1.5}
+                        justifyContent="space-between"
+                        alignItems={{ xs: 'stretch', sm: 'center' }}
+                      >
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            Manual Questions (By Resume)
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Added: {manualDraftQuestions.length} / {totalQuestions} | Remaining: {manualRemaining}
+                          </Typography>
                           {selectedCandidate && (
                             <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap" sx={{ mt: 1 }}>
                               <Chip
@@ -965,9 +1105,7 @@ const QuestionSettingsPage = () => {
                                 label={`Candidate: ${selectedCandidate.name || selectedCandidate.candidateId || selectedCandidate.id}`}
                               />
                               {selectedCandidate.position && <Chip size="small" variant="outlined" label={selectedCandidate.position} />}
-                              {selectedCandidate.resumeLink && (
-                                <Chip size="small" variant="outlined" label="Resume linked" />
-                              )}
+                              {selectedCandidate.resumeLink && <Chip size="small" variant="outlined" label="Resume linked" />}
                               <Button size="small" variant="text" onClick={handleClearCandidate}>
                                 Clear
                               </Button>
@@ -976,12 +1114,12 @@ const QuestionSettingsPage = () => {
                         </Box>
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="flex-end">
                           <Button variant="outlined" onClick={openResumePicker}>
-                            By Resume
+                            Select Candidate
                           </Button>
                           <Button
                             variant="outlined"
                             startIcon={<AddIcon />}
-                            onClick={handleAddManualQuestion}
+                            onClick={handleAddResumeQuestion}
                             disabled={totalQuestions > 0 && manualDraftQuestions.length >= totalQuestions}
                           >
                             Add Question

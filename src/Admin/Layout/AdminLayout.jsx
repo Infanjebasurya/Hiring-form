@@ -77,7 +77,6 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
     setCollapsed(!collapsed);
   };
 
-  // Function to get page title based on current path
   const getPageTitle = () => {
     const currentItem = menuItems.find(item => 
       location.pathname === item.path || 
@@ -88,9 +87,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
       return currentItem.text;
     }
     
-    // Fallback for nested routes
     if (location.pathname.includes('/users/')) return 'User Management';
-    // if (location.pathname.includes('/organizations/')) return 'Organization Details';
     if (location.pathname.includes('/feedbacks/')) return 'Feedback Details';
     
     return 'Admin Panel';
@@ -104,7 +101,6 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
       flexDirection: 'column',
       overflow: 'hidden'
     }}>
-      {/* Logo/Sidebar Header */}
       <Box sx={{ 
         p: 2, 
         borderBottom: `1px solid ${theme.palette.divider}`,
@@ -133,7 +129,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
           size="small"
           sx={{
             color: theme.palette.text.secondary,
-            cursor: 'pointer', // Added cursor pointer
+            cursor: 'pointer',
             '&:hover': {
               backgroundColor: theme.palette.action.hover
             }
@@ -143,7 +139,6 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         </IconButton>
       </Box>
 
-      {/* Navigation Menu */}
       <List sx={{ px: 1, py: 2, flex: 1, overflow: 'auto' }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || 
@@ -168,7 +163,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                     theme.palette.primary.main + '20' : 'transparent',
                   border: isActive ? 
                     `1px solid ${theme.palette.primary.main}30` : '1px solid transparent',
-                  cursor: 'pointer', // Added cursor pointer
+                  cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
                     backgroundColor: theme.palette.action.hover,
@@ -182,7 +177,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                     theme.palette.primary.main : theme.palette.text.secondary,
                   minWidth: collapsed ? 'auto' : '56px',
                   justifyContent: 'center',
-                  cursor: 'pointer' // Added cursor pointer
+                  cursor: 'pointer'
                 }}>
                   {item.icon}
                 </ListItemIcon>
@@ -195,7 +190,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                         fontWeight: isActive ? 600 : 400,
                         color: isActive ? 
                           theme.palette.primary.main : theme.palette.text.primary,
-                        cursor: 'pointer' // Added cursor pointer
+                        cursor: 'pointer'
                       }
                     }}
                   />
@@ -206,13 +201,12 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         })}
       </List>
 
-      {/* User Info at Bottom */}
       <Box sx={{ 
         p: 2, 
         borderTop: `1px solid ${theme.palette.divider}`,
         textAlign: 'center',
         flexShrink: 0,
-        cursor: 'default' // Default cursor for non-clickable area
+        cursor: 'default'
       }}>
         {!collapsed && (
           <>
@@ -236,8 +230,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
   const currentDrawerWidth = collapsed ? collapsedDrawerWidth : drawerWidth;
 
   return (
-    <Box sx={{ display: 'flex', cursor: 'default' }}> {/* Default cursor for main container */}
-      {/* App Bar */}
+    <Box sx={{ display: 'flex', cursor: 'default' }}>
       <AppBar
         position="fixed"
         sx={{
@@ -251,54 +244,87 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
           }),
-          cursor: 'default' // Default cursor for app bar
+          cursor: 'default'
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ 
-              mr: 2, 
-              display: { md: 'none' },
-              cursor: 'pointer' // Added cursor pointer
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'default' }}>
-            {getPageTitle()}
-          </Typography>
-
-          {/* Theme Toggle */}
-          <Tooltip title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
-            <IconButton 
-              onClick={onToggleTheme} 
+        <Toolbar
+          sx={{
+            minHeight: { xs: 56, sm: 64 },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: { xs: 1, sm: 2 }
+          }}
+        >
+          {/* Left section - Only show hamburger on mobile */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            flex: 1
+          }}>
+            <IconButton
               color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
               sx={{ 
+                display: { xs: 'flex', md: 'none' },
                 mr: 1,
-                cursor: 'pointer' // Added cursor pointer
+                cursor: 'pointer',
+                p: 1,
+                // Ensure proper vertical centering
+                alignSelf: 'center'
               }}
             >
-              {darkMode ? <Brightness7 /> : <Brightness4 />}
+              <MenuIcon />
             </IconButton>
-          </Tooltip>
-
-          {/* Logout */}
-          <Tooltip title="Logout">
-            <IconButton 
-              onClick={onLogout} 
-              color="inherit"
+            
+            <Typography
+              variant="h6"
+              component="div"
               sx={{
-                cursor: 'pointer' // Added cursor pointer
+                cursor: 'default',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                fontSize: { xs: '1rem', sm: '1.25rem' }
               }}
             >
-              <Logout />
-            </IconButton>
-          </Tooltip>
+              {getPageTitle()}
+            </Typography>
+          </Box>
+
+          {/* Right section */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: { xs: 0.5, sm: 1 }
+          }}>
+            <Tooltip title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
+              <IconButton 
+                onClick={onToggleTheme} 
+                color="inherit"
+                sx={{ 
+                  cursor: 'pointer'
+                }}
+              >
+                {darkMode ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Logout">
+              <IconButton 
+                onClick={onLogout} 
+                color="inherit"
+                sx={{
+                  cursor: 'pointer'
+                }}
+              >
+                <Logout />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -308,9 +334,10 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         sx={{ 
           width: { md: currentDrawerWidth }, 
           flexShrink: { md: 0 },
-          cursor: 'default' // Default cursor for nav container
+          cursor: 'default'
         }}
       >
+        {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -322,12 +349,16 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
               boxSizing: 'border-box', 
               width: drawerWidth,
               background: theme.palette.background.paper,
-              cursor: 'default' // Default cursor for drawer
+              cursor: 'default',
+              top: 0,
+              height: '100vh'
             },
           }}
         >
           {drawer}
         </Drawer>
+        
+        {/* Desktop drawer */}
         <Drawer
           variant="permanent"
           sx={{
@@ -342,7 +373,9 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                 duration: theme.transitions.duration.enteringScreen,
               }),
               overflowX: 'hidden',
-              cursor: 'default' // Default cursor for drawer
+              cursor: 'default',
+              top: 0,
+              height: '100vh'
             },
           }}
           open
@@ -356,7 +389,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { md: `calc(100% - ${currentDrawerWidth}px)` },
           minHeight: '100vh',
           background: theme.palette.background.default,
@@ -364,10 +397,10 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          cursor: 'default' // Default cursor for main content
+          cursor: 'default',
+          mt: { xs: '56px', sm: '64px' } // Add margin top to account for AppBar
         }}
       >
-        <Toolbar /> {/* Spacer for AppBar */}
         {children}
       </Box>
     </Box>

@@ -52,7 +52,7 @@ export const FormTextField = ({
   multiline = false,
   rows = 1,
   maxRows = 6,
-  darkMode = false,
+  darkMode: _darkMode = false,
   ...props
 }) => (
   <TextField
@@ -70,6 +70,7 @@ export const FormTextField = ({
     multiline={multiline}
     rows={rows}
     maxRows={maxRows}
+    data-theme-mode={_darkMode ? 'dark' : 'light'}
     InputProps={{
       startAdornment: startAdornment ? (
         <InputAdornment position="start">{startAdornment}</InputAdornment>
@@ -89,10 +90,10 @@ export const FormSelect = ({
   helperText,
   required = false,
   size = 'medium',
-  darkMode = false,
+  darkMode: _darkMode = false,
   ...props
 }) => (
-  <FormControl fullWidth error={!!error} required={required} size={size}>
+  <FormControl fullWidth error={!!error} required={required} size={size} data-theme-mode={_darkMode ? 'dark' : 'light'}>
     <InputLabel>{label}</InputLabel>
     <Select value={value} label={label} onChange={onChange} {...props}>
       {options.map((option) => (
@@ -128,9 +129,10 @@ export const ChipList = ({
           size={size}
           deleteIcon={<Delete />}
           sx={{
-            fontWeight: 'bold',
-            backgroundColor: darkMode ? `rgba(144, 202, 249, 0.1)` : 'transparent',
-            border: darkMode ? '1px solid rgba(144, 202, 249, 0.3)' : '1px solid rgba(0, 0, 0, 0.2)',
+            fontWeight: 700,
+            borderRadius: 1.25,
+            backgroundColor: darkMode ? 'rgba(129, 140, 248, 0.10)' : 'transparent',
+            border: darkMode ? '1px solid rgba(129, 140, 248, 0.28)' : '1px solid rgba(15, 23, 42, 0.14)',
           }}
         />
       </Grid>
@@ -146,7 +148,7 @@ export const SectionHeader = ({
   color = 'primary',
   subtitle 
 }) => (
-  <Box sx={{ mb: 3 }}>
+  <Box sx={{ mb: 2.5 }}>
     <Box sx={{ 
       display: 'flex', 
       justifyContent: 'space-between', 
@@ -155,17 +157,19 @@ export const SectionHeader = ({
       flexDirection: { xs: 'column', sm: 'row' },
       gap: { xs: 2, sm: 0 }
     }}>
-      <Typography variant="h6" color={color} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {icon}
-        {title}
-      </Typography>
+      <Box>
+        <Typography variant="h6" color={color} sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 800 }}>
+          {icon}
+          {title}
+        </Typography>
+        {subtitle && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
       {actionButton}
     </Box>
-    {subtitle && (
-      <Typography variant="body2" color="text.secondary">
-        {subtitle}
-      </Typography>
-    )}
   </Box>
 );
 
@@ -177,39 +181,23 @@ export const InfoAlert = ({
   severity = 'info', 
   darkMode = false 
 }) => {
-  const alertStyles = {
-    info: {
-      dark: 'linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%)',
-      light: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
-      borderColor: '#3949ab'
-    },
-    success: {
-      dark: 'linear-gradient(135deg, #1b5e20 0%, #33691e 100%)',
-      light: 'linear-gradient(135deg, #e8f5e8 0%, #f0f4c3 100%)',
-      borderColor: '#388e3c'
-    },
-    warning: {
-      dark: 'linear-gradient(135deg, #5d4037 0%, #4e342e 100%)',
-      light: 'linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%)',
-      borderColor: '#6d4c41'
-    }
-  };
-
-  const styles = alertStyles[severity] || alertStyles.info;
-
   return (
     <Alert
       severity={severity}
       sx={{
         mb: 3,
-        background: darkMode ? styles.dark : styles.light,
+        background: darkMode ? 'rgba(15, 23, 42, 0.68)' : '#ffffff',
         border: '1px solid',
-        borderColor: darkMode ? styles.borderColor : styles.borderColor,
-        color: darkMode ? 'white' : 'inherit'
+        borderColor: darkMode ? 'rgba(148, 163, 184, 0.20)' : 'rgba(15, 23, 42, 0.10)',
+        color: 'text.primary',
+        boxShadow: darkMode ? 'none' : '0 10px 28px rgba(15,23,42,0.05)',
+        '& .MuiAlert-icon': {
+          color: `${severity}.main`,
+        },
       }}
       icon={icon}
     >
-      <Typography variant="subtitle1" fontWeight="bold">
+      <Typography variant="subtitle1" fontWeight={800}>
         {title}
       </Typography>
       {children}
@@ -230,24 +218,29 @@ export const FileUpload = ({
   <Card
     variant="outlined"
     sx={{
-      borderColor: error ? 'error.main' : 'primary.main',
+      borderColor: error ? 'error.main' : 'divider',
+      borderWidth: error ? 2 : 1,
       height: '100%',
       background: error
-        ? (darkMode ? '#d32f2f20' : '#ffebee')
-        : (darkMode
-          ? 'linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%)'
-          : 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)'),
-      transition: 'all 0.3s ease',
+        ? (darkMode ? 'rgba(239, 68, 68, 0.10)' : '#fef2f2')
+        : (darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff'),
+      transition: 'border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
+      boxShadow: error
+        ? (darkMode ? '0 0 0 4px rgba(239, 68, 68, 0.16)' : '0 0 0 4px rgba(220, 38, 38, 0.10)')
+        : 'none',
       '&:hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: 3
+        transform: 'translateY(-1px)',
+        borderColor: error ? 'error.main' : 'primary.main',
+        boxShadow: error
+          ? (darkMode ? '0 0 0 4px rgba(239, 68, 68, 0.18)' : '0 0 0 4px rgba(220, 38, 38, 0.12)')
+          : (darkMode ? '0 12px 30px rgba(0,0,0,0.22)' : '0 12px 30px rgba(15,23,42,0.08)')
       }
     }}
   >
     <CardContent>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Warning sx={{ mr: 1, color: error ? 'error.main' : 'primary.main' }} />
-        <Typography variant="h6" color={error ? 'error.main' : 'primary.main'}>
+        <Typography variant="h6" color={error ? 'error.main' : 'text.primary'} sx={{ fontWeight: 800 }}>
           {label} {required && '*'}
         </Typography>
       </Box>
@@ -267,7 +260,7 @@ export const FileUpload = ({
           startIcon={value ? <CheckCircle /> : <CloudUpload />}
           fullWidth
           color={error ? 'error' : 'primary'}
-          sx={{ mb: 2, height: '50px' }}
+          sx={{ mb: 2, height: '44px' }}
         >
           {value ? `Change ${label}` : `Upload ${label}`}
         </Button>
@@ -278,9 +271,12 @@ export const FileUpload = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          p: 1,
-          bgcolor: darkMode ? 'success.dark' : 'success.light',
-          borderRadius: 1
+          p: 1.25,
+          bgcolor: darkMode ? 'rgba(34, 197, 94, 0.12)' : 'rgba(5, 150, 105, 0.10)',
+          border: '1px solid',
+          borderColor: 'success.main',
+          borderRadius: 1.5,
+          gap: 1,
         }}>
           <Typography variant="body2" sx={{ 
             color: darkMode ? 'success.light' : 'success.dark', 
@@ -304,7 +300,7 @@ export const FileUpload = ({
       )}
 
       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
-        {required ? '📄 Required - ' : '📝 Optional - '}
+        {required ? 'Required - ' : 'Optional - '}
         Max file size: 5MB | Accepted formats: PDF, DOC, DOCX
       </Typography>
     </CardContent>

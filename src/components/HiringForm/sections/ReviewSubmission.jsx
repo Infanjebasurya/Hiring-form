@@ -42,14 +42,12 @@ const ReviewSubmission = ({ formData, errors, handleInputChange, darkMode = fals
   ];
 
   // Card styling based on theme
-  const getCardStyle = (borderColor) => ({
+  const getCardStyle = () => ({
     height: '100%',
-    boxShadow: 3,
-    border: '2px solid',
-    borderColor: borderColor,
-    background: darkMode
-      ? 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)'
-      : 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
+    boxShadow: darkMode ? '0 10px 28px rgba(0,0,0,0.20)' : '0 10px 28px rgba(15,23,42,0.05)',
+    border: '1px solid',
+    borderColor: 'divider',
+    background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
     color: darkMode ? 'white' : 'inherit'
   });
 
@@ -69,16 +67,14 @@ const ReviewSubmission = ({ formData, errors, handleInputChange, darkMode = fals
   return (
     <Fade in={true} timeout={500}>
       <Box sx={{ mt: 3 }}>
-        <Alert 
+        <Alert
           severity="info" 
           sx={{ 
             mb: 3,
-            background: darkMode
-              ? 'linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%)'
-              : 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+            background: darkMode ? 'rgba(15, 23, 42, 0.68)' : '#ffffff',
             border: '1px solid',
-            borderColor: darkMode ? '#3949ab' : '#90caf9',
-            color: darkMode ? 'white' : 'inherit'
+            borderColor: 'divider',
+            color: 'text.primary'
           }}
           icon={<CheckCircle />}
         >
@@ -508,10 +504,8 @@ const ReviewSubmission = ({ formData, errors, handleInputChange, darkMode = fals
             <Card sx={{ 
               ...getCardStyle(errors.termsAccepted || errors.privacyAccepted ? 'error.main' : 'primary.light'),
               background: errors.termsAccepted || errors.privacyAccepted 
-                ? (darkMode ? '#d32f2f20' : '#ffebee')
-                : (darkMode
-                  ? 'linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%)'
-                  : 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)')
+                ? (darkMode ? 'rgba(239, 68, 68, 0.10)' : '#fef2f2')
+                : (darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff')
             }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">

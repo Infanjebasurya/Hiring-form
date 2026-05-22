@@ -73,7 +73,20 @@ const CandidateProfile = ({
   };
 
   return (
-    <Paper sx={{ p: 3, borderRadius: 2, height: '100%' }}>
+    <Paper
+      sx={{
+        p: { xs: 2.5, sm: 3 },
+        borderRadius: 4,
+        height: '100%',
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: (theme) => theme.palette.mode === 'dark'
+          ? '0 18px 48px rgba(0,0,0,0.22)'
+          : '0 18px 48px rgba(15,23,42,0.08)',
+      }}
+    >
       {/* Profile Header */}
       <Box sx={{ textAlign: 'center', mb: 3 }}>
         <Avatar
@@ -81,9 +94,10 @@ const CandidateProfile = ({
             width: 100,
             height: 100,
             fontSize: '2.5rem',
-            bgcolor: 'primary.main',
+            background: 'linear-gradient(135deg, #6366f1, #10b981)',
             mb: 2,
-            mx: 'auto'
+            mx: 'auto',
+            boxShadow: '0 18px 34px rgba(79,70,229,0.25)',
           }}
         >
           {candidate.name?.charAt(0) || 'A'}
@@ -151,7 +165,7 @@ const CandidateProfile = ({
       </Grid>
 
       {/* Action Buttons */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row', md: 'column', lg: 'row' } }}>
         <Button
           fullWidth
           variant="outlined"
@@ -181,8 +195,10 @@ const CandidateProfile = ({
             key={index}
             sx={{ 
               bgcolor: 'background.default', 
-              borderRadius: 1, 
+              borderRadius: 2, 
               mb: 1,
+              border: '1px solid',
+              borderColor: 'divider',
               '&:hover': { bgcolor: 'action.hover' }
             }}
             secondaryAction={

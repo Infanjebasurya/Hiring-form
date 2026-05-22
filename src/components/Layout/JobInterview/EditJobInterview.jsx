@@ -322,7 +322,7 @@ const EditJobInterview = () => {
     <Box sx={{ 
       maxWidth: '1200px',
       margin: '0 auto', 
-      p: { xs: 2, sm: 3, md: 4 },
+      p: { xs: 0, sm: 1, md: 2 },
       minHeight: '100vh',
       bgcolor: 'background.default'
     }}>
@@ -373,7 +373,18 @@ const EditJobInterview = () => {
         display: 'flex', 
         alignItems: 'center', 
         mb: { xs: 3, sm: 4 },
-        gap: 2 
+        gap: 2,
+        p: { xs: 2.5, sm: 3 },
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: 'background.paper',
+        background: theme.palette.mode === 'dark'
+          ? 'linear-gradient(135deg, rgba(245,158,11,0.16), rgba(15,23,42,0.78))'
+          : 'linear-gradient(135deg, rgba(245,158,11,0.11), rgba(255,255,255,0.92))',
+        boxShadow: theme.palette.mode === 'dark'
+          ? '0 18px 48px rgba(0,0,0,0.24)'
+          : '0 18px 48px rgba(15,23,42,0.08)',
+        flexWrap: 'wrap',
       }}>
         <IconButton 
           onClick={handleBack}
@@ -395,7 +406,7 @@ const EditJobInterview = () => {
           <Typography 
             variant="h4" 
             sx={{ 
-              fontWeight: 600,
+              fontWeight: 800,
               fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
               color: 'text.primary'
             }}
@@ -438,9 +449,15 @@ const EditJobInterview = () => {
       )}
 
       {/* Main Content Container */}
-      <Box sx={{ 
+      <Paper elevation={0} sx={{ 
         maxWidth: '900px',
-        margin: '0 auto'
+        margin: '0 auto',
+        p: { xs: 2.5, sm: 3, md: 4 },
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        boxShadow: theme.palette.mode === 'dark'
+          ? '0 20px 54px rgba(0,0,0,0.24)'
+          : '0 20px 54px rgba(15,23,42,0.08)',
       }}>
         {/* Job ID Section */}
         <Box sx={{ mb: { xs: 3, sm: 4 } }}>
@@ -543,9 +560,12 @@ const EditJobInterview = () => {
                 p: { xs: 2, sm: 3 },
                 mb: 2,
                 bgcolor: 'background.paper',
-                borderRadius: '12px',
+                borderRadius: '18px',
                 border: '1px solid',
                 borderColor: 'divider',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 12px 28px rgba(0,0,0,0.16)'
+                  : '0 12px 28px rgba(15,23,42,0.06)',
               }}
             >
               {/* Round Header */}
@@ -913,7 +933,7 @@ const EditJobInterview = () => {
             </Button>
           </Box>
         </Box>
-      </Box>
+      </Paper>
     </Box>
   );
 };

@@ -317,9 +317,23 @@ const CandidateDetailsPage = () => {
     : 0;
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, bgcolor: 'background.default', minHeight: '100vh' }}>
+    <Box sx={{ p: { xs: 0, sm: 1, md: 2 }, bgcolor: 'background.default', minHeight: '100vh' }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          mb: 4,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 4,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          bgcolor: 'background.paper',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(59,130,246,0.16), rgba(15,23,42,0.78))'
+            : 'linear-gradient(135deg, rgba(59,130,246,0.10), rgba(255,255,255,0.92))',
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 18px 48px rgba(0,0,0,0.24)'
+            : '0 18px 48px rgba(15,23,42,0.08)',
+        }}
+      >
         <Button 
           startIcon={<ArrowBackIcon />} 
           onClick={handleBack} 
@@ -343,7 +357,7 @@ const CandidateDetailsPage = () => {
           mb: 3 
         }}>
           <Box>
-            <Typography variant="h4" fontWeight="700" gutterBottom>
+            <Typography variant="h4" fontWeight="800" gutterBottom sx={{ fontSize: { xs: '1.6rem', sm: '2.15rem' } }}>
               Candidate Details
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -368,7 +382,18 @@ const CandidateDetailsPage = () => {
       </Box>
 
       {/* Progress Bar - Fixed with proper styling */}
-      <Box sx={{ mb: 4, p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
+      <Box
+        sx={{
+          mb: 4,
+          p: { xs: 2.5, sm: 3 },
+          bgcolor: 'background.paper',
+          borderRadius: 4,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 18px 48px rgba(0,0,0,0.20)'
+            : '0 18px 48px rgba(15,23,42,0.07)',
+        }}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="body1" fontWeight="600" color="text.primary">
             Interview Progress
@@ -448,7 +473,8 @@ const CandidateDetailsPage = () => {
           mt: 3, 
           pt: 2, 
           borderTop: '1px solid',
-          borderColor: 'divider'
+          borderColor: 'divider',
+          flexWrap: 'wrap',
         }}>
           <Box>
             <Typography variant="caption" color="text.secondary" display="block">

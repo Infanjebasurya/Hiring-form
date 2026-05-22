@@ -8,8 +8,13 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  CircularProgress
+  CircularProgress,
+  Chip,
+  LinearProgress,
+  Stack,
+  Paper
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   People,
   Group,
@@ -19,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { getUserStats, initializeUsers } from '../../../services/userService';
 
-const DashboardOverview = ({ darkMode }) => {
+const DashboardOverview = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [stats, setStats] = useState([]);
@@ -92,29 +97,41 @@ const DashboardOverview = ({ darkMode }) => {
   }
 
   return (
-    <Box sx={{ p: isMobile ? 2 : 3 }}>
+    <Box sx={{ p: { xs: 0, sm: 1, md: 2 } }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography 
-          variant={isMobile ? "h5" : "h4"} 
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            color: theme.palette.text.primary,
-            mb: 1
-          }}
-        >
-          Dashboard Overview
-        </Typography>
-        <Typography 
-          variant="body1" 
-          sx={{
-            color: theme.palette.text.secondary,
-            opacity: 0.8
-          }}
-        >
-          Welcome to your admin dashboard
-        </Typography>
+      <Box
+        sx={{
+          mb: 4,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 4,
+          border: `1px solid ${theme.palette.divider}`,
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.72))'
+            : 'linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(255, 255, 255, 0.86))',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 18px 50px rgba(0,0,0,0.24)'
+            : '0 18px 50px rgba(15,23,42,0.08)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }}>
+          <Box>
+            <Typography 
+              variant={isMobile ? "h5" : "h4"} 
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                color: theme.palette.text.primary,
+                mb: 1
+              }}
+            >
+              Dashboard Overview
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Welcome to your admin dashboard
+            </Typography>
+          </Box>
+          <Chip label="Live workspace" color="success" variant="outlined" />
+        </Stack>
       </Box>
 
       {/* Stats Grid */}
@@ -126,15 +143,28 @@ const DashboardOverview = ({ darkMode }) => {
                 bgcolor: theme.palette.background.paper,
                 color: theme.palette.text.primary,
                 border: `1px solid ${theme.palette.divider}`,
-                borderRadius: 3,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                borderRadius: 4,
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 18px 50px rgba(0,0,0,0.24)'
+                  : '0 18px 50px rgba(15,23,42,0.08)',
                 transition: 'all 0.3s ease-in-out',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: 0,
+                  borderTop: `3px solid ${stat.color}`,
+                  pointerEvents: 'none',
+                },
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 22px 60px rgba(0,0,0,0.34)'
+                    : '0 22px 60px rgba(15,23,42,0.12)'
                 },
                 height: '100%',
-                minHeight: 200, // Fixed minimum height for all cards
+                minHeight: 190,
                 display: 'flex',
                 flexDirection: 'column'
               }}
@@ -197,7 +227,7 @@ const DashboardOverview = ({ darkMode }) => {
                     sx={{
                       p: isMobile ? 1.5 : 2,
                       borderRadius: 3,
-                      bgcolor: stat.color + '15',
+                      bgcolor: alpha(stat.color, 0.12),
                       color: stat.color,
                       display: 'flex',
                       alignItems: 'center',
@@ -216,7 +246,8 @@ const DashboardOverview = ({ darkMode }) => {
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  mt: 'auto'
+                  mt: 'auto',
+                  gap: 1
                 }}>
                   <TrendingUp sx={{ fontSize: 16, color: '#2ECC71', mr: 0.5 }} />
                   <Typography 
@@ -229,11 +260,73 @@ const DashboardOverview = ({ darkMode }) => {
                   >
                     Active
                   </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={index === 0 ? 72 : index === 1 ? 64 : index === 2 ? 88 : 54}
+                    sx={{
+                      flex: 1,
+                      height: 7,
+                      borderRadius: 999,
+                      bgcolor: alpha(stat.color, 0.12),
+                      '& .MuiLinearProgress-bar': {
+                        borderRadius: 999,
+                        bgcolor: stat.color,
+                      },
+                    }}
+                  />
                 </Box>
               </CardContent>
             </Card>
           </Grid>
         ))}
+      </Grid>
+
+      <Grid container spacing={3} sx={{ mt: 1 }}>
+        <Grid item xs={12} md={7}>
+          <Paper sx={{ p: 3, borderRadius: 4, border: `1px solid ${theme.palette.divider}` }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              System Health
+            </Typography>
+            {[
+              ['User onboarding', 76, theme.palette.primary.main],
+              ['Interview capacity', 63, theme.palette.success.main],
+              ['Organization coverage', 82, theme.palette.info.main],
+            ].map(([label, value, color]) => (
+              <Box key={label} sx={{ mb: 2.25 }}>
+                <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.75 }}>
+                  <Typography variant="body2" fontWeight={700}>{label}</Typography>
+                  <Typography variant="body2" color="text.secondary">{value}%</Typography>
+                </Stack>
+                <LinearProgress
+                  variant="determinate"
+                  value={value}
+                  sx={{
+                    height: 9,
+                    borderRadius: 999,
+                    bgcolor: alpha(color, 0.12),
+                    '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 999 },
+                  }}
+                />
+              </Box>
+            ))}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <Paper sx={{ p: 3, borderRadius: 4, border: `1px solid ${theme.palette.divider}` }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Recent Activity
+            </Typography>
+            {['Users initialized', 'Organizations synced', 'Feedback queue reviewed'].map((item, index) => (
+              <Stack key={item} direction="row" spacing={2} alignItems="center" sx={{ py: 1.2 }}>
+                <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: index === 0 ? 'success.main' : index === 1 ? 'info.main' : 'warning.main' }} />
+                <Box>
+                  <Typography variant="body2" fontWeight={700}>{item}</Typography>
+                  <Typography variant="caption" color="text.secondary">Workspace activity</Typography>
+                </Box>
+              </Stack>
+            ))}
+          </Paper>
+        </Grid>
       </Grid>
     </Box>
   );

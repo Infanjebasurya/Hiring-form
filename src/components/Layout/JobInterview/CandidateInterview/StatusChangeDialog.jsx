@@ -12,8 +12,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  alpha,
-  useTheme,
 } from '@mui/material';
 
 const StatusChangeDialog = ({ 
@@ -27,7 +25,6 @@ const StatusChangeDialog = ({
 }) => {
   const [newStatus, setNewStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const theme = useTheme();
 
   useEffect(() => {
     if (candidate) {
@@ -67,18 +64,20 @@ const StatusChangeDialog = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: 2,
-          minWidth: 400,
+          borderRadius: 4,
+          minWidth: { xs: 'auto', sm: 400 },
+          border: '1px solid',
+          borderColor: 'divider',
         },
       }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
+      <DialogTitle sx={{ pb: 1, fontWeight: 800 }}>
         Change Candidate Status
       </DialogTitle>
       
       <DialogContent>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-          <Avatar sx={{ bgcolor: '#667eea' }}>
+          <Avatar sx={{ background: 'linear-gradient(135deg, #6366f1, #10b981)', boxShadow: '0 12px 24px rgba(79,70,229,0.22)' }}>
             {candidate.name.charAt(0)}
           </Avatar>
           <Box>

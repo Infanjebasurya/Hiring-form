@@ -783,14 +783,44 @@ const JobInterviews = ({ darkMode }) => {
 
   return (
     <Box sx={{ 
-      p: { xs: 1, sm: 2, md: 3 },
+      p: { xs: 0, sm: 1, md: 2 },
       bgcolor: theme.palette.background.default,
-      minHeight: '100vh'
+      minHeight: '100vh',
+      '& .job-interview-card': {
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        boxShadow: theme.palette.mode === 'dark'
+          ? '0 18px 48px rgba(0,0,0,0.24)'
+          : '0 18px 48px rgba(15,23,42,0.08)',
+      },
     }}>
       {/* Header - Simplified */}
-      <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+      <Box
+        className="job-interview-card"
+        sx={{
+          mb: { xs: 2, sm: 3 },
+          p: { xs: 2.5, sm: 3 },
+          overflow: 'hidden',
+          position: 'relative',
+          bgcolor: 'background.paper',
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(99,102,241,0.18), rgba(15,23,42,0.78))'
+            : 'linear-gradient(135deg, rgba(99,102,241,0.10), rgba(255,255,255,0.92))',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            right: -40,
+            top: -40,
+            width: 160,
+            height: 160,
+            borderRadius: '50%',
+            background: alpha(theme.palette.primary.main, 0.12),
+            pointerEvents: 'none',
+          },
+        }}
+      >
         <Box>
-          <Typography variant="h5" fontWeight="600" gutterBottom color="text.primary">
+          <Typography variant="h4" fontWeight="800" gutterBottom color="text.primary" sx={{ fontSize: { xs: '1.55rem', sm: '2rem' } }}>
             Job Interviews
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -805,12 +835,9 @@ const JobInterviews = ({ darkMode }) => {
           Array.from({ length: 4 }).map((_, index) => (
             <Grid item xs={6} sm={6} md={3} key={index}>
               <Card 
+                className="job-interview-card"
                 sx={{ 
                   bgcolor: 'background.paper',
-                  borderRadius: 2,
-                  boxShadow: theme.palette.mode === 'dark' 
-                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
-                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
                   height: '100%',
                 }}
               >
@@ -826,19 +853,25 @@ const JobInterviews = ({ darkMode }) => {
           stats.map((stat, index) => (
             <Grid item xs={6} sm={6} md={3} key={index}>
               <Card 
+                className="job-interview-card"
                 sx={{ 
                   bgcolor: 'background.paper',
-                  borderRadius: 2,
-                  boxShadow: theme.palette.mode === 'dark' 
-                    ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
-                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
                   height: '100%',
                   transition: 'transform 0.2s, box-shadow 0.2s',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    inset: 0,
+                    borderTop: `3px solid ${stat.color}`,
+                    pointerEvents: 'none',
+                  },
                   '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: theme.palette.mode === 'dark'
-                      ? '0 4px 20px rgba(0,0,0,0.4)'
-                      : '0 4px 12px rgba(0,0,0,0.12)',
+                      ? '0 24px 60px rgba(0,0,0,0.34)'
+                      : '0 24px 60px rgba(15,23,42,0.12)',
                   }
                 }}
               >
@@ -903,11 +936,11 @@ const JobInterviews = ({ darkMode }) => {
           mb: 3,
           p: { xs: 2, sm: 3 },
           bgcolor: 'background.paper',
-          borderRadius: 2,
+          borderRadius: 4,
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === 'dark' 
-            ? '0 1px 3px rgba(0,0,0,0.3)' 
-            : '0 1px 3px rgba(0,0,0,0.05)',
+            ? '0 18px 48px rgba(0,0,0,0.20)' 
+            : '0 18px 48px rgba(15,23,42,0.07)',
         }}
       >
         {/* Left side: Search and Filter */}
@@ -1438,11 +1471,11 @@ const JobInterviews = ({ darkMode }) => {
           width: '100%',
           overflow: 'hidden',
           bgcolor: 'background.paper',
-          borderRadius: 2,
+          borderRadius: 4,
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: theme.palette.mode === 'dark' 
-            ? '0 1px 3px rgba(0,0,0,0.3)' 
-            : '0 1px 3px rgba(0,0,0,0.05)',
+            ? '0 20px 54px rgba(0,0,0,0.24)' 
+            : '0 20px 54px rgba(15,23,42,0.08)',
           minHeight: 400,
           position: 'relative',
           mb: 4,
@@ -1459,7 +1492,7 @@ const JobInterviews = ({ darkMode }) => {
                 <MobileCardView />
               </Box>
             ) : (
-              <TableContainer sx={{ maxHeight: 600 }}>
+              <TableContainer sx={{ maxHeight: 620, '& .MuiTableCell-root': { whiteSpace: 'nowrap' } }}>
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>

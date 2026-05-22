@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Card,
@@ -22,9 +22,12 @@ import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
   CheckCircle,
-  Warning
+  Warning,
+  BusinessCenter,
+  Description,
+  Save
 } from '@mui/icons-material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { alpha, ThemeProvider, createTheme } from '@mui/material/styles';
 import { Fade } from '@mui/material';
 
 // Import sections
@@ -43,31 +46,97 @@ const getDesignTokens = (mode) => ({
   palette: {
     mode,
     ...(mode === 'dark' ? {
-      primary: { main: '#90caf9' },
-      secondary: { main: '#f48fb1' },
-      background: { default: '#121212', paper: '#1e1e1e' },
-      text: { primary: '#ffffff', secondary: 'rgba(255, 255, 255, 0.7)' },
-      divider: 'rgba(255, 255, 255, 0.12)',
+      primary: { main: '#818cf8', light: '#a5b4fc', dark: '#6366f1' },
+      secondary: { main: '#14b8a6', light: '#2dd4bf', dark: '#0f766e' },
+      success: { main: '#22c55e' },
+      warning: { main: '#f59e0b' },
+      error: { main: '#ef4444' },
+      info: { main: '#38bdf8' },
+      background: { default: '#0b1020', paper: '#111827' },
+      text: { primary: '#f8fafc', secondary: 'rgba(226, 232, 240, 0.72)' },
+      divider: 'rgba(148, 163, 184, 0.16)',
     } : {
-      primary: { main: '#1976d2' },
-      secondary: { main: '#dc004e' },
-      background: { default: '#f5f5f5', paper: '#ffffff' },
-      text: { primary: '#000000', secondary: 'rgba(0, 0, 0, 0.6)' },
+      primary: { main: '#4f46e5', light: '#6366f1', dark: '#3730a3' },
+      secondary: { main: '#0f766e', light: '#14b8a6', dark: '#115e59' },
+      success: { main: '#059669' },
+      warning: { main: '#d97706' },
+      error: { main: '#dc2626' },
+      info: { main: '#0284c7' },
+      background: { default: '#f5f7fb', paper: '#ffffff' },
+      text: { primary: '#111827', secondary: '#64748b' },
+      divider: 'rgba(15, 23, 42, 0.1)',
     }),
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontWeight: 800, letterSpacing: 0 },
+    h2: { fontWeight: 800, letterSpacing: 0 },
+    h3: { fontWeight: 800, letterSpacing: 0 },
+    h4: { fontWeight: 750, letterSpacing: 0 },
+    h5: { fontWeight: 700, letterSpacing: 0 },
+    h6: { fontWeight: 700, letterSpacing: 0 },
   },
+  shape: { borderRadius: 10 },
   components: {
     MuiButton: {
+      defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 8,
+          borderRadius: 10,
+          fontWeight: 700,
+          minHeight: 40,
+          letterSpacing: 0,
         },
       },
     },
     MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 14,
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: { size: 'small' },
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 10,
+            backgroundColor: mode === 'dark' ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+            '& fieldset': {
+              borderColor: mode === 'dark' ? 'rgba(148, 163, 184, 0.24)' : 'rgba(15, 23, 42, 0.14)',
+            },
+            '&:hover fieldset': {
+              borderColor: mode === 'dark' ? '#818cf8' : '#4f46e5',
+            },
+            '&.Mui-focused': {
+              boxShadow: `0 0 0 4px ${alpha(mode === 'dark' ? '#818cf8' : '#4f46e5', 0.12)}`,
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: mode === 'dark' ? '#818cf8' : '#4f46e5',
+              borderWidth: 1,
+            },
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+        },
+      },
+    },
+    MuiAlert: {
       styleOverrides: {
         root: {
           borderRadius: 12,
@@ -79,18 +148,29 @@ const getDesignTokens = (mode) => ({
 
 // Custom Stepper Component
 const CustomStepper = ({ activeStep, steps, darkMode, isMobile }) => (
-  <Stepper 
+  <Stepper
     activeStep={activeStep} 
     sx={{ 
-      mb: 4,
+      mb: 3,
+      px: { xs: 0, md: 1 },
       '& .MuiStepLabel-root .Mui-completed': {
-        color: darkMode ? '#90caf9' : '#1976d2',
+        color: darkMode ? '#a5b4fc' : '#4f46e5',
       },
       '& .MuiStepLabel-root .Mui-active': {
-        color: darkMode ? '#90caf9' : '#1976d2',
+        color: darkMode ? '#a5b4fc' : '#4f46e5',
+      },
+      '& .MuiStepLabel-label': {
+        fontWeight: 700,
+        color: 'text.secondary',
+      },
+      '& .MuiStepLabel-label.Mui-active': {
+        color: 'text.primary',
       },
       '& .MuiStepLabel-root .MuiStepIcon-text': {
         fill: darkMode ? '#121212' : '#ffffff',
+      },
+      '& .MuiStepConnector-line': {
+        borderColor: 'divider',
       },
     }}
     orientation={isMobile ? "vertical" : "horizontal"}
@@ -117,12 +197,12 @@ const StepNavigation = ({
   isSmallMobile,
   onSaveDraft
 }) => (
-  <Box sx={{ 
+  <Box sx={{
     display: 'flex', 
     justifyContent: 'space-between', 
     alignItems: 'center',
-    mt: 4,
-    pt: 2,
+    mt: 3,
+    pt: 2.5,
     borderTop: '1px solid',
     borderColor: 'divider',
     flexDirection: isMobile ? 'column' : 'row',
@@ -151,16 +231,9 @@ const StepNavigation = ({
           variant="outlined"
           onClick={onSaveDraft}
           disabled={isSubmitting}
+          startIcon={<Save />}
           size={isSmallMobile ? "small" : "medium"}
           fullWidth={isMobile}
-          sx={{
-            borderColor: 'success.main',
-            color: 'success.main',
-            '&:hover': {
-              backgroundColor: 'success.main',
-              color: 'white',
-            },
-          }}
         >
           Save Draft
         </Button>
@@ -174,12 +247,6 @@ const StepNavigation = ({
           endIcon={isSubmitting ? <CircularProgress size={16} /> : <CheckCircle />}
           size={isSmallMobile ? "small" : "medium"}
           fullWidth={isMobile}
-          sx={{
-            background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #1565c0 30%, #1e88e5 90%)',
-            },
-          }}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Application'}
         </Button>
@@ -190,12 +257,6 @@ const StepNavigation = ({
           endIcon={<KeyboardArrowRight />}
           size={isSmallMobile ? "small" : "medium"}
           fullWidth={isMobile}
-          sx={{
-            background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #1565c0 30%, #1e88e5 90%)',
-            },
-          }}
         >
           Next
         </Button>
@@ -307,7 +368,6 @@ const HiringForm = ({ darkMode = false }) => {
   const [formData, setFormData] = useState(() => {
     try {
       const savedData = localStorage.getItem(STORAGE_KEYS.FORM_DATA);
-      const savedStep = localStorage.getItem(STORAGE_KEYS.CURRENT_STEP);
       
       if (savedData) {
         const parsedData = JSON.parse(savedData);
@@ -333,6 +393,7 @@ const HiringForm = ({ darkMode = false }) => {
     } catch (error) {
       console.error('Error loading saved step:', error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Check for unsaved data on component mount
@@ -360,6 +421,7 @@ const HiringForm = ({ darkMode = false }) => {
     'Documents & Additional',
     'Review & Submit'
   ];
+  const progressValue = Math.round((activeStep + 1) / steps.length * 100);
 
   const checkForSavedData = () => {
     try {
@@ -686,7 +748,6 @@ const HiringForm = ({ darkMode = false }) => {
 
   const handleSubmit = async () => {
     // Validate all steps before submission
-    let hasErrors = false;
     const allErrors = {};
 
     for (let step = 0; step < steps.length; step++) {
@@ -727,7 +788,7 @@ const HiringForm = ({ darkMode = false }) => {
         setHasUnsavedData(false);
       }, 2000);
       
-    } catch (error) {
+    } catch {
       setSnackbar({
         open: true,
         message: 'Submission failed. Please check your connection and try again.',
@@ -785,32 +846,93 @@ const HiringForm = ({ darkMode = false }) => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: darkMode ? '#121212' : '#f5f5f5',
-          py: 3
+          background: darkMode
+            ? 'radial-gradient(circle at top right, rgba(129, 140, 248, 0.14), transparent 28rem), #0b1020'
+            : 'radial-gradient(circle at top right, rgba(79, 70, 229, 0.10), transparent 30rem), linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+          py: { xs: 2, md: 3 }
         }}
       >
-        <Container maxWidth="lg">
-          <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 1, sm: 3 } }}>
+        <Container maxWidth="xl">
+          <Box sx={{ maxWidth: 1240, mx: 'auto', px: { xs: 0.5, sm: 2 } }}>
 
             {/* Header with draft indicator */}
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
+            <Box
+              sx={{
+                mb: 2.5,
+                p: { xs: 2, md: 3 },
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                bgcolor: (theme) => alpha(theme.palette.background.paper, darkMode ? 0.86 : 0.98),
+                boxShadow: darkMode ? '0 20px 56px rgba(0,0,0,0.28)' : '0 20px 56px rgba(15,23,42,0.08)',
+                textAlign: 'left',
+              }}
+            >
               <Fade in={true} timeout={800}>
-                <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2.5, flexDirection: { xs: 'column', md: 'row' } }}>
+                  <Box sx={{ display: 'flex', gap: 1.75, alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        width: 46,
+                        height: 46,
+                        borderRadius: 1.5,
+                        display: 'grid',
+                        placeItems: 'center',
+                        color: 'primary.main',
+                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                        flexShrink: 0,
+                      }}
+                    >
+                      <BusinessCenter />
+                    </Box>
+                    <Box>
                   <Typography
-                    variant="h3"
                     component="h1"
-                    gutterBottom
                     sx={{
-                      fontWeight: 'bold',
-                      fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' },
-                      background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-                      backgroundClip: 'text',
-                      WebkitBackgroundClip: 'text',
-                      color: 'transparent',
+                      fontSize: { xs: '1.5rem', md: '2rem' },
+                      fontWeight: 800,
+                      lineHeight: 1.15,
+                      color: 'text.primary',
                     }}
                   >
                  Hiring Form
                   </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, maxWidth: 680 }}>
+                    Complete a structured candidate profile for review. Draft progress is saved automatically as you work.
+                  </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      minWidth: { md: 230 },
+                      p: 1.5,
+                      borderRadius: 1.5,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: (theme) => alpha(theme.palette.background.default, darkMode ? 0.48 : 0.72),
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                        APPLICATION PROGRESS
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                        {progressValue}%
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <CircularProgress variant="determinate" value={progressValue} size={38} thickness={5} />
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                          Step {activeStep + 1} of {steps.length}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {hasUnsavedData ? 'Draft saved' : 'Ready to start'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
                   
                   {/* {hasUnsavedData && (
                     <Fade in={hasUnsavedData}>
@@ -832,38 +954,21 @@ const HiringForm = ({ darkMode = false }) => {
                   )} */}
                 </Box>
               </Fade>
-              
-              <Fade in={true} timeout={1000}>
-                <Typography variant="h5" sx={{
-                  color: 'text.primary',
-                  mb: 2,
-                  fontWeight: '300',
-                  fontSize: { xs: '1.2rem', sm: '1.5rem' }
-                }}>
-                  Join Our Innovative Team
-                </Typography>
-              </Fade>
-              <Fade in={true} timeout={1200}>
-                <Typography variant="body1" sx={{
-                  color: 'text.secondary',
-                  maxWidth: 600,
-                  mx: 'auto'
-                }}>
-                  Complete all sections carefully. All fields marked with * are required. 
-                  Your progress is automatically saved.
-                </Typography>
-              </Fade>
             </Box>
 
             {/* Stepper and Form Content */}
             <Fade in={true} timeout={1500}>
-              <Card sx={{
-                mb: 4,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                background: darkMode ? '#1e1e1e' : 'white',
-                border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0,0,0,0.1)',
-                overflow: 'visible'
-              }}>
+              <Card
+                elevation={0}
+                sx={{
+                  mb: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  boxShadow: darkMode ? '0 18px 48px rgba(0,0,0,0.24)' : '0 18px 48px rgba(15,23,42,0.07)',
+                  background: 'background.paper',
+                  overflow: 'visible'
+                }}
+              >
                 <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative' }}>
                   
                   {/* Validation Error Alert */}
@@ -876,6 +981,28 @@ const HiringForm = ({ darkMode = false }) => {
                       Please fix {Object.keys(errors).length} validation error(s) before proceeding
                     </Alert>
                   )}
+
+                  <Box
+                    sx={{
+                      mb: 2.5,
+                      pb: 2,
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.25,
+                    }}
+                  >
+                    <Description color="primary" />
+                    <Box>
+                      <Typography sx={{ fontWeight: 800 }}>
+                        {steps[activeStep]}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Section {activeStep + 1} of {steps.length}
+                      </Typography>
+                    </Box>
+                  </Box>
 
                   <CustomStepper
                     activeStep={activeStep}
@@ -934,6 +1061,15 @@ const HiringForm = ({ darkMode = false }) => {
           open={showRestoreDialog}
           onClose={() => setShowRestoreDialog(false)}
           aria-labelledby="restore-dialog-title"
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+            },
+          }}
         >
           <DialogTitle id="restore-dialog-title">
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

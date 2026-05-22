@@ -28,7 +28,6 @@ const ProjectsEducation = ({
   addArrayItem,
   removeArrayItem,
   darkMode = false,
-  isMobile = false,
   isSmallMobile = false
 }) => {
   return (
@@ -71,17 +70,17 @@ const ProjectsEducation = ({
           {formData.projects.map((project, index) => (
             <Zoom in={true} timeout={500} key={index}>
               <Paper sx={{
-                p: 2,
+                p: { xs: 2, md: 2.5 },
                 mb: 2,
-                border: '2px solid',
-                borderColor: 'secondary.light',
-                background: darkMode
-                  ? 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)'
-                  : 'linear-gradient(135deg, #fff8e1 0%, #f3e5f5 100%)'
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+                boxShadow: darkMode ? '0 10px 28px rgba(0,0,0,0.20)' : '0 10px 28px rgba(15,23,42,0.05)'
               }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                  <Typography variant="subtitle1" color="secondary" fontWeight="bold">
-                    🚀 Project #{index + 1}
+                  <Typography variant="subtitle1" color="secondary" fontWeight={800}>
+                    Project #{index + 1}
                   </Typography>
                   {formData.projects.length > 1 && (
                     <Tooltip title="Remove this project">
@@ -103,6 +102,8 @@ const ProjectsEducation = ({
                       label="Project Name"
                       value={project.projectName}
                       onChange={(e) => handleNestedArrayChange('projects', index, 'projectName', e.target.value)}
+                      error={!!errors[`projects_${index}_projectName`]}
+                      helperText={errors[`projects_${index}_projectName`]}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="e.g., E-commerce Platform, Mobile App, Data Analysis Tool"
@@ -117,6 +118,8 @@ const ProjectsEducation = ({
                       label="Project Description"
                       value={project.description}
                       onChange={(e) => handleNestedArrayChange('projects', index, 'description', e.target.value)}
+                      error={!!errors[`projects_${index}_description`]}
+                      helperText={errors[`projects_${index}_description`]}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="Describe the project, its purpose, target audience, and key features..."
@@ -129,6 +132,8 @@ const ProjectsEducation = ({
                       label="Your Role & Responsibilities"
                       value={project.role}
                       onChange={(e) => handleNestedArrayChange('projects', index, 'role', e.target.value)}
+                      error={!!errors[`projects_${index}_role`]}
+                      helperText={errors[`projects_${index}_role`]}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="e.g., Frontend Developer, Project Lead, Full-stack Developer"
@@ -167,8 +172,8 @@ const ProjectsEducation = ({
                       label="Project Link (URL)"
                       value={project.projectLink}
                       onChange={(e) => handleNestedArrayChange('projects', index, 'projectLink', e.target.value)}
-                      error={!!errors[`project_${index}_link`]}
-                      helperText={errors[`project_${index}_link`] || "Optional - Must be a valid URL if provided"}
+                      error={!!errors[`projects_${index}_projectLink`]}
+                      helperText={errors[`projects_${index}_projectLink`] || "Optional - Must be a valid URL if provided"}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="https://github.com/yourusername/project or https://yourproject.com"
@@ -220,17 +225,17 @@ const ProjectsEducation = ({
           {formData.education.map((edu, index) => (
             <Zoom in={true} timeout={500} key={index}>
               <Paper sx={{
-                p: 2,
+                p: { xs: 2, md: 2.5 },
                 mb: 2,
-                border: '2px solid',
-                borderColor: 'info.light',
-                background: darkMode
-                  ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-                  : 'linear-gradient(135deg, #e1f5fe 0%, #e8eaf6 100%)'
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+                boxShadow: darkMode ? '0 10px 28px rgba(0,0,0,0.20)' : '0 10px 28px rgba(15,23,42,0.05)'
               }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                  <Typography variant="subtitle1" color="info.main" fontWeight="bold">
-                    🎓 Education #{index + 1}
+                  <Typography variant="subtitle1" color="info.main" fontWeight={800}>
+                    Education #{index + 1}
                   </Typography>
                   {formData.education.length > 1 && (
                     <Tooltip title="Remove this education">
@@ -307,6 +312,8 @@ const ProjectsEducation = ({
                       type="number"
                       value={edu.startYear}
                       onChange={(e) => handleNestedArrayChange('education', index, 'startYear', e.target.value)}
+                      error={!!errors[`education_${index}_startYear`]}
+                      helperText={errors[`education_${index}_startYear`]}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="YYYY"
@@ -321,6 +328,8 @@ const ProjectsEducation = ({
                       type="number"
                       value={edu.endYear}
                       onChange={(e) => handleNestedArrayChange('education', index, 'endYear', e.target.value)}
+                      error={!!errors[`education_${index}_endYear`]}
+                      helperText={errors[`education_${index}_endYear`]}
                       variant="outlined"
                       size={isSmallMobile ? "small" : "medium"}
                       placeholder="YYYY"

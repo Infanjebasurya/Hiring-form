@@ -43,8 +43,6 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  CardActionArea,
-  Badge,
   Fab,
 } from '@mui/material';
 import {
@@ -65,7 +63,6 @@ import {
   Refresh as RefreshIcon,
   Work as WorkIcon,
   Sort as SortIcon,
-  Menu as MenuIcon,
   Close as CloseIcon,
   Group as GroupIcon,
   Person as PersonIcon,
@@ -209,11 +206,26 @@ const jobInterviewsApi = {
   },
 };
 
-const JobInterviews = ({ darkMode }) => {
+const JobInterviews = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+  const isDarkMode = theme.palette.mode === 'dark';
+  const corporateBorder = `1px solid ${theme.palette.divider}`;
+  const corporateShadow = isDarkMode
+    ? '0 16px 40px rgba(0,0,0,0.26)'
+    : '0 16px 40px rgba(15,23,42,0.07)';
+  const headerCellBg = isDarkMode ? theme.palette.grey[900] : theme.palette.grey[50];
+  const subtleHoverBg = isDarkMode ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.025);
+  const iconButtonSx = {
+    border: corporateBorder,
+    bgcolor: 'background.paper',
+    color: 'text.secondary',
+    '&:hover': {
+      bgcolor: subtleHoverBg,
+      color: 'text.primary',
+    },
+  };
   
   // State for data
   const [jobInterviews, setJobInterviews] = useState([]);
@@ -513,23 +525,27 @@ const JobInterviews = ({ darkMode }) => {
 
   const StatusChip = ({ status }) => {
     const statusConfig = {
-      'Done': { color: 'success', icon: <CheckCircleIcon fontSize="small" /> },
-      'In progress': { color: 'primary', icon: <InProgressIcon fontSize="small" /> },
-      'Pending': { color: 'warning', icon: <PendingIcon fontSize="small" /> },
+      'Done': { color: theme.palette.success.main, icon: <CheckCircleIcon fontSize="small" /> },
+      'In progress': { color: theme.palette.info.main, icon: <InProgressIcon fontSize="small" /> },
+      'Pending': { color: theme.palette.warning.dark, icon: <PendingIcon fontSize="small" /> },
     };
 
-    const config = statusConfig[status] || { color: 'default', icon: null };
+    const config = statusConfig[status] || { color: theme.palette.text.secondary, icon: null };
 
     return (
       <Chip
         icon={config.icon}
         label={status}
-        color={config.color}
         size="small"
+        variant="outlined"
         sx={{
           fontWeight: 600,
+          minWidth: 96,
+          borderColor: alpha(config.color, isDarkMode ? 0.45 : 0.38),
+          color: config.color,
+          bgcolor: alpha(config.color, isDarkMode ? 0.12 : 0.07),
           '& .MuiChip-icon': {
-            color: 'inherit',
+            color: config.color,
           },
         }}
       />
@@ -545,11 +561,13 @@ const JobInterviews = ({ darkMode }) => {
         icon={<PersonIcon fontSize="small" />}
         label={hasSelfAssigned ? "Self" : "Others"}
         size="small"
-        color={hasSelfAssigned ? "primary" : "default"}
         variant="outlined"
         sx={{
           fontWeight: 600,
           fontSize: '0.75rem',
+          color: 'text.primary',
+          borderColor: 'divider',
+          bgcolor: alpha(theme.palette.text.primary, isDarkMode ? 0.08 : 0.04),
           '& .MuiChip-icon': {
             color: 'inherit',
             marginLeft: '4px',
@@ -565,7 +583,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Total Interviews', 
       value: statistics.totalInterviews.toString(), 
       subLabel: `${statistics.averageRounds} avg rounds`,
-      color: theme.palette.mode === 'dark' ? '#667eea' : '#667eea', 
+      color: theme.palette.text.primary,
       progress: 100,
       icon: <WorkIcon />,
     },
@@ -573,7 +591,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Self Assigned', 
       value: statistics.selfAssigned.toString(), 
       subLabel: `${((statistics.selfAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100).toFixed(1)}% of total`,
-      color: theme.palette.mode === 'dark' ? '#4caf50' : '#4caf50', 
+      color: theme.palette.success.main,
       progress: statistics.selfAssigned + statistics.othersAssigned > 0 ? 
         (statistics.selfAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100 : 0,
       icon: <PersonIcon />,
@@ -582,7 +600,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Others Assigned', 
       value: statistics.othersAssigned.toString(), 
       subLabel: `${statistics.totalCandidates} candidates`,
-      color: theme.palette.mode === 'dark' ? '#2196f3' : '#2196f3', 
+      color: theme.palette.info.main,
       progress: statistics.selfAssigned + statistics.othersAssigned > 0 ? 
         (statistics.othersAssigned / (statistics.selfAssigned + statistics.othersAssigned)) * 100 : 0,
       icon: <GroupIcon />,
@@ -591,7 +609,7 @@ const JobInterviews = ({ darkMode }) => {
       label: 'Pending', 
       value: statistics.pending.toString(), 
       subLabel: 'Awaiting action',
-      color: theme.palette.mode === 'dark' ? '#ff9800' : '#ff9800', 
+      color: theme.palette.warning.dark,
       progress: statistics.totalInterviews > 0 ? (statistics.pending / statistics.totalInterviews) * 100 : 0,
       icon: <PendingIcon />,
     },
@@ -622,9 +640,8 @@ const JobInterviews = ({ darkMode }) => {
           sx={{ 
             bgcolor: 'background.paper',
             borderRadius: 2,
-            boxShadow: theme.palette.mode === 'dark' 
-              ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
-              : '0 2px 8px rgba(0, 0, 0, 0.08)',
+            border: corporateBorder,
+            boxShadow: corporateShadow,
           }}
         >
           <CardContent>
@@ -720,10 +737,7 @@ const JobInterviews = ({ darkMode }) => {
                         state: { editData: row } 
                       });
                     }}
-                    sx={{ 
-                      color: 'warning.main',
-                      bgcolor: alpha(theme.palette.warning.main, 0.1),
-                    }}
+                    sx={iconButtonSx}
                   >
                     <EditIcon fontSize="small" />
                   </IconButton>
@@ -736,10 +750,7 @@ const JobInterviews = ({ darkMode }) => {
                       setSelectedRow(row);
                       setDeleteDialogOpen(true);
                     }}
-                    sx={{ 
-                      color: 'error.main',
-                      bgcolor: alpha(theme.palette.error.main, 0.1),
-                    }}
+                    sx={iconButtonSx}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
@@ -787,11 +798,9 @@ const JobInterviews = ({ darkMode }) => {
       bgcolor: theme.palette.background.default,
       minHeight: '100vh',
       '& .job-interview-card': {
-        borderRadius: 4,
-        border: `1px solid ${theme.palette.divider}`,
-        boxShadow: theme.palette.mode === 'dark'
-          ? '0 18px 48px rgba(0,0,0,0.24)'
-          : '0 18px 48px rgba(15,23,42,0.08)',
+        borderRadius: 2,
+        border: corporateBorder,
+        boxShadow: corporateShadow,
       },
     }}>
       {/* Header - Simplified */}
@@ -803,18 +812,15 @@ const JobInterviews = ({ darkMode }) => {
           overflow: 'hidden',
           position: 'relative',
           bgcolor: 'background.paper',
-          background: theme.palette.mode === 'dark'
-            ? 'linear-gradient(135deg, rgba(99,102,241,0.18), rgba(15,23,42,0.78))'
-            : 'linear-gradient(135deg, rgba(99,102,241,0.10), rgba(255,255,255,0.92))',
+          background: 'none',
           '&::after': {
             content: '""',
             position: 'absolute',
-            right: -40,
-            top: -40,
-            width: 160,
-            height: 160,
-            borderRadius: '50%',
-            background: alpha(theme.palette.primary.main, 0.12),
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 4,
+            background: theme.palette.text.primary,
             pointerEvents: 'none',
           },
         }}
@@ -868,10 +874,8 @@ const JobInterviews = ({ darkMode }) => {
                     pointerEvents: 'none',
                   },
                   '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: theme.palette.mode === 'dark'
-                      ? '0 24px 60px rgba(0,0,0,0.34)'
-                      : '0 24px 60px rgba(15,23,42,0.12)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: corporateShadow,
                   }
                 }}
               >
@@ -894,8 +898,9 @@ const JobInterviews = ({ darkMode }) => {
                       sx={{
                         width: 40,
                         height: 40,
-                        borderRadius: '12px',
-                        bgcolor: alpha(stat.color, 0.1),
+                        borderRadius: 1.5,
+                        bgcolor: alpha(theme.palette.text.primary, isDarkMode ? 0.08 : 0.05),
+                        border: corporateBorder,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -911,7 +916,7 @@ const JobInterviews = ({ darkMode }) => {
                     sx={{
                       height: 6,
                       borderRadius: 3,
-                      bgcolor: alpha(theme.palette.mode === 'dark' ? '#fff' : '#000', 0.1),
+                      bgcolor: alpha(theme.palette.text.primary, 0.1),
                       '& .MuiLinearProgress-bar': {
                         bgcolor: stat.color,
                         borderRadius: 3,
@@ -936,11 +941,9 @@ const JobInterviews = ({ darkMode }) => {
           mb: 3,
           p: { xs: 2, sm: 3 },
           bgcolor: 'background.paper',
-          borderRadius: 4,
-          border: `1px solid ${theme.palette.divider}`,
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 18px 48px rgba(0,0,0,0.20)' 
-            : '0 18px 48px rgba(15,23,42,0.07)',
+          borderRadius: 2,
+          border: corporateBorder,
+          boxShadow: corporateShadow,
         }}
       >
         {/* Left side: Search and Filter */}
@@ -962,9 +965,9 @@ const JobInterviews = ({ darkMode }) => {
               width: { xs: '100%', sm: 300 },
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                bgcolor: 'background.paper',
                 '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4',
+                  bgcolor: subtleHoverBg,
                 }
               },
             }}
@@ -984,11 +987,11 @@ const JobInterviews = ({ darkMode }) => {
               borderRadius: 2,
               px: 2,
               py: 1,
-              border: `1px solid ${theme.palette.divider}`,
+              border: corporateBorder,
               bgcolor: 'background.paper',
               color: 'text.primary',
               '&:hover': {
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                bgcolor: subtleHoverBg,
               }
             }}
           >
@@ -1030,10 +1033,10 @@ const JobInterviews = ({ darkMode }) => {
                 px: 2,
                 py: 1,
                 bgcolor: 'background.paper',
-                border: `1px solid ${theme.palette.divider}`,
+                border: corporateBorder,
                 color: 'text.primary',
                 '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                  bgcolor: subtleHoverBg,
                 }
               }}
             >
@@ -1053,7 +1056,7 @@ const JobInterviews = ({ darkMode }) => {
                 color: 'text.primary',
                 fontWeight: 500,
                 '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                  bgcolor: subtleHoverBg,
                   borderColor: theme.palette.divider,
                 }
               }}
@@ -1069,15 +1072,11 @@ const JobInterviews = ({ darkMode }) => {
                 borderRadius: 2,
                 px: 3,
                 py: 1,
-                background: theme.palette.mode === 'dark'
-                  ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                bgcolor: 'primary.main',
                 fontWeight: 600,
                 '&:hover': {
-                  background: theme.palette.mode === 'dark'
-                    ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)'
-                    : 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                  bgcolor: 'primary.dark',
+                  boxShadow: 'none',
                 },
               }}
             >
@@ -1103,7 +1102,7 @@ const JobInterviews = ({ darkMode }) => {
                 sx={{
                   color: 'text.primary',
                   bgcolor: 'background.paper',
-                  border: `1px solid ${theme.palette.divider}`,
+                  border: corporateBorder,
                 }}
               >
                 <RefreshIcon />
@@ -1117,7 +1116,7 @@ const JobInterviews = ({ darkMode }) => {
                 sx={{
                   color: 'text.primary',
                   bgcolor: 'background.paper',
-                  border: `1px solid ${theme.palette.divider}`,
+                  border: corporateBorder,
                 }}
               >
                 <DownloadIcon />
@@ -1129,13 +1128,9 @@ const JobInterviews = ({ darkMode }) => {
                 onClick={handleNewJob}
                 sx={{
                   color: 'white',
-                  bgcolor: theme.palette.mode === 'dark'
-                    ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  bgcolor: 'primary.main',
                   '&:hover': {
-                    bgcolor: theme.palette.mode === 'dark'
-                      ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)'
-                      : 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                    bgcolor: 'primary.dark',
                   }
                 }}
               >
@@ -1331,9 +1326,8 @@ const JobInterviews = ({ darkMode }) => {
               borderRadius: 2,
               minWidth: 280,
               bgcolor: 'background.paper',
-              boxShadow: theme.palette.mode === 'dark'
-                ? '0 8px 32px rgba(0,0,0,0.4)'
-                : '0 8px 32px rgba(0,0,0,0.15)',
+              border: corporateBorder,
+              boxShadow: corporateShadow,
             }
           }}
         >
@@ -1455,7 +1449,7 @@ const JobInterviews = ({ darkMode }) => {
                 color: 'text.secondary',
                 '&:hover': {
                   color: 'text.primary',
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                  bgcolor: subtleHoverBg,
                 }
               }}
             >
@@ -1471,11 +1465,9 @@ const JobInterviews = ({ darkMode }) => {
           width: '100%',
           overflow: 'hidden',
           bgcolor: 'background.paper',
-          borderRadius: 4,
-          border: `1px solid ${theme.palette.divider}`,
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 20px 54px rgba(0,0,0,0.24)' 
-            : '0 20px 54px rgba(15,23,42,0.08)',
+          borderRadius: 2,
+          border: corporateBorder,
+          boxShadow: corporateShadow,
           minHeight: 400,
           position: 'relative',
           mb: 4,
@@ -1492,17 +1484,37 @@ const JobInterviews = ({ darkMode }) => {
                 <MobileCardView />
               </Box>
             ) : (
-              <TableContainer sx={{ maxHeight: 620, '& .MuiTableCell-root': { whiteSpace: 'nowrap' } }}>
+              <TableContainer
+                sx={{
+                  maxHeight: 620,
+                  bgcolor: 'background.paper',
+                  '& .MuiTableCell-root': { whiteSpace: 'nowrap' },
+                  '& .MuiTableCell-head': {
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 3,
+                    bgcolor: headerCellBg,
+                    color: 'text.secondary',
+                    borderBottom: corporateBorder,
+                    fontSize: '0.72rem',
+                    letterSpacing: 0,
+                    textTransform: 'uppercase',
+                  },
+                  '& .MuiTableCell-body': {
+                    bgcolor: 'background.paper',
+                    borderBottom: corporateBorder,
+                  },
+                }}
+              >
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
                       <TableCell 
                         sx={{ 
                           fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                           cursor: 'pointer',
                           '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            bgcolor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[100],
                           }
                         }}
                         onClick={() => handleSort('jobId')}
@@ -1512,16 +1524,15 @@ const JobInterviews = ({ darkMode }) => {
                           <SortIndicator field="jobId" />
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>
                         JD Link
                       </TableCell>
                       <TableCell 
                         sx={{ 
                           fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                           cursor: 'pointer',
                           '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            bgcolor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[100],
                           }
                         }}
                         onClick={() => handleSort('rounds')}
@@ -1531,16 +1542,15 @@ const JobInterviews = ({ darkMode }) => {
                           <SortIndicator field="rounds" />
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>
                         Self/Others
                       </TableCell>
                       <TableCell 
                         sx={{ 
                           fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                           cursor: 'pointer',
                           '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            bgcolor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[100],
                           }
                         }}
                         onClick={() => handleSort('status')}
@@ -1553,10 +1563,9 @@ const JobInterviews = ({ darkMode }) => {
                       <TableCell 
                         sx={{ 
                           fontWeight: 600, 
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc',
                           cursor: 'pointer',
                           '&:hover': { 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f3f4' 
+                            bgcolor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[100],
                           }
                         }}
                         onClick={() => handleSort('candidates')}
@@ -1566,10 +1575,10 @@ const JobInterviews = ({ darkMode }) => {
                           <SortIndicator field="candidates" />
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>
                         ACTIONS
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8fafc' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>
                         TEAM
                       </TableCell>
                     </TableRow>
@@ -1582,7 +1591,9 @@ const JobInterviews = ({ darkMode }) => {
                           hover
                           sx={{
                             '&:hover': {
-                              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                              '& .MuiTableCell-body': {
+                                bgcolor: subtleHoverBg,
+                              },
                             },
                             '&:last-child td': {
                               borderBottom: 0,
@@ -1655,10 +1666,11 @@ const JobInterviews = ({ darkMode }) => {
                                     borderRadius: 1,
                                     textTransform: 'none',
                                     fontWeight: 600,
-                                    color: 'primary.main',
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                    color: 'text.primary',
+                                    border: corporateBorder,
+                                    bgcolor: 'background.paper',
                                     '&:hover': {
-                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                      bgcolor: subtleHoverBg,
                                     }
                                   }}
                                 >
@@ -1672,13 +1684,7 @@ const JobInterviews = ({ darkMode }) => {
                               <Tooltip title="View Details">
                                 <IconButton 
                                   size="small" 
-                                  sx={{ 
-                                    color: 'primary.main',
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                    '&:hover': {
-                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
-                                    }
-                                  }}
+                                  sx={iconButtonSx}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedRow(row);
@@ -1691,13 +1697,7 @@ const JobInterviews = ({ darkMode }) => {
                               <Tooltip title="Edit">
                                 <IconButton 
                                   size="small" 
-                                  sx={{ 
-                                    color: 'warning.main',
-                                    bgcolor: alpha(theme.palette.warning.main, 0.1),
-                                    '&:hover': {
-                                      bgcolor: alpha(theme.palette.warning.main, 0.2),
-                                    }
-                                  }}
+                                  sx={iconButtonSx}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedRow(row);
@@ -1712,13 +1712,7 @@ const JobInterviews = ({ darkMode }) => {
                               <Tooltip title="Delete">
                                 <IconButton 
                                   size="small" 
-                                  sx={{ 
-                                    color: 'error.main',
-                                    bgcolor: alpha(theme.palette.error.main, 0.1),
-                                    '&:hover': {
-                                      bgcolor: alpha(theme.palette.error.main, 0.2),
-                                    }
-                                  }}
+                                  sx={iconButtonSx}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedRow(row);
@@ -1740,13 +1734,9 @@ const JobInterviews = ({ darkMode }) => {
                                     height: 28,
                                     fontSize: '0.75rem',
                                     fontWeight: 600,
-                                    bgcolor: theme.palette.primary.main,
-                                    '&:first-of-type': {
-                                      bgcolor: theme.palette.success.main,
-                                    },
-                                    '&:nth-of-type(2)': {
-                                      bgcolor: theme.palette.info.main,
-                                    },
+                                    bgcolor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[200],
+                                    color: 'text.primary',
+                                    border: corporateBorder,
                                   }}
                                 >
                                   {initial}
@@ -1781,9 +1771,10 @@ const JobInterviews = ({ darkMode }) => {
                                 borderRadius: 2,
                                 px: 3,
                                 py: 1,
-                                background: theme.palette.mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6366F1 0%, #4f46e5 100%)'
-                                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                bgcolor: 'primary.main',
+                                '&:hover': {
+                                  bgcolor: 'primary.dark',
+                                },
                               }}
                             >
                               Create New Job Interview
@@ -1843,9 +1834,9 @@ const JobInterviews = ({ darkMode }) => {
             position: 'fixed',
             bottom: 80,
             right: 16,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            bgcolor: 'primary.main',
             '&:hover': {
-              background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+              bgcolor: 'primary.dark',
             },
           }}
         >
@@ -1863,9 +1854,8 @@ const JobInterviews = ({ darkMode }) => {
             borderRadius: 2,
             minWidth: 180,
             bgcolor: 'background.paper',
-            boxShadow: theme.palette.mode === 'dark'
-              ? '0 8px 32px rgba(0,0,0,0.4)'
-              : '0 4px 20px rgba(0,0,0,0.15)',
+            border: corporateBorder,
+            boxShadow: corporateShadow,
           }
         }}
       >
@@ -1877,11 +1867,11 @@ const JobInterviews = ({ darkMode }) => {
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+              bgcolor: subtleHoverBg,
             }
           }}
         >
-          <ViewIcon fontSize="small" sx={{ mr: 2, color: 'primary.main' }} />
+          <ViewIcon fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
           View Details
         </MenuItem>
         <MenuItem 
@@ -1892,11 +1882,11 @@ const JobInterviews = ({ darkMode }) => {
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+              bgcolor: subtleHoverBg,
             }
           }}
         >
-          <EditIcon fontSize="small" sx={{ mr: 2, color: 'warning.main' }} />
+          <EditIcon fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
           Edit Job
         </MenuItem>
         <MenuItem 
@@ -1907,11 +1897,11 @@ const JobInterviews = ({ darkMode }) => {
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+              bgcolor: subtleHoverBg,
             }
           }}
         >
-          <GroupIcon fontSize="small" sx={{ mr: 2, color: 'info.main' }} />
+          <GroupIcon fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
           View Candidates
         </MenuItem>
         <MenuItem 
@@ -1922,11 +1912,11 @@ const JobInterviews = ({ darkMode }) => {
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+              bgcolor: subtleHoverBg,
             }
           }}
         >
-          <PersonAddIcon fontSize="small" sx={{ mr: 2, color: 'info.main' }} />
+          <PersonAddIcon fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
           Add Candidate
         </MenuItem>
         <MenuItem 
@@ -1947,11 +1937,11 @@ const JobInterviews = ({ darkMode }) => {
             my: 0.5,
             color: 'text.primary',
             '&:hover': {
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+              bgcolor: subtleHoverBg,
             }
           }}
         >
-          <ShareIcon fontSize="small" sx={{ mr: 2, color: 'success.main' }} />
+          <ShareIcon fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
           Share Link
         </MenuItem>
         <Divider sx={{ my: 1, borderColor: theme.palette.divider }} />
@@ -1976,29 +1966,31 @@ const JobInterviews = ({ darkMode }) => {
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDeleteCancel}
+        maxWidth="xs"
+        fullWidth
         PaperProps={{
           sx: {
             borderRadius: 2,
             bgcolor: 'background.paper',
-            boxShadow: theme.palette.mode === 'dark'
-              ? '0 8px 32px rgba(0,0,0,0.4)'
-              : '0 8px 32px rgba(0,0,0,0.15)',
-            minWidth: isMobile ? '90%' : 400,
-            mx: isMobile ? 2 : 0,
+            border: corporateBorder,
+            boxShadow: corporateShadow,
+            maxWidth: 440,
+            mx: isMobile ? 2 : 'auto',
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600, pb: 1, color: 'text.primary' }}>
+        <DialogTitle sx={{ fontWeight: 700, pb: 1, color: 'text.primary', fontSize: '1.15rem' }}>
           Delete Job Interview
         </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+        <DialogContent sx={{ pt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
             <Box
               sx={{
-                width: 48,
-                height: 48,
-                borderRadius: '12px',
+                width: 42,
+                height: 42,
+                borderRadius: 1.5,
                 bgcolor: alpha(theme.palette.error.main, 0.1),
+                border: `1px solid ${alpha(theme.palette.error.main, 0.24)}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -2016,10 +2008,18 @@ const JobInterviews = ({ darkMode }) => {
               </Typography>
             </Box>
           </Box>
-          <Typography variant="body1" color="text.primary" paragraph>
+          <Typography variant="body2" color="text.secondary">
             Are you sure you want to delete this job interview? This action cannot be undone.
           </Typography>
-          <Alert severity="warning" sx={{ mt: 2 }}>
+          <Alert
+            severity="warning"
+            sx={{
+              mt: 2,
+              borderRadius: 1.5,
+              border: `1px solid ${alpha(theme.palette.warning.main, 0.25)}`,
+              bgcolor: alpha(theme.palette.warning.main, isDarkMode ? 0.12 : 0.08),
+            }}
+          >
             All associated data including interview rounds will be permanently deleted.
           </Alert>
         </DialogContent>
@@ -2031,11 +2031,11 @@ const JobInterviews = ({ darkMode }) => {
               px: 3,
               py: 1,
               bgcolor: 'background.paper',
-              border: `1px solid ${theme.palette.divider}`,
+              border: corporateBorder,
               color: 'text.primary',
               fontWeight: 500,
               '&:hover': {
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f8f9fa',
+                bgcolor: subtleHoverBg,
               }
             }}
           >
@@ -2073,9 +2073,8 @@ const JobInterviews = ({ darkMode }) => {
           sx={{ 
             width: '100%',
             borderRadius: 2,
-            boxShadow: theme.palette.mode === 'dark'
-              ? '0 4px 20px rgba(0,0,0,0.4)'
-              : '0 4px 12px rgba(0,0,0,0.15)',
+            border: corporateBorder,
+            boxShadow: corporateShadow,
             bgcolor: 'background.paper',
             color: 'text.primary',
           }}

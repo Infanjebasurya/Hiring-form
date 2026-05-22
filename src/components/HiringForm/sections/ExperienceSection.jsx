@@ -36,7 +36,6 @@ const ExperienceSection = ({
   addArrayItem,
   removeArrayItem,
   darkMode = false,
-  isMobile = false,
   isSmallMobile = false
 }) => {
   const skillCategories = [
@@ -93,8 +92,8 @@ const ExperienceSection = ({
         p: 2,
         mb: 2,
         border: '1px solid',
-        borderColor: 'secondary.light',
-        background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)'
+        borderColor: 'divider',
+        background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff'
       }}>
         <Grid container spacing={2} alignItems="end">
           <Grid item xs={12} sm={4}>
@@ -223,19 +222,18 @@ const ExperienceSection = ({
       {formData.experiences.map((exp, index) => (
         <Zoom in={true} timeout={500} key={index}>
           <Paper sx={{
-            p: 3,
+            p: { xs: 2, md: 3 },
             mb: 3,
-            border: '2px solid',
-            borderColor: 'primary.light',
-            background: darkMode
-              ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-              : 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
-            boxShadow: darkMode ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 2,
+            background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+            boxShadow: darkMode ? '0 12px 32px rgba(0,0,0,0.22)' : '0 12px 32px rgba(15,23,42,0.06)'
           }}>
             {/* Experience Header */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 3 }}>
-              <Typography variant="h6" color="primary" fontWeight="bold">
-                🏢 Experience #{index + 1}
+              <Typography variant="h6" color="primary" fontWeight={800}>
+                Experience #{index + 1}
               </Typography>
               {formData.experiences.length > 1 && (
                 <Tooltip title="Remove this experience">
@@ -258,8 +256,8 @@ const ExperienceSection = ({
                   label="Job Title"
                   value={exp.jobTitle || ''}
                   onChange={(e) => handleExperienceChange(index, 'jobTitle', e.target.value)}
-                  error={!!errors[`experience_${index}_jobTitle`]}
-                  helperText={errors[`experience_${index}_jobTitle`]}
+                  error={!!errors[`experiences_${index}_jobTitle`]}
+                  helperText={errors[`experiences_${index}_jobTitle`]}
                   placeholder="e.g., Senior Software Engineer"
                   size={isSmallMobile ? "small" : "medium"}
                   darkMode={darkMode}
@@ -272,8 +270,8 @@ const ExperienceSection = ({
                   label="Company Name"
                   value={exp.company || ''}
                   onChange={(e) => handleExperienceChange(index, 'company', e.target.value)}
-                  error={!!errors[`experience_${index}_company`]}
-                  helperText={errors[`experience_${index}_company`]}
+                  error={!!errors[`experiences_${index}_company`]}
+                  helperText={errors[`experiences_${index}_company`]}
                   placeholder="e.g., Google Inc."
                   size={isSmallMobile ? "small" : "medium"}
                   darkMode={darkMode}
@@ -289,8 +287,8 @@ const ExperienceSection = ({
                   onChange={(e) =>
                     handleExperienceChange(index, 'startDate', e.target.value)
                   }
-                  error={!!errors[`experience_${index}_startDate`]}
-                  helperText={errors[`experience_${index}_startDate`]}
+                  error={!!errors[`experiences_${index}_startDate`]}
+                  helperText={errors[`experiences_${index}_startDate`]}
                   size={isSmallMobile ? 'small' : 'medium'}
                   darkMode={darkMode}
                   InputLabelProps={{ shrink: true }}
@@ -326,6 +324,8 @@ const ExperienceSection = ({
                   value={exp.endDate || ''}
                   onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)}
                   disabled={exp.currentlyWorking}
+                  error={!!errors[`experiences_${index}_endDate`]}
+                  helperText={errors[`experiences_${index}_endDate`]}
                   size={isSmallMobile ? 'small' : 'medium'}
                   darkMode={darkMode}
                   InputLabelProps={{ shrink: true }}
@@ -404,6 +404,8 @@ const ExperienceSection = ({
                     label="Responsibilities & Duties"
                     value={exp.responsibilities || ''}
                     onChange={(e) => handleExperienceChange(index, 'responsibilities', e.target.value)}
+                    error={!!errors[`experiences_${index}_responsibilities`]}
+                    helperText={errors[`experiences_${index}_responsibilities`]}
                     multiline
                     rows={4}
                     placeholder="Describe your main responsibilities and daily tasks..."

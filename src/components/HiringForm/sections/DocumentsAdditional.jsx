@@ -106,10 +106,10 @@ const DocumentsAdditional = ({
           <Paper sx={{
             p: 2,
             mb: 2,
-            background: darkMode
-              ? 'linear-gradient(135deg, #1b5e20 0%, #33691e 100%)'
-              : 'linear-gradient(135deg, #e8f5e8 0%, #f0f4c3 100%)',
-            border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+            background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 2,
           }}>
             <Grid container spacing={2} alignItems="end">
               <Grid item xs={12} sm={5}>
@@ -182,10 +182,10 @@ const DocumentsAdditional = ({
           <Paper sx={{
             p: 2,
             mb: 2,
-            background: darkMode
-              ? 'linear-gradient(135deg, #5d4037 0%, #4e342e 100%)'
-              : 'linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%)',
-            border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+            background: darkMode ? 'rgba(15, 23, 42, 0.64)' : '#ffffff',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 2,
           }}>
             <Grid container spacing={2} alignItems="end">
               <Grid item xs={12} sm={9}>

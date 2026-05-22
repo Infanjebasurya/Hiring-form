@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import { Fade } from '@mui/material';
 import { InfoAlert } from '../components/FormComponents';
-import { validateField, formatPhoneNumber, normalizeUrl } from '../utils/validation';
+import { formatPhoneNumber, normalizeUrl } from '../utils/validation';
 
 const PersonalInfo = ({
   formData,
@@ -36,7 +36,6 @@ const PersonalInfo = ({
   handleBlur
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const jobTitles = [
@@ -101,9 +100,7 @@ const PersonalInfo = ({
   };
 
   // Helper function to check if field has requirement error
-  const hasRequirementError = (fieldName) => {
-    return touched[fieldName] && errors[fieldName];
-  };
+  const hasRequirementError = (fieldName) => Boolean(errors[fieldName]);
 
   return (
     <Fade in={true} timeout={500}>
@@ -127,9 +124,9 @@ const PersonalInfo = ({
               value={formData.firstName}
               onChange={(e) => handleFieldChange('firstName', e.target.value)}
               onBlur={() => handleFieldBlur('firstName')}
-              error={!!errors.firstName && touched.firstName}
+              error={!!errors.firstName}
               helperText={
-                touched.firstName && errors.firstName 
+                errors.firstName
                   ? errors.firstName 
                   : getRequirementText('firstName')
               }
@@ -162,9 +159,9 @@ const PersonalInfo = ({
               value={formData.lastName}
               onChange={(e) => handleFieldChange('lastName', e.target.value)}
               onBlur={() => handleFieldBlur('lastName')}
-              error={!!errors.lastName && touched.lastName}
+              error={!!errors.lastName}
               helperText={
-                touched.lastName && errors.lastName 
+                errors.lastName
                   ? errors.lastName 
                   : getRequirementText('lastName')
               }
@@ -194,7 +191,7 @@ const PersonalInfo = ({
             <FormControl
               fullWidth
               required
-              error={!!errors.jobTitle && touched.jobTitle}
+              error={!!errors.jobTitle}
               variant="outlined"
               size={isSmallMobile ? "small" : "medium"}
             >
@@ -300,7 +297,7 @@ const PersonalInfo = ({
                   color: hasRequirementError('jobTitle') ? 'error.main' : 'text.secondary'
                 }}
               >
-                {errors.jobTitle && touched.jobTitle ? errors.jobTitle : getRequirementText('jobTitle')}
+                {errors.jobTitle ? errors.jobTitle : getRequirementText('jobTitle')}
               </FormHelperText>
             </FormControl>
           </Grid>
@@ -316,9 +313,9 @@ const PersonalInfo = ({
               value={formData.email}
               onChange={(e) => handleFieldChange('email', e.target.value)}
               onBlur={() => handleFieldBlur('email')}
-              error={!!errors.email && touched.email}
+              error={!!errors.email}
               helperText={
-                touched.email && errors.email 
+                errors.email
                   ? errors.email 
                   : getRequirementText('email')
               }
@@ -360,9 +357,9 @@ const PersonalInfo = ({
               value={formData.contactNumber}
               onChange={(e) => handleFieldChange('contactNumber', e.target.value)}
               onBlur={() => handleFieldBlur('contactNumber')}
-              error={!!errors.contactNumber && touched.contactNumber}
+              error={!!errors.contactNumber}
               helperText={
-                touched.contactNumber && errors.contactNumber 
+                errors.contactNumber
                   ? errors.contactNumber 
                   : getRequirementText('contactNumber')
               }
@@ -407,9 +404,9 @@ const PersonalInfo = ({
               value={formData.location}
               onChange={(e) => handleFieldChange('location', e.target.value)}
               onBlur={() => handleFieldBlur('location')}
-              error={!!errors.location && touched.location}
+              error={!!errors.location}
               helperText={
-                touched.location && errors.location 
+                errors.location
                   ? errors.location 
                   : getRequirementText('location')
               }
@@ -455,9 +452,9 @@ const PersonalInfo = ({
               value={formData.linkedin}
               onChange={(e) => handleFieldChange('linkedin', e.target.value)}
               onBlur={() => handleFieldBlur('linkedin')}
-              error={!!errors.linkedin && touched.linkedin}
+              error={!!errors.linkedin}
               helperText={
-                touched.linkedin && errors.linkedin 
+                errors.linkedin
                   ? errors.linkedin 
                   : getRequirementText('linkedin')
               }
@@ -499,9 +496,9 @@ const PersonalInfo = ({
               value={formData.portfolio}
               onChange={(e) => handleFieldChange('portfolio', e.target.value)}
               onBlur={() => handleFieldBlur('portfolio')}
-              error={!!errors.portfolio && touched.portfolio}
+              error={!!errors.portfolio}
               helperText={
-                touched.portfolio && errors.portfolio 
+                errors.portfolio
                   ? errors.portfolio 
                   : getRequirementText('portfolio')
               }
@@ -542,9 +539,9 @@ const PersonalInfo = ({
               value={formData.website}
               onChange={(e) => handleFieldChange('website', e.target.value)}
               onBlur={() => handleFieldBlur('website')}
-              error={!!errors.website && touched.website}
+              error={!!errors.website}
               helperText={
-                touched.website && errors.website 
+                errors.website
                   ? errors.website 
                   : getRequirementText('website')
               }

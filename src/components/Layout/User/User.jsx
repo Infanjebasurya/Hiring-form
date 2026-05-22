@@ -1,103 +1,99 @@
-// src/Admin/components/Users/Users.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
+  Avatar,
   Box,
-  Paper,
-  Typography,
   Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Pagination,
+  Paper,
+  Select,
+  Snackbar,
+  Stack,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  IconButton,
-  Chip,
-  useTheme,
-  useMediaQuery,
-  Avatar,
-  Tooltip,
-  Card,
-  CardContent,
-  Snackbar,
-  Alert,
-  CircularProgress,
   TablePagination,
-  Pagination,
-  Stack,
-  Container,
+  TableRow,
   TextField,
-  InputAdornment,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Switch,
-  FormControlLabel
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   Add,
-  Edit,
+  BusinessCenter,
+  Close,
   Delete,
+  Edit,
   Email,
+  Groups,
   Person,
   Search,
-  Close
+  Shield,
+  WorkOutline,
 } from '@mui/icons-material';
 import AddUser from '../Adduser/Adduser';
-import { getUsers, deleteUser, initializeUsers, updateUser } from '../../../services/userService';
+import { deleteUser, getUsers, initializeUsers, updateUser } from '../../../services/userService';
 
 const User = ({ darkMode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [showAddUser, setShowAddUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Edit Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editFormData, setEditFormData] = useState({
     name: '',
     email: '',
     role: '',
-    status: 'active'
+    status: 'active',
   });
 
-  // Delete Confirmation Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
-  // Search State
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     filterUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, searchTerm]);
 
   const loadUsers = () => {
     setLoading(true);
     try {
-      // Initialize with sample data if empty
       initializeUsers();
-
-      const usersData = getUsers();
-      setUsers(usersData);
+      setUsers(getUsers());
     } catch (error) {
       console.error('Error loading users:', error);
       showSnackbar('Error loading users', 'error');
@@ -119,27 +115,26 @@ const User = ({ darkMode }) => {
       user.role.toLowerCase().includes(searchLower)
     );
     setFilteredUsers(filtered);
-    setPage(0); // Reset to first page when searching
+    setPage(0);
   };
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
   };
 
-  const handleAddUser = (newUser) => {
+  const handleAddUser = () => {
     setShowAddUser(false);
     loadUsers();
     showSnackbar('User added successfully!');
   };
 
-  // Edit User Functions
   const handleEditClick = (user) => {
     setEditingUser(user);
     setEditFormData({
       name: user.name,
       email: user.email,
       role: user.role,
-      status: user.status || 'active'
+      status: user.status || 'active',
     });
     setEditModalOpen(true);
   };
@@ -151,17 +146,11 @@ const User = ({ darkMode }) => {
     }
 
     try {
-      // Update user in the service
       updateUser(editingUser.id, editFormData);
-
-      // Update local state
       const updatedUsers = users.map(user =>
-        user.id === editingUser.id
-          ? { ...user, ...editFormData }
-          : user
+        user.id === editingUser.id ? { ...user, ...editFormData } : user
       );
       setUsers(updatedUsers);
-
       setEditModalOpen(false);
       setEditingUser(null);
       showSnackbar('User updated successfully!');
@@ -180,25 +169,18 @@ const User = ({ darkMode }) => {
   const handleEditFormChange = (field, value) => {
     setEditFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  // Toggle User Status
   const handleToggleStatus = (user) => {
     try {
       const newStatus = user.status === 'active' ? 'inactive' : 'active';
       const updatedUser = { ...user, status: newStatus };
-      
-      // Update user in the service
       updateUser(user.id, updatedUser);
 
-      // Update local state
-      const updatedUsers = users.map(u =>
-        u.id === user.id ? updatedUser : u
-      );
+      const updatedUsers = users.map(u => (u.id === user.id ? updatedUser : u));
       setUsers(updatedUsers);
-
       showSnackbar(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`);
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -206,7 +188,6 @@ const User = ({ darkMode }) => {
     }
   };
 
-  // Delete User Functions
   const handleDeleteClick = (user) => {
     setUserToDelete(user);
     setDeleteModalOpen(true);
@@ -220,7 +201,6 @@ const User = ({ darkMode }) => {
       setUsers(users.filter(user => user.id !== userToDelete.id));
       showSnackbar('User deleted successfully!');
 
-      // Adjust page if needed after deletion
       const maxPage = Math.ceil((users.length - 1) / rowsPerPage) - 1;
       if (page > maxPage) {
         setPage(Math.max(0, maxPage));
@@ -239,7 +219,6 @@ const User = ({ darkMode }) => {
     setUserToDelete(null);
   };
 
-  // Search handler
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -248,7 +227,6 @@ const User = ({ darkMode }) => {
     setSearchTerm('');
   };
 
-  // Pagination handlers
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -258,7 +236,6 @@ const User = ({ darkMode }) => {
     setPage(0);
   };
 
-  // Mobile pagination handler
   const handleMobilePageChange = (event, value) => {
     setPage(value - 1);
   };
@@ -293,14 +270,19 @@ const User = ({ darkMode }) => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Calculate paginated users from filtered results
   const displayUsers = searchTerm ? filteredUsers : users;
   const paginatedUsers = displayUsers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
   const totalPages = Math.ceil(displayUsers.length / rowsPerPage);
+  const activeUsers = users.filter(user => (user.status || 'active') === 'active').length;
+  const inactiveUsers = users.length - activeUsers;
+  const hrUsers = users.filter(user => user.role === 'HR').length;
+  const interviewerUsers = users.filter(user => user.role === 'Interviewer').length;
+
+  const surfaceShadow = darkMode ? '0 18px 48px rgba(0,0,0,0.28)' : '0 18px 48px rgba(15,23,42,0.07)';
+  const mutedSurface = alpha(theme.palette.background.default, darkMode ? 0.45 : 0.72);
 
   if (showAddUser) {
     return (
@@ -314,38 +296,36 @@ const User = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <Box sx={{
-        p: isMobile ? 2 : 3,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 400
-      }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          minHeight: 420,
+          display: 'grid',
+          placeItems: 'center',
+        }}
+      >
+        <Stack spacing={2} alignItems="center">
+          <CircularProgress />
+          <Typography variant="body2" color="text.secondary">
+            Loading user directory...
+          </Typography>
+        </Stack>
       </Box>
     );
   }
 
   return (
-    <Box sx={{
-      width: '100%',
-      minHeight: '100vh',
-      bgcolor: 'background.default',
-      overflow: 'auto'
-    }}>
-      {/* Snackbar for notifications */}
+    <Box sx={{ width: '100%', minHeight: '100vh', overflow: 'auto' }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>
       </Snackbar>
 
-      {/* Edit User Modal */}
       <Dialog
         open={editModalOpen}
         onClose={handleEditCancel}
@@ -353,595 +333,416 @@ const User = ({ darkMode }) => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 3,
-            background: theme.palette.background.paper,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
-          }
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: surfaceShadow,
+          },
         }}
       >
-        <DialogTitle sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          py: 3,
-          textAlign: 'center',
-          position: 'relative'
-        }}>
-          <Typography variant="h4" component="h2" sx={{ fontWeight: 700 }}>
-            Edit User
+        <DialogTitle sx={{ px: 3, py: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            Edit user
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Update account details and status.
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ p: 4, mt: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <DialogContent sx={{ p: 3 }}>
+          <Stack spacing={2.5} sx={{ mt: 0.5 }}>
             <TextField
-              label="Full Name"
+              label="Full name"
               value={editFormData.name}
               onChange={(e) => handleEditFormChange('name', e.target.value)}
               fullWidth
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  fontSize: '1.1rem'
-                }
-              }}
-              InputLabelProps={{
-                sx: {
-                  position: 'relative',
-                  transform: 'none',
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                  mb: 1
-                }
-              }}
             />
             <TextField
-              label="Email Address"
+              label="Email address"
               type="email"
               value={editFormData.email}
               onChange={(e) => handleEditFormChange('email', e.target.value)}
               fullWidth
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  fontSize: '1.1rem'
-                }
-              }}
-              InputLabelProps={{
-                sx: {
-                  position: 'relative',
-                  transform: 'none',
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                  mb: 1
-                }
-              }}
             />
-            <FormControl fullWidth variant="outlined">
-              <InputLabel sx={{
-                position: 'relative',
-                transform: 'none',
-                fontSize: '1rem',
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-                mb: 1
-              }}>
-                Role
-              </InputLabel>
+            <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
               <Select
+                label="Role"
                 value={editFormData.role}
                 onChange={(e) => handleEditFormChange('role', e.target.value)}
-                sx={{
-                  borderRadius: 2,
-                  fontSize: '1.1rem'
-                }}
               >
                 <MenuItem value="HR">HR</MenuItem>
                 <MenuItem value="Interviewer">Interviewer</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel sx={{
-                position: 'relative',
-                transform: 'none',
-                fontSize: '1rem',
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-                mb: 1
-              }}>
-                Status
-              </InputLabel>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
               <Select
+                label="Status"
                 value={editFormData.status}
                 onChange={(e) => handleEditFormChange('status', e.target.value)}
-                sx={{
-                  borderRadius: 2,
-                  fontSize: '1.1rem'
-                }}
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
-          </Box>
+          </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 4, gap: 2 }}>
-          <Button
-            onClick={handleEditCancel}
-            variant="outlined"
-            sx={{
-              borderRadius: 2,
-              px: 4,
-              py: 1.5,
-              fontSize: '1rem',
-              fontWeight: 600,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
-              '&:hover': {
-                borderColor: theme.palette.primary.dark,
-                bgcolor: theme.palette.primary.main + '10'
-              }
-            }}
-          >
+        <DialogActions sx={{ px: 3, py: 2.5, borderTop: `1px solid ${theme.palette.divider}`, gap: 1 }}>
+          <Button onClick={handleEditCancel} variant="outlined">
             Cancel
           </Button>
-          <Button
-            onClick={handleEditSave}
-            variant="contained"
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: 2,
-              px: 4,
-              py: 1.5,
-              fontSize: '1rem',
-              fontWeight: 600,
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)'
-              }
-            }}
-          >
-            Save Changes
+          <Button onClick={handleEditSave} variant="contained">
+            Save changes
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
       <Dialog
         open={deleteModalOpen}
         onClose={handleDeleteCancel}
-        maxWidth="xs"
-        fullWidth
+        maxWidth={false}
         PaperProps={{
           sx: {
+            width: { xs: 'calc(100% - 32px)', sm: 420 },
+            maxWidth: 420,
+            m: 2,
             borderRadius: 2,
-            background: theme.palette.background.paper,
-            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-            margin: { xs: 2, sm: 3 },
-            width: { xs: 'calc(100% - 32px)', sm: '400px' }
-          }
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: darkMode ? '0 22px 60px rgba(0,0,0,0.42)' : '0 22px 60px rgba(15,23,42,0.18)',
+          },
         }}
       >
-        <DialogContent sx={{ p: 3, textAlign: 'center' }}>
-          <Delete
+        <DialogContent sx={{ px: 3, pt: 3, pb: 2, textAlign: 'center' }}>
+          <Box
             sx={{
-              fontSize: 48,
-              color: theme.palette.error.main,
-              mb: 2
+              width: 44,
+              height: 44,
+              mx: 'auto',
+              mb: 1.75,
+              borderRadius: 1.5,
+              display: 'grid',
+              placeItems: 'center',
+              color: 'error.main',
+              bgcolor: alpha(theme.palette.error.main, 0.1),
             }}
-          />
-
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Delete User?
+          >
+            <Delete fontSize="small" />
+          </Box>
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75, fontSize: '1.15rem' }}>
+            Delete user?
           </Typography>
-
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 330, mx: 'auto', lineHeight: 1.55 }}>
             Are you sure you want to delete {userToDelete?.name}? This action cannot be undone.
           </Typography>
         </DialogContent>
-
-        <DialogActions sx={{
-          p: 3,
-          gap: 2,
-          justifyContent: 'center'
-        }}>
-          <Button
-            onClick={handleDeleteCancel}
-            variant="outlined"
-            sx={{
-              borderRadius: 1,
-              px: 3,
-              py: 1,
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              borderColor: theme.palette.grey[400],
-              color: theme.palette.text.primary,
-              '&:hover': {
-                borderColor: theme.palette.grey[600],
-                bgcolor: theme.palette.action.hover,
-              },
-              minWidth: '100px'
-            }}
-          >
+        <DialogActions sx={{ px: 3, pb: 3, pt: 0.5, gap: 1, justifyContent: 'center' }}>
+          <Button onClick={handleDeleteCancel} variant="outlined" sx={{ minWidth: 96, borderRadius: 1.5 }}>
             Cancel
           </Button>
-
           <Button
             onClick={handleDeleteConfirm}
             variant="contained"
-            sx={{
-              background: theme.palette.error.main,
-              borderRadius: 1,
-              px: 3,
-              py: 1,
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              boxShadow: 'none',
-              '&:hover': {
-                background: theme.palette.error.dark,
-                boxShadow: 'none',
-              },
-              minWidth: '100px'
-            }}
+            color="error"
+            sx={{ minWidth: 96, borderRadius: 1.5, boxShadow: 'none' }}
           >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Container maxWidth="xl" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-        {/* Header Section */}
-        <Box sx={{
-          mb: 4,
-          width: '100%'
-        }}>
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: { xs: 2, sm: 3 },
-            width: '100%'
-          }}>
-            {/* Title Section */}
-            <Box sx={{
-              flex: 1,
-              minWidth: 0,
-              textAlign: { xs: 'center', sm: 'left' }
-            }}>
-              <Typography
-                variant={isMobile ? "h4" : "h3"}
-                component="h1"
+      <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2.5, md: 3 } }}>
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 2.5,
+            p: { xs: 2, md: 3 },
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            bgcolor: alpha(theme.palette.background.paper, darkMode ? 0.82 : 0.98),
+            boxShadow: surfaceShadow,
+          }}
+        >
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2.5}
+            alignItems={{ xs: 'stretch', md: 'flex-start' }}
+            justifyContent="space-between"
+          >
+            <Stack direction="row" spacing={1.75} alignItems="flex-start">
+              <Box
                 sx={{
-                  fontWeight: 700,
-                  color: theme.palette.text.primary,
-                  mb: 1,
-                  background: darkMode
-                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' }
+                  width: 46,
+                  height: 46,
+                  borderRadius: 1.5,
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  flexShrink: 0,
                 }}
               >
-                User Management
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  fontWeight: 400,
-                  fontSize: { xs: '0.9rem', sm: '1rem' }
-                }}
-              >
-                {displayUsers.length} user{displayUsers.length !== 1 ? 's' : ''} total • Page {page + 1} of {totalPages}
-                {searchTerm && ` • ${filteredUsers.length} result${filteredUsers.length !== 1 ? 's' : ''} found`}
-              </Typography>
-            </Box>
+                <BusinessCenter />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  component="h1"
+                  sx={{
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                    fontWeight: 800,
+                    lineHeight: 1.15,
+                    color: 'text.primary',
+                  }}
+                >
+                  User Management
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, maxWidth: 680 }}>
+                  Manage HR and interviewer access with a clear view of user status, ownership, and account roles.
+                </Typography>
+              </Box>
+            </Stack>
 
-            {/* Add User Button */}
             <Button
               variant="contained"
               startIcon={<Add />}
               onClick={() => setShowAddUser(true)}
               sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: 2,
-                px: { xs: 4, sm: 5 },
-                py: { xs: 1.5, sm: 1.75 },
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                fontWeight: 600,
-                minWidth: { xs: '100%', sm: 'auto' },
-                flexShrink: 0,
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                  boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-                  transform: 'translateY(-2px)'
-                },
-                transition: 'all 0.3s ease'
+                alignSelf: { xs: 'stretch', md: 'flex-start' },
+                borderRadius: 1.5,
+                minHeight: 42,
+                px: 2.5,
+                boxShadow: 'none',
               }}
             >
               Add User
             </Button>
-          </Box>
+          </Stack>
 
-          {/* Search Bar */}
-          <Box sx={{
-            mt: 4,
-            width: '100%',
-            maxWidth: { xs: '100%', sm: 400, md: 500 }
-          }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(5, minmax(0, 1fr))' },
+              gap: 1.5,
+              mt: 3,
+            }}
+          >
+            {[
+              { label: 'Total users', value: users.length, icon: Groups },
+              { label: 'Active', value: activeUsers, icon: Shield },
+              { label: 'Inactive', value: inactiveUsers, icon: Person },
+              { label: 'HR users', value: hrUsers, icon: WorkOutline },
+              { label: 'Interviewers', value: interviewerUsers, icon: BusinessCenter },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Box
+                  key={item.label}
+                  sx={{
+                    p: 1.75,
+                    borderRadius: 1.5,
+                    border: `1px solid ${theme.palette.divider}`,
+                    bgcolor: mutedSurface,
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Icon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800 }}>
+                      {item.label}
+                    </Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 0.75, fontSize: { xs: '1.35rem', md: '1.55rem' }, fontWeight: 800 }}>
+                    {item.value}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        </Paper>
+
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 2.5,
+            p: { xs: 1.5, md: 2 },
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            bgcolor: theme.palette.background.paper,
+          }}
+        >
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={1.5}
+            alignItems={{ xs: 'stretch', md: 'center' }}
+            justifyContent="space-between"
+          >
             <TextField
               fullWidth
               variant="outlined"
-              placeholder="Search users by name, email, or role..."
+              placeholder="Search by name, email, or role"
               value={searchTerm}
               onChange={handleSearchChange}
+              sx={{ maxWidth: { md: 520 } }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search sx={{ color: theme.palette.text.secondary }} />
+                    <Search sx={{ color: 'text.secondary' }} />
                   </InputAdornment>
                 ),
                 endAdornment: searchTerm && (
                   <InputAdornment position="end">
-                    <IconButton
-                      size="small"
-                      onClick={clearSearch}
-                      sx={{ color: theme.palette.text.secondary }}
-                    >
-                      <Close />
+                    <IconButton size="small" onClick={clearSearch} aria-label="Clear search">
+                      <Close fontSize="small" />
                     </IconButton>
                   </InputAdornment>
                 ),
-                sx: {
-                  borderRadius: 3,
-                  fontSize: '1rem',
-                  bgcolor: theme.palette.background.paper,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  '&:hover': {
-                    boxShadow: '0 6px 25px rgba(0,0,0,0.12)'
-                  }
-                }
               }}
             />
-          </Box>
-        </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap', px: { md: 1 } }}>
+              Showing {displayUsers.length} user{displayUsers.length !== 1 ? 's' : ''} | Page {page + 1} of {Math.max(totalPages, 1)}
+            </Typography>
+          </Stack>
+        </Paper>
 
-        {/* Users Table/Cards */}
-        {isMobile ? (
-          // Mobile View - Cards
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 3,
-            width: '100%',
-            maxWidth: '100%'
-          }}>
+        {displayUsers.length === 0 ? (
+          <Paper
+            elevation={0}
+            sx={{
+              textAlign: 'center',
+              py: { xs: 6, md: 8 },
+              px: 3,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: theme.palette.background.paper,
+            }}
+          >
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                mx: 'auto',
+                mb: 2,
+                borderRadius: 2,
+                display: 'grid',
+                placeItems: 'center',
+                color: 'primary.main',
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+              }}
+            >
+              <Person sx={{ fontSize: 38 }} />
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
+              No users found
+            </Typography>
+            <Typography color="text.secondary" sx={{ maxWidth: 480, mx: 'auto', mb: 3 }}>
+              {searchTerm
+                ? `No users match "${searchTerm}". Try a different search term.`
+                : 'Start by adding HR users and interviewers to your workspace.'}
+            </Typography>
+            {searchTerm ? (
+              <Button variant="outlined" onClick={clearSearch}>
+                Clear search
+              </Button>
+            ) : (
+              <Button variant="contained" startIcon={<Add />} onClick={() => setShowAddUser(true)}>
+                Add first user
+              </Button>
+            )}
+          </Paper>
+        ) : isMobile ? (
+          <Stack spacing={1.5}>
             {paginatedUsers.map((user) => (
               <Card
                 key={user.id}
+                elevation={0}
                 sx={{
-                  bgcolor: theme.palette.background.paper,
+                  borderRadius: 2,
                   border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: 3,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  width: '100%',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                    transform: 'translateY(-2px)'
-                  }
+                  bgcolor: theme.palette.background.paper,
                 }}
               >
-                <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
+                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
                     <Avatar
                       sx={{
-                        bgcolor: theme.palette.primary.main,
-                        width: 50,
-                        height: 50,
-                        mr: 3,
-                        fontSize: '1rem',
-                        flexShrink: 0,
-                        fontWeight: 600
+                        width: 44,
+                        height: 44,
+                        bgcolor: alpha(theme.palette.primary.main, 0.12),
+                        color: 'primary.main',
+                        fontWeight: 800,
                       }}
                     >
                       {getInitials(user.name)}
                     </Avatar>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 600,
-                          mb: 1,
-                          wordWrap: 'break-word',
-                          fontSize: '1.1rem'
-                        }}
-                      >
+                      <Typography sx={{ fontWeight: 800, overflowWrap: 'anywhere' }}>
                         {user.name}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Email sx={{
-                          fontSize: 18,
-                          mr: 1,
-                          color: theme.palette.text.secondary,
-                          flexShrink: 0
-                        }} />
-                        <Typography
-                          variant="body1"
-                          color="textSecondary"
-                          sx={{
-                            wordWrap: 'break-word',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            fontSize: '0.95rem'
-                          }}
-                        >
-                          {user.email}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                        <Chip
-                          label={user.role}
-                          color={getRoleColor(user.role)}
-                          size="medium"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.85rem',
-                            height: '28px'
-                          }}
-                        />
-                        <Chip
-                          label={user.status || 'active'}
-                          color={getStatusColor(user.status || 'active')}
-                          size="medium"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.85rem',
-                            height: '28px'
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    pt: 2
-                  }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ mr: 2, fontWeight: 500 }}>
-                        Status:
+                      <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere', mt: 0.25 }}>
+                        {user.email}
                       </Typography>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={(user.status || 'active') === 'active'}
-                            onChange={() => handleToggleStatus(user)}
-                            color="success"
-                            size="small"
-                          />
-                        }
-                        label={user.status === 'active' ? 'Active' : 'Inactive'}
-                        sx={{ m: 0 }}
-                      />
+                      <Stack direction="row" spacing={1} sx={{ mt: 1.5, flexWrap: 'wrap', rowGap: 1 }}>
+                        <Chip label={user.role} color={getRoleColor(user.role)} size="small" variant="outlined" />
+                        <Chip label={user.status || 'active'} color={getStatusColor(user.status || 'active')} size="small" />
+                      </Stack>
                     </Box>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                  </Stack>
+
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mt: 2,
+                      pt: 1.5,
+                      borderTop: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={(user.status || 'active') === 'active'}
+                          onChange={() => handleToggleStatus(user)}
+                          color="success"
+                          size="small"
+                        />
+                      }
+                      label={(user.status || 'active') === 'active' ? 'Active' : 'Inactive'}
+                      sx={{ m: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem', fontWeight: 700 } }}
+                    />
+                    <Stack direction="row" spacing={0.75}>
                       <Tooltip title="Edit User">
-                        <IconButton
-                          size="medium"
-                          onClick={() => handleEditClick(user)}
-                          sx={{
-                            color: theme.palette.primary.main,
-                            bgcolor: theme.palette.primary.main + '15',
-                            '&:hover': {
-                              bgcolor: theme.palette.primary.main + '30',
-                            }
-                          }}
-                        >
+                        <IconButton size="small" onClick={() => handleEditClick(user)} color="primary">
                           <Edit fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete User">
-                        <IconButton
-                          size="medium"
-                          onClick={() => handleDeleteClick(user)}
-                          sx={{
-                            color: theme.palette.error.main,
-                            bgcolor: theme.palette.error.main + '15',
-                            '&:hover': {
-                              bgcolor: theme.palette.error.main + '30',
-                            }
-                          }}
-                        >
+                        <IconButton size="small" onClick={() => handleDeleteClick(user)} color="error">
                           <Delete fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                    </Box>
+                    </Stack>
                   </Box>
                 </CardContent>
               </Card>
             ))}
-          </Box>
+          </Stack>
         ) : (
-          // Desktop View - Table
           <Paper
+            elevation={0}
             sx={{
-              background: theme.palette.background.paper,
-              border: `1px solid ${theme.palette.divider}`,
-              borderRadius: 3,
+              borderRadius: 2,
               overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-              width: '100%',
-              maxWidth: '100%'
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: theme.palette.background.paper,
             }}
           >
             <TableContainer>
-              <Table sx={{
-                minWidth: 800
-              }}>
+              <Table sx={{ minWidth: 820 }}>
                 <TableHead>
-                  <TableRow sx={{
-                    background: darkMode
-                      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)'
-                      : 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)'
-                  }}>
-                    <TableCell sx={{
-                      fontWeight: 700,
-                      color: theme.palette.text.primary,
-                      py: 3,
-                      fontSize: '1.1rem',
-                      borderBottom: `2px solid ${theme.palette.primary.main}`
-                    }}>
-                      User
-                    </TableCell>
-                    <TableCell sx={{
-                      fontWeight: 700,
-                      color: theme.palette.text.primary,
-                      py: 3,
-                      fontSize: '1.1rem',
-                      borderBottom: `2px solid ${theme.palette.primary.main}`
-                    }}>
-                      Email
-                    </TableCell>
-                    <TableCell sx={{
-                      fontWeight: 700,
-                      color: theme.palette.text.primary,
-                      py: 3,
-                      fontSize: '1.1rem',
-                      borderBottom: `2px solid ${theme.palette.primary.main}`
-                    }}>
-                      Role
-                    </TableCell>
-                    <TableCell sx={{
-                      fontWeight: 700,
-                      color: theme.palette.text.primary,
-                      py: 3,
-                      fontSize: '1.1rem',
-                      borderBottom: `2px solid ${theme.palette.primary.main}`
-                    }}>
-                      Status
-                    </TableCell>
-                    <TableCell sx={{
-                      fontWeight: 700,
-                      color: theme.palette.text.primary,
-                      py: 3,
-                      fontSize: '1.1rem',
-                      textAlign: 'center',
-                      borderBottom: `2px solid ${theme.palette.primary.main}`
-                    }}>
-                      Actions
-                    </TableCell>
+                  <TableRow>
+                    <TableCell>User</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="center">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -949,121 +750,69 @@ const User = ({ darkMode }) => {
                     <TableRow
                       key={user.id}
                       sx={{
+                        '&:last-child td': { borderBottom: 0 },
                         '&:hover': {
-                          background: theme.palette.action.hover
+                          bgcolor: alpha(theme.palette.primary.main, darkMode ? 0.08 : 0.035),
                         },
-                        transition: 'background-color 0.2s ease'
                       }}
                     >
-                      <TableCell sx={{ py: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <TableCell sx={{ py: 2 }}>
+                        <Stack direction="row" spacing={1.5} alignItems="center">
                           <Avatar
                             sx={{
-                              bgcolor: theme.palette.primary.main,
-                              width: 50,
-                              height: 50,
-                              mr: 3,
-                              fontSize: '1.1rem',
-                              fontWeight: 600
+                              width: 40,
+                              height: 40,
+                              bgcolor: alpha(theme.palette.primary.main, 0.12),
+                              color: 'primary.main',
+                              fontSize: '0.9rem',
+                              fontWeight: 800,
                             }}
                           >
                             {getInitials(user.name)}
                           </Avatar>
-                          <Typography variant="body1" sx={{ fontWeight: 600, fontSize: '1.05rem' }}>
-                            {user.name}
-                          </Typography>
-                        </Box>
+                          <Box>
+                            <Typography sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                              {user.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              ID: {user.id}
+                            </Typography>
+                          </Box>
+                        </Stack>
                       </TableCell>
-                      <TableCell sx={{ py: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Email sx={{
-                            fontSize: 22,
-                            mr: 2,
-                            color: theme.palette.text.secondary
-                          }} />
-                          <Typography variant="body1" sx={{ fontSize: '1.05rem' }}>
-                            {user.email}
-                          </Typography>
-                        </Box>
+                      <TableCell sx={{ py: 2 }}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Email sx={{ fontSize: 18, color: 'text.secondary' }} />
+                          <Typography variant="body2">{user.email}</Typography>
+                        </Stack>
                       </TableCell>
-                      <TableCell sx={{ py: 3 }}>
-                        <Chip
-                          label={user.role}
-                          color={getRoleColor(user.role)}
-                          size="medium"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            height: '32px',
-                            minWidth: '100px'
-                          }}
-                        />
+                      <TableCell sx={{ py: 2 }}>
+                        <Chip label={user.role} color={getRoleColor(user.role)} size="small" variant="outlined" />
                       </TableCell>
-                      <TableCell sx={{ py: 3 }}>
-                        <Chip
-                          label={user.status || 'active'}
-                          color={getStatusColor(user.status || 'active')}
-                          size="medium"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            height: '32px',
-                            minWidth: '100px'
-                          }}
-                        />
+                      <TableCell sx={{ py: 2 }}>
+                        <Chip label={user.status || 'active'} color={getStatusColor(user.status || 'active')} size="small" />
                       </TableCell>
-                      <TableCell sx={{ py: 3 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
+                      <TableCell align="center" sx={{ py: 2 }}>
+                        <Stack direction="row" spacing={0.75} justifyContent="center" alignItems="center">
                           <Tooltip title="Edit User">
-                            <IconButton
-                              size="medium"
-                              onClick={() => handleEditClick(user)}
-                              sx={{
-                                color: theme.palette.primary.main,
-                                bgcolor: theme.palette.primary.main + '15',
-                                '&:hover': {
-                                  bgcolor: theme.palette.primary.main + '30',
-                                }
-                              }}
-                            >
-                              <Edit />
+                            <IconButton size="small" onClick={() => handleEditClick(user)} color="primary">
+                              <Edit fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title={user.status === 'active' ? 'Deactivate User' : 'Activate User'}>
-                            <IconButton
-                              size="medium"
-                              onClick={() => handleToggleStatus(user)}
-                              sx={{
-                                color: user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main,
-                                bgcolor: (user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main) + '15',
-                                '&:hover': {
-                                  bgcolor: (user.status === 'active' ? theme.palette.warning.main : theme.palette.success.main) + '30',
-                                }
-                              }}
-                            >
-                              {user.status === 'active' ? (
-                                <Box component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>●</Box>
-                              ) : (
-                                <Box component="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>○</Box>
-                              )}
-                            </IconButton>
+                          <Tooltip title={(user.status || 'active') === 'active' ? 'Deactivate User' : 'Activate User'}>
+                            <Switch
+                              checked={(user.status || 'active') === 'active'}
+                              onChange={() => handleToggleStatus(user)}
+                              color="success"
+                              size="small"
+                            />
                           </Tooltip>
                           <Tooltip title="Delete User">
-                            <IconButton
-                              size="medium"
-                              onClick={() => handleDeleteClick(user)}
-                              sx={{
-                                color: theme.palette.error.main,
-                                bgcolor: theme.palette.error.main + '15',
-                                '&:hover': {
-                                  bgcolor: theme.palette.error.main + '30',
-                                }
-                              }}
-                            >
-                              <Delete />
+                            <IconButton size="small" onClick={() => handleDeleteClick(user)} color="error">
+                              <Delete fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                        </Box>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1071,7 +820,6 @@ const User = ({ darkMode }) => {
               </Table>
             </TableContainer>
 
-            {/* Desktop Pagination */}
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 50]}
               component="div"
@@ -1083,116 +831,27 @@ const User = ({ darkMode }) => {
               sx={{
                 borderTop: `1px solid ${theme.palette.divider}`,
                 '& .MuiTablePagination-toolbar': {
-                  padding: 3,
-                  fontSize: '1rem'
-                }
+                  px: 2,
+                },
               }}
             />
           </Paper>
         )}
 
-        {/* Mobile Pagination */}
         {isMobile && displayUsers.length > 0 && (
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            mt: 4,
-            width: '100%'
-          }}>
-            <Stack spacing={2} sx={{ width: '100%', alignItems: 'center' }}>
-              <Pagination
-                count={totalPages}
-                page={page + 1}
-                onChange={handleMobilePageChange}
-                color="primary"
-                size={isMobile ? "medium" : "large"}
-                showFirstButton
-                showLastButton
-              />
-              <Typography variant="body1" color="textSecondary" textAlign="center" sx={{ fontWeight: 500 }}>
-                Showing {paginatedUsers.length} of {displayUsers.length} users
-                {searchTerm && ` (${filteredUsers.length} found)`}
-              </Typography>
-            </Stack>
-          </Box>
-        )}
-
-        {/* Empty State */}
-        {displayUsers.length === 0 && (
-          <Card
-            sx={{
-              textAlign: 'center',
-              py: 10,
-              bgcolor: theme.palette.background.paper,
-              border: `1px solid ${theme.palette.divider}`,
-              borderRadius: 3,
-              width: '100%',
-              maxWidth: '100%',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.08)'
-            }}
-          >
-            <CardContent>
-              <Person sx={{
-                fontSize: 100,
-                color: theme.palette.primary.main,
-                mb: 4,
-                opacity: 0.7
-              }} />
-              <Typography variant="h3" color="textPrimary" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
-                {searchTerm ? 'No Users Found' : 'No Users Found'}
-              </Typography>
-              <Typography variant="h6" color="textSecondary" sx={{ mb: 5, opacity: 0.8, maxWidth: 500, mx: 'auto' }}>
-                {searchTerm
-                  ? `No users found for "${searchTerm}". Try searching with different terms.`
-                  : 'Get started by adding your first user to the system. Users can be HR managers or Interviewers.'
-                }
-              </Typography>
-              {searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={clearSearch}
-                  sx={{
-                    borderRadius: 2,
-                    px: 6,
-                    py: 2,
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.dark,
-                      bgcolor: theme.palette.primary.main + '10'
-                    }
-                  }}
-                >
-                  Clear Search
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={() => setShowAddUser(true)}
-                  sx={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    borderRadius: 2,
-                    px: 6,
-                    py: 2,
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-                      transform: 'translateY(-2px)'
-                    },
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  Add First User
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <Stack spacing={1.5} sx={{ alignItems: 'center', mt: 2.5 }}>
+            <Pagination
+              count={Math.max(totalPages, 1)}
+              page={page + 1}
+              onChange={handleMobilePageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+            />
+            <Typography variant="body2" color="text.secondary" textAlign="center">
+              Showing {paginatedUsers.length} of {displayUsers.length} users
+            </Typography>
+          </Stack>
         )}
       </Container>
     </Box>

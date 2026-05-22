@@ -12,8 +12,10 @@ import {
   MenuItem,
   Avatar,
   Typography,
-  Badge
+  Badge,
+  useTheme
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -54,6 +56,7 @@ const Sidebar = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
 
   // const handleToggleSection = (sectionId) => {
   //   setOpenSections(prev => ({
@@ -136,7 +139,30 @@ const Sidebar = ({
       width: '100%',
       margin: 0,
       padding: 0,
-      bgcolor: darkMode ? 'grey.900' : 'grey.100' // Slightly darker background for both modes
+      bgcolor: darkMode ? '#0f172a' : '#ffffff',
+      borderRight: '1px solid',
+      borderColor: 'divider',
+      backgroundImage: darkMode
+        ? 'linear-gradient(180deg, rgba(129, 140, 248, 0.12), rgba(15, 23, 42, 0) 220px)'
+        : 'linear-gradient(180deg, rgba(79, 70, 229, 0.08), rgba(255, 255, 255, 0) 220px)',
+      '& .MuiMenuItem-root': {
+        borderRadius: 2,
+        minHeight: 44,
+        mx: 0,
+        my: 0.35,
+        fontWeight: 700,
+        border: '1px solid transparent',
+        '& .MuiListItemIcon-root': {
+          minWidth: 40,
+        },
+      },
+      '& .MuiMenuItem-root:hover': {
+        transform: 'translateX(2px)',
+        borderColor: alpha(theme.palette.primary.main, 0.14),
+      },
+      '& .MuiIconButton-root': {
+        borderRadius: 2,
+      },
     }}>
       <SidebarHeader
         darkMode={darkMode}
@@ -154,6 +180,7 @@ const Sidebar = ({
         width: '100%',
         margin: 0,
         gap: 2,
+        px: 0.5,
       }}>
 
         {/* New Chat Button with Search Icon */}
@@ -178,6 +205,7 @@ const Sidebar = ({
                   alignItems: 'center',
                   justifyContent: 'flex-start',
                   bgcolor: 'primary.main',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                   color: 'primary.contrastText',
                   borderRadius: 2,
                   py: 1.2,
@@ -196,7 +224,7 @@ const Sidebar = ({
                   '&:hover': {
                     bgcolor: 'primary.dark',
                     transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
                   },
                   transition: 'all 0.2s ease-in-out',
                 }}
@@ -212,6 +240,7 @@ const Sidebar = ({
                     width: '100%',
                     height: 44,
                     bgcolor: 'primary.main',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                     color: 'primary.contrastText',
                     borderRadius: 2,
                     margin: 0,
@@ -242,6 +271,7 @@ const Sidebar = ({
                   alignItems: 'center',
                   justifyContent: 'flex-start',
                   bgcolor: 'primary.main',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                   color: 'primary.contrastText',
                   borderRadius: 2,
                   py: 1.2,
@@ -843,6 +873,7 @@ const Sidebar = ({
                   height: 44,
                   mb: 1,
                   bgcolor: 'secondary.main',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: 'secondary.contrastText',
                   borderRadius: 2,
                   margin: 0,
@@ -1111,7 +1142,7 @@ const Sidebar = ({
   if (isMobile) {
     return (
       <>
-        <SwipeableDrawer
+          <SwipeableDrawer
           sx={{
             '& .MuiDrawer-paper': {
               width: 280,
@@ -1120,7 +1151,8 @@ const Sidebar = ({
               backgroundImage: 'none',
               overflow: 'hidden',
               margin: 0,
-              bgcolor: darkMode ? 'grey.900' : 'grey.100' // Slightly darker background for mobile too
+              bgcolor: darkMode ? '#0f172a' : '#ffffff',
+              boxShadow: '24px 0 60px rgba(15, 23, 42, 0.22)',
             },
           }}
           variant="temporary"
@@ -1149,7 +1181,9 @@ const Sidebar = ({
             onClick={onToggleSidebar}
             sx={{
               bgcolor: 'background.paper',
-              boxShadow: 2,
+              boxShadow: '0 12px 28px rgba(15, 23, 42, 0.16)',
+              border: '1px solid',
+              borderColor: 'divider',
               outline: 'none',
               '&:focus': {
                 outline: 'none',
@@ -1190,8 +1224,10 @@ const Sidebar = ({
           padding: 0,
           borderRight: '0px solid transparent !important',
           outline: 'none !important',
-          boxShadow: 'none !important',
-          bgcolor: darkMode ? 'grey.900' : 'grey.100', // Slightly darker background
+          bgcolor: darkMode ? '#0f172a' : '#ffffff',
+          boxShadow: darkMode
+            ? '12px 0 32px rgba(0, 0, 0, 0.28) !important'
+            : '12px 0 32px rgba(15, 23, 42, 0.06) !important',
           '&::-webkit-scrollbar': {
             width: '4px',
           },

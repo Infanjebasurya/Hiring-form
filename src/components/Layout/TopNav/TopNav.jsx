@@ -12,8 +12,11 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Tooltip,
+  useTheme
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   Notifications as NotificationsIcon,
   Person as PersonIcon,
@@ -28,6 +31,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const theme = useTheme();
   
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notificationAnchorEl, setNotificationAnchorEl] = React.useState(null);
@@ -100,11 +104,15 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
         position="static" 
         elevation={0}
         sx={{ 
-          bgcolor: 'background.paper',
+          bgcolor: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.82 : 0.88),
+          backdropFilter: 'blur(18px)',
           borderBottom: '1px solid',
           borderColor: 'divider',
-          height: { xs: 56, md: 64 },
+          height: { xs: 60, md: 72 },
           width: '100%',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 14px 34px rgba(0, 0, 0, 0.18)'
+            : '0 14px 34px rgba(15, 23, 42, 0.06)',
           '@media (min-width: 769px)': {
             width: isSidebarCollapsed ? 'calc(100vw - 80px)' : 'calc(100vw - 280px)',
             marginLeft: 'auto'
@@ -117,8 +125,8 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
       >
         <Toolbar sx={{ 
           justifyContent: { xs: 'center', md: 'space-between' },
-          px: { xs: 2, md: 3 },
-          minHeight: { xs: '56px !important', md: '64px !important' },
+          px: { xs: 2, md: 3, lg: 4 },
+          minHeight: { xs: '60px !important', md: '72px !important' },
           width: '100%',
           position: 'relative',
           '@media (max-width: 768px)': {
@@ -134,7 +142,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
             sx={{ 
               color: 'text.primary',
               fontWeight: 600,
-              fontSize: { xs: '1.1rem', md: '1.25rem' },
+              fontSize: { xs: '1rem', md: '1.35rem' },
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -155,61 +163,74 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
           <Box sx={{ 
             display: { xs: 'none', md: 'flex' },
             alignItems: 'center', 
-            gap: 1,
+            gap: 1.25,
             flexShrink: 0,
             ml: 'auto'
           }}>
             {/* Notifications */}
-            <IconButton
-              onClick={handleNotificationMenuOpen}
-              sx={{
-                color: 'text.primary',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-                '&:focus': {
-                  outline: 'none',
-                },
-                '&:focus-visible': {
-                  outline: 'none',
-                }
-              }}
-              disableRipple
-            >
-              <Badge badgeContent={3} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            <Tooltip title="Notifications">
+              <IconButton
+                onClick={handleNotificationMenuOpen}
+                sx={{
+                  color: 'text.primary',
+                  width: 42,
+                  height: 42,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: alpha(theme.palette.background.paper, 0.7),
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    transform: 'translateY(-1px)',
+                  },
+                }}
+              >
+                <Badge badgeContent={3} color="error">
+                  <NotificationsIcon fontSize="small" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
 
             {/* Profile Menu */}
-            <IconButton
+            <Box
               onClick={handleProfileMenuOpen}
               sx={{
-                color: 'text.primary',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.25,
+                minWidth: 0,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 999,
+                px: 1,
+                py: 0.5,
+                cursor: 'pointer',
+                bgcolor: alpha(theme.palette.background.paper, 0.76),
                 '&:hover': {
                   bgcolor: 'action.hover',
+                  transform: 'translateY(-1px)',
                 },
-                '&:focus': {
-                  outline: 'none',
-                },
-                '&:focus-visible': {
-                  outline: 'none',
-                }
               }}
-              disableRipple
             >
               <Avatar
                 sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: 'primary.main',
+                  width: 34,
+                  height: 34,
+                  background: 'linear-gradient(135deg, #6366f1, #10b981)',
                   fontSize: '0.875rem',
                   fontWeight: 600
                 }}
               >
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </Avatar>
-            </IconButton>
+              <Box sx={{ minWidth: 0, pr: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
+                  {user?.name || user?.email?.split('@')[0] || 'User'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.1 }}>
+                  {user?.role || 'Member'}
+                </Typography>
+              </Box>
+            </Box>
 
             {/* Profile Menu Dropdown */}
             <Menu
@@ -220,7 +241,8 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
                 elevation: 3,
                 sx: {
                   mt: 1.5,
-                  minWidth: 200,
+                  minWidth: 230,
+                  p: 0.75,
                   '& .MuiMenuItem-root': {
                     fontSize: '0.875rem',
                   }
@@ -270,6 +292,7 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
                   mt: 1.5,
                   minWidth: 320,
                   maxHeight: 400,
+                  p: 0.75,
                   '& .MuiMenuItem-root': {
                     fontSize: '0.875rem',
                   }
@@ -316,10 +339,11 @@ const TopNav = ({ darkMode, user, isSidebarCollapsed, onToggleSidebar, onOpenFee
                 sx={{
                   width: 32,
                   height: 32,
-                  bgcolor: 'primary.main',
-                  fontSize: '0.875rem',
-                  fontWeight: 600
-                }}
+                bgcolor: 'primary.main',
+                background: 'linear-gradient(135deg, #6366f1, #10b981)',
+                fontSize: '0.875rem',
+                fontWeight: 600
+              }}
               >
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </Avatar>

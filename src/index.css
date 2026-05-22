@@ -1,16 +1,17 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color: #111827;
+  background: #f5f7fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -18,6 +19,10 @@ body {
   min-width: 320px;
   min-height: 100vh;
   width: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.08), transparent 28rem),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
 #root {
@@ -25,22 +30,150 @@ body {
   min-height: 100vh;
 }
 
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
 h1 {
-  font-size: 3.2em;
   line-height: 1.1;
 }
 
-/* Note: Removed Vite template <button>/<a> styling to avoid overriding MUI Link/Button components. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.55);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.MuiCard-root,
+.MuiPaper-root {
+  backdrop-filter: saturate(130%) blur(10px);
+}
+
+.MuiTableContainer-root {
+  scrollbar-width: thin;
+}
+
+.MuiTable-root {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.MuiTableCell-root {
+  vertical-align: middle;
+}
+
+.MuiDialog-container {
+  padding: 16px;
+}
+
+.MuiDialog-paper {
+  max-width: calc(100vw - 32px) !important;
+}
+
+.MuiSnackbar-root {
+  max-width: calc(100vw - 24px);
+}
+
+.MuiButton-root,
+.MuiIconButton-root,
+.MuiMenuItem-root,
+.MuiCard-root {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.MuiButton-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiMenuItem-root:focus-visible,
+.MuiInputBase-root.Mui-focused {
+  outline: 3px solid rgba(99, 102, 241, 0.22);
+  outline-offset: 2px;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main > .MuiBox-root,
+main > .MuiContainer-root {
+  animation: pageFadeIn 220ms ease both;
+}
+
+@media (max-width: 768px) {
+  body {
+    background: #f8fafc;
+  }
+
+  .MuiContainer-root {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .MuiTablePagination-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .MuiDialog-container {
+    align-items: flex-end !important;
+  }
+
+  .MuiDialog-paper {
+    margin: 0 !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+    background-color: #f8fafc;
   }
 }

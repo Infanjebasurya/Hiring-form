@@ -263,7 +263,17 @@ const InterviewRounds = ({ rounds = [], expandedRound, onExpandRound, onSubmitFe
 
   return (
     <>
-      <Paper sx={{ p: 3, borderRadius: 2 }}>
+      <Paper
+        sx={{
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 18px 48px rgba(0,0,0,0.22)'
+            : '0 18px 48px rgba(15,23,42,0.08)',
+        }}
+      >
         <Typography variant="h5" fontWeight="700" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
           <AssessmentIcon />
           Interview Rounds
@@ -276,9 +286,11 @@ const InterviewRounds = ({ rounds = [], expandedRound, onExpandRound, onSubmitFe
               expanded={expandedRound === round.roundNumber}
               onChange={() => onExpandRound(expandedRound === round.roundNumber ? null : round.roundNumber)}
               sx={{
-                borderRadius: '8px !important',
+                borderRadius: '16px !important',
                 overflow: 'hidden',
-                boxShadow: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: 'none',
                 '&:before': { display: 'none' },
               }}
             >
@@ -289,6 +301,7 @@ const InterviewRounds = ({ rounds = [], expandedRound, onExpandRound, onSubmitFe
                   '&.Mui-expanded': {
                     bgcolor: 'action.hover',
                   },
+                  minHeight: 72,
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', flexWrap: 'wrap' }}>
@@ -348,7 +361,7 @@ const InterviewRounds = ({ rounds = [], expandedRound, onExpandRound, onSubmitFe
                       <EditIcon fontSize="small" />
                       Interviewer Notes
                     </Typography>
-                    <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                    <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
                       <Typography variant="body2">{round.notes}</Typography>
                     </Paper>
                   </Box>
@@ -363,7 +376,7 @@ const InterviewRounds = ({ rounds = [], expandedRound, onExpandRound, onSubmitFe
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                       {round.questions.map((question, qIndex) => (
-                        <Card key={question.id || qIndex} variant="outlined">
+                        <Card key={question.id || qIndex} variant="outlined" sx={{ borderRadius: 3 }}>
                           <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                               {getQuestionIcon(question.type)}

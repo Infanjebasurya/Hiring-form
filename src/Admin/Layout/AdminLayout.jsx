@@ -14,7 +14,8 @@ import {
   useTheme,
   useMediaQuery,
   Collapse,
-  Tooltip
+  Tooltip,
+  alpha
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -99,7 +100,10 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      backgroundImage: theme.palette.mode === 'dark'
+        ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0) 230px)'
+        : 'linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0) 230px)'
     }}>
       <Box sx={{ 
         p: 2, 
@@ -160,15 +164,15 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   px: collapsed ? 2 : 3,
                   backgroundColor: isActive ? 
-                    theme.palette.primary.main + '20' : 'transparent',
+                    alpha(theme.palette.primary.main, 0.12) : 'transparent',
                   border: isActive ? 
-                    `1px solid ${theme.palette.primary.main}30` : '1px solid transparent',
+                    `1px solid ${alpha(theme.palette.primary.main, 0.24)}` : '1px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
-                    border: `1px solid ${theme.palette.primary.main}20`,
-                    transform: 'translateY(-1px)'
+                    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
+                    transform: 'translateX(2px)'
                   }
                 }}
               >
@@ -236,9 +240,12 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
         sx={{
           width: { md: `calc(100% - ${currentDrawerWidth}px)` },
           ml: { md: `${currentDrawerWidth}px` },
-          background: theme.palette.background.paper,
+          background: alpha(theme.palette.background.paper, theme.palette.mode === 'dark' ? 0.84 : 0.9),
+          backdropFilter: 'blur(18px)',
           color: theme.palette.text.primary,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 14px 34px rgba(0,0,0,0.18)'
+            : '0 14px 34px rgba(15,23,42,0.06)',
           borderBottom: `1px solid ${theme.palette.divider}`,
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
@@ -349,6 +356,7 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
               boxSizing: 'border-box', 
               width: drawerWidth,
               background: theme.palette.background.paper,
+              boxShadow: '24px 0 60px rgba(15, 23, 42, 0.22)',
               cursor: 'default',
               top: 0,
               height: '100vh'
@@ -368,6 +376,9 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
               width: currentDrawerWidth,
               background: theme.palette.background.paper,
               borderRight: `1px solid ${theme.palette.divider}`,
+              boxShadow: theme.palette.mode === 'dark'
+                ? '12px 0 32px rgba(0,0,0,0.28)'
+                : '12px 0 32px rgba(15,23,42,0.06)',
               transition: theme.transitions.create('width', {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.enteringScreen,
@@ -393,6 +404,9 @@ const AdminLayout = ({ children, darkMode, onToggleTheme, onLogout, user }) => {
           width: { md: `calc(100% - ${currentDrawerWidth}px)` },
           minHeight: '100vh',
           background: theme.palette.background.default,
+          backgroundImage: theme.palette.mode === 'dark'
+            ? 'radial-gradient(circle at top right, rgba(56, 189, 248, 0.13), transparent 26rem)'
+            : 'radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28rem)',
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

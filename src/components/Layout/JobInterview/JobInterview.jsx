@@ -33,7 +33,6 @@ import {
   alpha,
   Avatar,
   AvatarGroup,
-  CircularProgress,
   Alert,
   Snackbar,
   Skeleton,
@@ -67,6 +66,7 @@ import {
   Group as GroupIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
+import AppLoader from '../../Common/AppLoader';
 
 // Enhanced API service with better pagination and self/others filtering
 const jobInterviewsApi = {
@@ -215,7 +215,7 @@ const JobInterviews = () => {
   const corporateShadow = isDarkMode
     ? '0 16px 40px rgba(0,0,0,0.26)'
     : '0 16px 40px rgba(15,23,42,0.07)';
-  const headerCellBg = isDarkMode ? theme.palette.grey[900] : theme.palette.grey[50];
+  const headerCellBg = isDarkMode ? '#111827' : '#f3f6fa';
   const subtleHoverBg = isDarkMode ? alpha(theme.palette.common.white, 0.05) : alpha(theme.palette.common.black, 0.025);
   const iconButtonSx = {
     border: corporateBorder,
@@ -1474,9 +1474,11 @@ const JobInterviews = () => {
         }}
       >
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-            <CircularProgress />
-          </Box>
+          <AppLoader
+            message="Loading job interviews..."
+            subMessage="Preparing interview pipeline data"
+            minHeight={400}
+          />
         ) : (
           <>
             {isMobile ? (
@@ -1489,19 +1491,28 @@ const JobInterviews = () => {
                   maxHeight: 620,
                   bgcolor: 'background.paper',
                   '& .MuiTableCell-root': { whiteSpace: 'nowrap' },
+                  '& .MuiTableHead-root, & .MuiTableRow-head': {
+                    backgroundColor: `${headerCellBg} !important`,
+                    backgroundImage: 'none',
+                    opacity: 1,
+                  },
                   '& .MuiTableCell-head': {
                     position: 'sticky',
                     top: 0,
-                    zIndex: 3,
-                    bgcolor: headerCellBg,
+                    zIndex: 10,
+                    backgroundColor: `${headerCellBg} !important`,
+                    backgroundImage: 'none',
+                    backdropFilter: 'none',
+                    opacity: 1,
                     color: 'text.secondary',
                     borderBottom: corporateBorder,
+                    boxShadow: `0 1px 0 ${theme.palette.divider}`,
                     fontSize: '0.72rem',
                     letterSpacing: 0,
                     textTransform: 'uppercase',
                   },
                   '& .MuiTableCell-body': {
-                    bgcolor: 'background.paper',
+                    backgroundColor: 'background.paper',
                     borderBottom: corporateBorder,
                   },
                 }}

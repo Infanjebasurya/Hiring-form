@@ -7,8 +7,7 @@ import {
   CardContent,
   Typography,
   useTheme,
-  useMediaQuery,
-  CircularProgress
+  useMediaQuery
 } from '@mui/material';
 import {
   People,
@@ -17,8 +16,9 @@ import {
   TrendingUp
 } from '@mui/icons-material';
 import { getUserStats, initializeUsers } from '../../../services/userService';
+import AppLoader from '../../Common/AppLoader';
 
-const Home = ({ darkMode }) => {
+const Home = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [stats, setStats] = useState([]);
@@ -71,9 +71,11 @@ const Home = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <Box sx={{ p: isMobile ? 2 : 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        message="Loading dashboard..."
+        subMessage="Preparing your overview"
+        minHeight={360}
+      />
     );
   }
 

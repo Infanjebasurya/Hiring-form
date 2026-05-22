@@ -21,7 +21,6 @@ import {
   CardContent,
   Snackbar,
   Alert,
-  CircularProgress,
   TablePagination,
   Pagination,
   Stack,
@@ -35,6 +34,7 @@ import {
   FormControlLabel,
   Switch
 } from '@mui/material';
+import AppLoader from '../../../components/Common/AppLoader';
 import {
   Add,
   Edit,
@@ -51,7 +51,6 @@ import { getUsers, deleteUser, initializeUsers, updateUser } from '../../../serv
 const User = ({ darkMode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [showAddUser, setShowAddUser] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
   const [users, setUsers] = useState([]);
@@ -118,7 +117,7 @@ const User = ({ darkMode }) => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const handleAddUser = (newUser) => {
+  const handleAddUser = () => {
     setShowAddUser(false);
     loadUsers();
     showSnackbar('User added successfully!');
@@ -268,15 +267,11 @@ const User = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <Box sx={{
-        p: isMobile ? 2 : 3,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 400
-      }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        message="Loading users..."
+        subMessage="Preparing user administration"
+        minHeight={400}
+      />
     );
   }
 

@@ -1186,6 +1186,7 @@ import {
   People,
   Upgrade
 } from '@mui/icons-material';
+import AppLoader from '../../../components/Common/AppLoader';
 
 // Mock data for development
 const MOCK_ORGANIZATIONS = [
@@ -1479,15 +1480,11 @@ const AdminPlanUpgrade = () => {
 
   if (loading.organizations) {
     return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        bgcolor: theme.palette.background.default
-      }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        fullScreen
+        message="Loading organizations..."
+        subMessage="Preparing plan upgrade options"
+      />
     );
   }
 

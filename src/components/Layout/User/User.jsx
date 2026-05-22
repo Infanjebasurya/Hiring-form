@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Chip,
-  CircularProgress,
   Container,
   Dialog,
   DialogActions,
@@ -38,6 +37,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import AppLoader from '../../Common/AppLoader';
 import { alpha } from '@mui/material/styles';
 import {
   Add,
@@ -296,20 +296,10 @@ const User = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          minHeight: 420,
-          display: 'grid',
-          placeItems: 'center',
-        }}
-      >
-        <Stack spacing={2} alignItems="center">
-          <CircularProgress />
-          <Typography variant="body2" color="text.secondary">
-            Loading user directory...
-          </Typography>
-        </Stack>
-      </Box>
+      <AppLoader
+        message="Loading user directory..."
+        subMessage="Fetching access and account details"
+      />
     );
   }
 

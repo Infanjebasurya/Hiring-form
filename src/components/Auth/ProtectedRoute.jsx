@@ -2,7 +2,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import AppLoader from '../Common/AppLoader';
 
 const ProtectedRoute = ({ children, requireUser = false }) => {
   const { user, loading, isAdmin } = useAuth();
@@ -10,16 +10,11 @@ const ProtectedRoute = ({ children, requireUser = false }) => {
 
   if (loading) {
     return (
-      <Box 
-        sx={{ 
-          minHeight: '100vh', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}
-      >
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        fullScreen
+        message="Loading workspace..."
+        subMessage="Checking your session"
+      />
     );
   }
 

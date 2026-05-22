@@ -28,6 +28,7 @@ import {
   Save as SaveIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
+import AppLoader from '../../Common/AppLoader';
 
 const EditJobInterview = () => {
   const theme = useTheme();
@@ -281,15 +282,11 @@ const EditJobInterview = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        bgcolor: 'background.default'
-      }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        fullScreen
+        message="Loading interview details..."
+        subMessage="Opening the selected job interview"
+      />
     );
   }
 

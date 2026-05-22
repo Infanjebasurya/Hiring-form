@@ -21,7 +21,6 @@ import {
   Grid,
   Snackbar,
   Alert,
-  CircularProgress,
   Autocomplete,
   Chip
 } from '@mui/material';
@@ -31,10 +30,11 @@ import {
   Cancel,
   Business
 } from '@mui/icons-material';
+import AppLoader from '../../../components/Common/AppLoader';
 import { updateUser, getUserById } from '../../../services/userService';
 import { getOrganizations } from '../../../services/organizationService';
 
-const EditUser = ({ darkMode, userId, onSave, onCancel }) => {
+const EditUser = ({ userId, onSave, onCancel }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [loading, setLoading] = useState(true);
@@ -265,14 +265,11 @@ const EditUser = ({ darkMode, userId, onSave, onCancel }) => {
 
   if (loading) {
     return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 400
-      }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        message="Loading user profile..."
+        subMessage="Fetching account details"
+        minHeight={400}
+      />
     );
   }
 

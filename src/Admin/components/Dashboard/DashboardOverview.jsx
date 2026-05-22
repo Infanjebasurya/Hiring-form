@@ -8,7 +8,6 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  CircularProgress,
   Chip,
   LinearProgress,
   Stack,
@@ -23,6 +22,7 @@ import {
   Business
 } from '@mui/icons-material';
 import { getUserStats, initializeUsers } from '../../../services/userService';
+import AppLoader from '../../../components/Common/AppLoader';
 
 const DashboardOverview = () => {
   const theme = useTheme();
@@ -84,15 +84,11 @@ const DashboardOverview = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        p: isMobile ? 2 : 3, 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: 200 
-      }}>
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        message="Loading admin dashboard..."
+        subMessage="Preparing system metrics"
+        minHeight={360}
+      />
     );
   }
 

@@ -2,7 +2,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { CircularProgress, Box, Alert } from '@mui/material';
+import { Box, Alert } from '@mui/material';
+import AppLoader from '../Common/AppLoader';
 
 const AdminRoute = ({ children }) => {
   const { user, loading, isAdmin } = useAuth();
@@ -10,16 +11,11 @@ const AdminRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <Box 
-        sx={{ 
-          minHeight: '100vh', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}
-      >
-        <CircularProgress />
-      </Box>
+      <AppLoader
+        fullScreen
+        message="Loading admin console..."
+        subMessage="Verifying access permissions"
+      />
     );
   }
 

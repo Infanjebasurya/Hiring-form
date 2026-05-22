@@ -7,7 +7,6 @@ import {
   IconButton,
   Chip,
   Alert,
-  CircularProgress,
   TextField,
   MenuItem,
   Paper,
@@ -23,6 +22,7 @@ import {
   ListItemText,
   Grid
 } from '@mui/material';
+import AppLoader from '../../../components/Common/AppLoader';
 import {
   Delete as DeleteIcon,
   Star as StarIcon,
@@ -48,7 +48,7 @@ const Feedbacks = ({ darkMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [deleteLoading, setDeleteLoading] = useState(null);
+  const [, setDeleteLoading] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
 
@@ -247,9 +247,11 @@ const Feedbacks = ({ darkMode = false }) => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress size={48} />
-      </Box>
+      <AppLoader
+        fullScreen
+        message="Loading feedback..."
+        subMessage="Collecting user responses"
+      />
     );
   }
 
